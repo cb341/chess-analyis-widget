@@ -204,6 +204,24 @@
           0 4px 0 rgba(19, 41, 61, 0.24);
       }
 
+      .customized-widget .cw-capture-bubble {
+        display: grid;
+        place-items: center;
+        width: auto;
+        height: auto;
+        min-width: 42px;
+        min-height: 28px;
+        padding: 4px 10px;
+        border: 2px solid #13293d;
+        border-radius: 999px 999px 999px 4px;
+        background: #c9f299;
+        color: #13293d;
+        font: 900 13px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+        box-shadow: 0 5px 0 rgba(19, 41, 61, 0.24);
+        transform: var(--cw-transform) translate(54%, -26%);
+        animation: customized-capture-bubble 900ms cubic-bezier(0.2, 1.4, 0.2, 1);
+      }
+
       .customized-widget .cw-chart svg {
         background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 50%, #233d4d 100%);
         border: 2px solid #13293d;
@@ -289,6 +307,23 @@
 
         100% {
           transform: rotateY(360deg);
+        }
+      }
+
+      @keyframes customized-capture-bubble {
+        0% {
+          opacity: 0;
+          transform: var(--cw-transform) translate(28%, -6%) scale(0.5);
+        }
+
+        45% {
+          opacity: 1;
+          transform: var(--cw-transform) translate(62%, -34%) scale(1.16);
+        }
+
+        100% {
+          opacity: 1;
+          transform: var(--cw-transform) translate(54%, -26%) scale(1);
         }
       }
 
@@ -395,9 +430,15 @@ chess-widget.customized-widget .cw-button {
 
 chess-widget.customized-widget piece.cw-piece-arrived {
   animation-name: customized-piece-spin;
+}
+
+chess-widget.customized-widget .cw-capture-bubble {
+  border-radius: 999px 999px 999px 4px;
+  background: #c9f299;
+  content: "yum";
 }</code></pre>
 
-      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks control-style="arrows">
+      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks control-style="arrows" capture-bubble-text="yum">
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
 

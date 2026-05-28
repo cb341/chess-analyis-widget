@@ -118,7 +118,8 @@ chess-widget cg-board {
 
 chess-widget square,
 chess-widget piece,
-chess-widget move-marker {
+chess-widget move-marker,
+chess-widget .cw-capture-bubble {
   position: absolute;
   top: 0;
   left: 0;
@@ -145,6 +146,11 @@ chess-widget piece img {
   height: 100%;
   pointer-events: none;
   user-select: none;
+}
+
+chess-widget .cw-capture-bubble {
+  z-index: 6;
+  pointer-events: none;
 }
 
 chess-widget move-marker {

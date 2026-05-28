@@ -879,11 +879,28 @@
         node.appendChild(this.renderPieceImage(piece));
         board.appendChild(node);
       });
+      var captureBubble = this.renderCaptureBubble(position);
+      if (captureBubble) board.appendChild(captureBubble);
       container.appendChild(board);
       container.appendChild(this.renderCoordinates("ranks", ranks));
       container.appendChild(this.renderCoordinates("files", files));
       wrap.appendChild(container);
       return wrap;
+    }
+
+    renderCaptureBubble(position) {
+      var flags = (position && position.flags) || {};
+      var lastMove = (position && position.last_move) || {};
+      if (!flags.capture || !lastMove.to) return null;
+
+      var bubble = document.createElement("span");
+      bubble.className = "cw-capture-bubble";
+      bubble.setAttribute("data-square", lastMove.to);
+      bubble.style.setProperty("--cw-transform", this.squareTransform(lastMove.to));
+      bubble.style.transform = "var(--cw-transform)";
+      bubble.textContent = this.getAttribute("capture-bubble-text") || "yum";
+      bubble.setAttribute("aria-hidden", "true");
+      return bubble;
     }
 
     renderBoardSquare(squareName, className) {
