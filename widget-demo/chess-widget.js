@@ -36,6 +36,14 @@
     return String(value == null ? "" : value);
   }
 
+  function escapeHtml(value) {
+    return escapeText(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function pieceName(piece) {
     var color = piece === piece.toUpperCase() ? "White" : "Black";
     var names = {
@@ -338,64 +346,35 @@
     renderSidePanel(game, position, whiteShare, blackShare) {
       var side = document.createElement("aside");
       side.className = "cw-side";
+      side.innerHTML = `
+        <div class="cw-eval-wrap">
+          <div
+            class="cw-eval"
+            aria-label="Evaluation: White ${whiteShare} percent, Black ${blackShare} percent"
+          >
+            <div class="cw-eval-black" style="height: ${blackShare}%"></div>
+            <div class="cw-eval-white" style="height: ${whiteShare}%"></div>
+          </div>
+          <div class="cw-eval-text">White ${whiteShare}%</div>
+        </div>
+        <div data-slot="controls"></div>
+        <section class="cw-current">
+          <h2>${escapeHtml(moveLabel(game, this.currentPly))}</h2>
+          <p>${escapeHtml((position.annotation && position.annotation.text) || "Starting position.")}</p>
+        </section>
+        <section class="cw-summary">
+          <h2>Summary</h2>
+          <p>${escapeHtml(game.summary || "")}</p>
+        </section>
+        <div data-slot="moves"></div>
+      `;
 
-      var evalWrap = document.createElement("div");
-      evalWrap.className = "cw-eval-wrap";
-
-      var evalBar = document.createElement("div");
-      evalBar.className = "cw-eval";
-      evalBar.setAttribute(
-        "aria-label",
-        "Evaluation: White " +
-          whiteShare +
-          " percent, Black " +
-          blackShare +
-          " percent",
-      );
-
-      var black = document.createElement("div");
-      black.className = "cw-eval-black";
-      black.style.height = blackShare + "%";
-      var white = document.createElement("div");
-      white.className = "cw-eval-white";
-      white.style.height = whiteShare + "%";
-
-      evalBar.appendChild(black);
-      evalBar.appendChild(white);
-      evalWrap.appendChild(evalBar);
-
-      var evalText = document.createElement("div");
-      evalText.className = "cw-eval-text";
-      evalText.textContent = "White " + whiteShare + "%";
-      evalWrap.appendChild(evalText);
-      side.appendChild(evalWrap);
-
-      side.appendChild(this.renderControls(game));
-
-      var current = document.createElement("section");
-      current.className = "cw-current";
-      var currentTitle = document.createElement("h2");
-      currentTitle.textContent = moveLabel(game, this.currentPly);
-      var currentText = document.createElement("p");
-      currentText.textContent = escapeText(
-        (position.annotation && position.annotation.text) ||
-          "Starting position.",
-      );
-      current.appendChild(currentTitle);
-      current.appendChild(currentText);
-      side.appendChild(current);
-
-      var summary = document.createElement("section");
-      summary.className = "cw-summary";
-      var summaryTitle = document.createElement("h2");
-      summaryTitle.textContent = "Summary";
-      var summaryText = document.createElement("p");
-      summaryText.textContent = escapeText(game.summary || "");
-      summary.appendChild(summaryTitle);
-      summary.appendChild(summaryText);
-      side.appendChild(summary);
-
-      side.appendChild(this.renderMoveList(game));
+      side
+        .querySelector('[data-slot="controls"]')
+        .replaceWith(this.renderControls(game));
+      side
+        .querySelector('[data-slot="moves"]')
+        .replaceWith(this.renderMoveList(game));
       return side;
     }
 
