@@ -20,10 +20,24 @@
   var RANKS_WHITE = ["8", "7", "6", "5", "4", "3", "2", "1"];
   var RANKS_BLACK = ["1", "2", "3", "4", "5", "6", "7", "8"];
   var MARKS = {
+    good: "!",
     mistake: "?",
     blunder: "??",
     brilliant: "!!",
     checkmate: "#",
+  };
+  var BOARD_MARKERS = {
+    good: "!",
+    mistake: "?!",
+    blunder: "??",
+    brilliant: "!!",
+    checkmate: "#",
+  };
+  var SOUNDS = {
+    move: "./assets/sounds/move.mp3",
+    capture: "./assets/sounds/capture.mp3",
+    check: "./assets/sounds/check.mp3",
+    checkmate: "./assets/sounds/checkmate.mp3",
   };
 
   function clampPercent(value, fallback) {
@@ -86,6 +100,7 @@
       this.game = null;
       this.currentPly = 0;
       this._keyboardBound = false;
+      this._sounds = {};
     }
 
     connectedCallback() {
@@ -153,8 +168,42 @@
         0,
         Math.min(this.game.positions.length - 1, Number(ply) || 0),
       );
+      if (target === this.currentPly) return;
       this.currentPly = target;
       this.render();
+      this.playSoundForPosition(this.game.positions[target]);
+    }
+
+    playSoundForPosition(position) {
+      if (this.getAttribute("sound") === "off" || !position) return;
+      var soundName = "move";
+      var flags = position.flags || {};
+      var lastMove = position.last_move || {};
+
+      if (flags.checkmate) {
+        soundName = "checkmate";
+      } else if (flags.check) {
+        soundName = "check";
+      } else if (lastMove.capture || flags.capture) {
+        soundName = "capture";
+      }
+
+      this.playSound(soundName);
+    }
+
+    playSound(name) {
+      var source = SOUNDS[name];
+      if (!source || typeof window.Audio !== "function") return;
+      if (!this._sounds[name]) {
+        this._sounds[name] = new window.Audio(source);
+        this._sounds[name].preload = "auto";
+      }
+
+      var audio = this._sounds[name];
+      audio.currentTime = 0;
+      audio.play().catch(function () {
+        // Browsers may block audio until the first trusted user gesture.
+      });
     }
 
     next() {
@@ -291,7 +340,13 @@
           var light = (fileIndex + rankNumber) % 2 === 1;
           var piece = boardData[squareName];
 
-          square.className = "cw-square " + (light ? "cw-light" : "cw-dark");
+          square.className =
+            "cw-square " +
+            (light ? "cw-light" : "cw-dark") +
+            " cw-file-" +
+            files[f] +
+            " cw-rank-" +
+            ranks[r];
           if (lastMove.from === squareName || lastMove.to === squareName) {
             square.className += " cw-last-move";
           }
@@ -306,14 +361,28 @@
               : squareName + ", empty",
           );
 
-          var coord = document.createElement("span");
-          coord.className = "cw-coordinate";
-          coord.textContent = squareName;
-          square.appendChild(coord);
+          if (this.shouldShowRankCoordinate(files[f], orientation)) {
+            var rankCoord = document.createElement("span");
+            rankCoord.className = "cw-coordinate cw-rank-coordinate";
+            rankCoord.textContent = ranks[r];
+            square.appendChild(rankCoord);
+          }
+
+          if (this.shouldShowFileCoordinate(ranks[r], orientation)) {
+            var fileCoord = document.createElement("span");
+            fileCoord.className = "cw-coordinate cw-file-coordinate";
+            fileCoord.textContent = files[f];
+            square.appendChild(fileCoord);
+          }
 
           if (PIECES[piece]) {
+            var marker = this.renderBoardMarker(position, squareName);
+            if (marker) square.appendChild(marker);
+
             var pieceNode = document.createElement("span");
-            pieceNode.className = "cw-piece";
+            pieceNode.className =
+              "cw-piece" +
+              (lastMove.to === squareName ? " cw-piece-arrived" : "");
             pieceNode.setAttribute("aria-hidden", "true");
             pieceNode.textContent = PIECES[piece];
             square.appendChild(pieceNode);
@@ -324,6 +393,30 @@
       }
 
       return board;
+    }
+
+    shouldShowRankCoordinate(file, orientation) {
+      return orientation === "black" ? file === "h" : file === "a";
+    }
+
+    shouldShowFileCoordinate(rank, orientation) {
+      return orientation === "black" ? rank === "8" : rank === "1";
+    }
+
+    renderBoardMarker(position, squareName) {
+      var lastMove = position && position.last_move ? position.last_move : {};
+      var annotation =
+        position && position.annotation ? position.annotation : {};
+      var kind = annotation.kind || "good";
+      var mark = BOARD_MARKERS[kind];
+
+      if (lastMove.to !== squareName || !mark) return null;
+
+      var marker = document.createElement("span");
+      marker.className = "cw-board-marker " + annotationClass(kind);
+      marker.textContent = mark;
+      marker.setAttribute("aria-hidden", "true");
+      return marker;
     }
 
     renderAnnotation(annotation) {
