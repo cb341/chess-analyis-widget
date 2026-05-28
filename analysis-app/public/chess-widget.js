@@ -1,3 +1,4 @@
+/* global atob, Blob, DecompressionStream, Response */
 (function () {
   "use strict";
 
@@ -55,7 +56,8 @@
 
   function positionBoard(position) {
     if (position && position.fen) return fenToBoard(position.fen);
-    if (position && position.board && typeof position.board === "object") return position.board;
+    if (position && position.board && typeof position.board === "object")
+      return position.board;
     return {};
   }
   var MARKS = {
@@ -188,12 +190,19 @@
   }
 
   var OBSERVED_ATTRS = [
-    "orientation", "widget-title", "open-panels", "collapsed-panels",
-    "hidden-panels", "sound", "initial-ply",
+    "orientation",
+    "widget-title",
+    "open-panels",
+    "collapsed-panels",
+    "hidden-panels",
+    "sound",
+    "initial-ply",
   ];
 
   class ChessWidget extends HTMLElement {
-    static get observedAttributes() { return OBSERVED_ATTRS; }
+    static get observedAttributes() {
+      return OBSERVED_ATTRS;
+    }
 
     constructor() {
       super();
@@ -284,7 +293,10 @@
 
     load(gameData) {
       this.game = gameData && typeof gameData === "object" ? gameData : null;
-      var maxPly = this.game && Array.isArray(this.game.positions) ? this.game.positions.length - 1 : 0;
+      var maxPly =
+        this.game && Array.isArray(this.game.positions)
+          ? this.game.positions.length - 1
+          : 0;
       var initialPly = Number(this.getAttribute("initial-ply") || 0);
       this.currentPly = Math.min(Math.max(0, initialPly), maxPly);
 
@@ -569,7 +581,8 @@
     }
 
     widgetTitle(metadata) {
-      var custom = this.getAttribute("widget-title") || this.getAttribute("title");
+      var custom =
+        this.getAttribute("widget-title") || this.getAttribute("title");
       if (custom) return escapeText(custom);
       var white = metadata.White || "White";
       var black = metadata.Black || "Black";
@@ -676,9 +689,14 @@
             );
             pieceNode.appendChild(this.renderPieceImage(piece));
             board.appendChild(pieceNode);
-            if (squareName === lastMove.to && annotation.kind && annotation.kind !== "good") {
+            if (
+              squareName === lastMove.to &&
+              annotation.kind &&
+              annotation.kind !== "good"
+            ) {
               var badge = document.createElement("span");
-              badge.className = "cw-piece-badge " + annotationClass(annotation.kind);
+              badge.className =
+                "cw-piece-badge " + annotationClass(annotation.kind);
               badge.style.setProperty("--cw-transform", toTransform);
               badge.style.transform = "var(--cw-transform)";
               badge.textContent = annotationMark(annotation.kind);
@@ -895,7 +913,7 @@
       return box;
     }
 
-    renderSidePanel(game, position, whiteShare, blackShare) {
+    renderSidePanel(game, position, _whiteShare, _blackShare) {
       var side = document.createElement("aside");
       side.className = "cw-side";
       side.innerHTML = `
@@ -906,20 +924,35 @@
       `;
 
       var hasSummary = game.summary && game.summary.trim().length > 0;
-      var currentComment = position && position.pgn_comment && position.pgn_comment.trim();
+      var currentComment =
+        position && position.pgn_comment && position.pgn_comment.trim();
       var panels = [
         ["chart", "Eval over time", this.renderEvalChart(game), true],
-        currentComment ? ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), true] : null,
+        currentComment
+          ? [
+              "current",
+              moveLabel(game, this.currentPly),
+              this.renderCurrent(position),
+              true,
+            ]
+          : null,
         ["moves", "Moves", this.renderMoveList(game), true],
-        hasSummary ? ["summary", "Summary", this.renderSummary(game), true] : null,
+        hasSummary
+          ? ["summary", "Summary", this.renderSummary(game), true]
+          : null,
       ].filter(Boolean);
       panels.forEach(function (panel) {
-        var name = panel[0], title = panel[1], content = panel[2], defaultOpen = panel[3];
+        var name = panel[0],
+          title = panel[1],
+          content = panel[2],
+          defaultOpen = panel[3];
         var slot = side.querySelector('[data-slot="' + name + '"]');
         if (this.panelHidden(name)) {
           slot.remove();
         } else {
-          slot.replaceWith(this.renderCollapsible(title, name, content, defaultOpen));
+          slot.replaceWith(
+            this.renderCollapsible(title, name, content, defaultOpen),
+          );
         }
       }, this);
       return side;
@@ -949,7 +982,8 @@
       if (collapsedPanels[name]) return false;
       if (this.hasAttribute(name + "-open")) return true;
       if (this.hasAttribute(name + "-collapsed")) return false;
-      if (this._openPanelState && name in this._openPanelState) return !!this._openPanelState[name];
+      if (this._openPanelState && name in this._openPanelState)
+        return !!this._openPanelState[name];
       return defaultOpen;
     }
 
@@ -1064,8 +1098,16 @@
       section.className = "cw-moves";
 
       var allMoves = Array.isArray(game.moves) ? game.moves : [];
-      var interestingKinds = {blunder: 1, brilliant: 1, mistake: 1, inaccuracy: 1, checkmate: 1};
-      var hasInteresting = allMoves.some(function (m) { return interestingKinds[m.annotation]; });
+      var interestingKinds = {
+        blunder: 1,
+        brilliant: 1,
+        mistake: 1,
+        inaccuracy: 1,
+        checkmate: 1,
+      };
+      var hasInteresting = allMoves.some(function (m) {
+        return interestingKinds[m.annotation];
+      });
 
       var showAll = true;
 
@@ -1077,7 +1119,8 @@
           row.className = "cw-move-row";
           var number = document.createElement("span");
           number.className = "cw-move-number";
-          number.textContent = escapeText(moves[i].move_number || Math.floor(i / 2) + 1) + ".";
+          number.textContent =
+            escapeText(moves[i].move_number || Math.floor(i / 2) + 1) + ".";
           row.appendChild(number);
           row.appendChild(this.renderMoveButton(moves[i]));
           if (moves[i + 1]) {
@@ -1095,19 +1138,24 @@
       var buildInterestingList = function (moves) {
         var list = document.createElement("div");
         list.className = "cw-move-list";
-        moves.filter(function (m) { return interestingKinds[m.annotation]; }).forEach(function (m) {
-          var row = document.createElement("div");
-          row.className = "cw-move-row";
-          var number = document.createElement("span");
-          number.className = "cw-move-number";
-          number.textContent = escapeText(m.move_number) + (m.color === "black" ? "..." : ".");
-          row.appendChild(number);
-          row.appendChild(this.renderMoveButton(m));
-          var empty = document.createElement("span");
-          empty.className = "cw-move-empty";
-          row.appendChild(empty);
-          list.appendChild(row);
-        }, this);
+        moves
+          .filter(function (m) {
+            return interestingKinds[m.annotation];
+          })
+          .forEach(function (m) {
+            var row = document.createElement("div");
+            row.className = "cw-move-row";
+            var number = document.createElement("span");
+            number.className = "cw-move-number";
+            number.textContent =
+              escapeText(m.move_number) + (m.color === "black" ? "..." : ".");
+            row.appendChild(number);
+            row.appendChild(this.renderMoveButton(m));
+            var empty = document.createElement("span");
+            empty.className = "cw-move-empty";
+            row.appendChild(empty);
+            list.appendChild(row);
+          }, this);
         return list;
       }.bind(this);
 
@@ -1120,7 +1168,9 @@
           showAll = !showAll;
           toggle.textContent = showAll ? "Key moves" : "All moves";
           var old = section.querySelector(".cw-move-list");
-          var next = showAll ? buildList(allMoves) : buildInterestingList(allMoves);
+          var next = showAll
+            ? buildList(allMoves)
+            : buildInterestingList(allMoves);
           old.replaceWith(next);
         });
         section.appendChild(toggle);

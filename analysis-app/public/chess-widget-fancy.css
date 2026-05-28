@@ -401,7 +401,7 @@ chess-widget .cw-piece-badge {
   padding: 2px 3px;
   border-radius: 3px;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.0);
+  background: rgba(255, 255, 255, 0);
   color: var(--cw-ink);
   width: 12.5%;
   height: 12.5%;
@@ -510,7 +510,6 @@ chess-widget .cw-bookmark:hover {
     font-size: 11px;
   }
 }
-
 
 @media (prefers-reduced-motion: reduce) {
   chess-widget,

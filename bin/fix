@@ -8,5 +8,5 @@ if ruby -e "exit Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0') ? 0 :
 else
   echo "Skipping StandardRB fix: requires Ruby 3.0+, current Ruby is $(ruby -v)."
 fi
-bunx eslint widget-demo analysis-app/public --fix
+bunx eslint analysis-app/public --fix
 bunx prettier --write "**/*.{md,yml,yaml,json,css,html,js}"

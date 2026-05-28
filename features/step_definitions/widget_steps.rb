@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 Given("a page with embedded analyzed JSON") do
-  @widget_html = File.read("widget-demo/index.html")
-  @widget_js = File.read("widget-demo/chess-widget.js")
+  @widget_html = File.read("analysis-app/app/views/about/index.html.erb")
+  @widget_js = File.read("analysis-app/public/chess-widget.js")
 end
 
 Given("the page contains {string}") do |element|
@@ -18,7 +18,7 @@ Then("it reads the JSON from the DOM") do
 end
 
 Then("it renders the starting board") do
-  raise "missing starting position" unless @widget_html.include?('"ply": 0') && @widget_js.include?("renderBoard")
+  raise "missing starting position" unless @widget_html.include?("data-source") && @widget_js.include?("renderBoard")
 end
 
 Then("it does not call fetch, XMLHttpRequest, WebSocket, or EventSource") do
@@ -36,7 +36,7 @@ Then("the widget advances to the next board position") do
 end
 
 Then("it highlights the last move") do
-  has_last_move_square = @widget_js.include?('"last-move"') && @widget_js.include?("renderBoardSquare")
+  has_last_move_square = @widget_js.include?("last-move") && @widget_js.include?("renderBoardSquare")
 
   raise "missing last move highlight" unless has_last_move_square
 end
