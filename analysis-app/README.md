@@ -72,4 +72,4 @@ From the monorepo root:
 docker compose up --build analysis-app
 ```
 
-Compose starts PostgreSQL and Rails only to verify the production Dockerfile locally. Day-to-day development uses local Ruby, Bun, PostgreSQL, and the Stockfish binary installed by `bin/setup`.
+Compose starts PostgreSQL and Rails only to verify the production Dockerfile locally. The production Dockerfile installs Stockfish from Debian packages so image builds do not depend on GitHub release downloads. Day-to-day development uses local Ruby, Bun, PostgreSQL, and the Stockfish binary installed by `bin/setup`.

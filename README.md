@@ -92,7 +92,7 @@ Docker is not used for local development. Use local Ruby, Bun, PostgreSQL, and S
 
 ## Production Container
 
-Docker is reserved for the production container path. `analysis-app/Dockerfile` builds the Rails app image and installs Stockfish 18. `docker-compose.yml` exists only to test that Dockerfile locally with PostgreSQL:
+Docker is reserved for the production container path. `analysis-app/Dockerfile` builds the Rails app image and installs Stockfish from Debian packages, avoiding GitHub downloads during image builds. `docker-compose.yml` exists only to test that Dockerfile locally with PostgreSQL:
 
 ```sh
 docker compose up --build analysis-app
