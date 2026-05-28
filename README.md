@@ -1,115 +1,66 @@
-# Chess Analysis Widget
+# Chess Widget
 
-Rails chess analysis service with an embeddable `<chess-widget>`.
+A static, client-only PGN replay widget for GitHub Pages. It parses PGN in the browser, rebuilds board positions from SAN, and reads evaluations from lichess `[%eval]` comments already present in the PGN.
 
-## Project
+No server, Stockfish, database, build step, or precomputed JSON is required.
 
-`analysis-app/` — Rails app that parses PGN, replays boards, calls Stockfish 18, stores analyses in PostgreSQL, and renders analysis pages. The widget lives in `analysis-app/public/` and is served statically.
+## Usage
 
-## System Overview
+```html
+<link rel="stylesheet" href="./chess-widget.css">
 
-```mermaid
-flowchart LR
-    User[User pastes PGN] --> Rails[Rails analysis-app]
-    Rails --> Parser[PGN parser]
-    Parser --> Replay[Board replay]
-    Replay --> Fen[FEN positions]
-    Fen --> Stockfish[Local Stockfish 18]
-    Stockfish --> Classifier[Move classifier]
-    Replay --> Payload[Analysis JSON]
-    Classifier --> Payload
-    Payload --> Postgres[(PostgreSQL)]
-    Payload --> Page[Analysis show page]
-    Page --> Widget[chess-widget]
-    Widget --> Reader[Stepper, board, eval chart]
+<chess-widget src="./sample.pgn" eval-chart clocks></chess-widget>
+
+<script src="./chess-widget.js"></script>
 ```
 
-```mermaid
-sequenceDiagram
-    participant Browser
-    participant Rails
-    participant Stockfish
-    participant Postgres
-    participant Widget
+Inline PGN also works:
 
-    Browser->>Rails: POST /analyses
-    Rails->>Rails: Parse PGN and replay SAN
-    Rails->>Stockfish: Evaluate FENs
-    Stockfish-->>Rails: cp/mate scores
-    Rails->>Postgres: Upsert deterministic analysis ID
-    Rails-->>Browser: 303 /analyses/:id
-    Browser->>Rails: GET /analyses/:id
-    Rails-->>Widget: Embedded JSON payload
-    Widget->>Widget: Render board, annotations, eval chart
+```html
+<chess-widget pgn='[White "Ada"] [Black "Grace"] 1. e4 { [%eval 0.20] } e5'></chess-widget>
 ```
 
-## Setup
+## Attributes
 
-Prerequisites:
+- `pgn`: raw PGN text.
+- `src`: URL to a raw `.pgn` file.
+- `start`: first allowed ply, using 0-based half moves. Default is `0`.
+- `end`: last allowed ply. Default is the end of the game.
+- `ply`: initial ply. Default is `start`.
+- `move` and `side`: optional move lookup, for example `move="16" side="white"`.
+- `orientation`: `white` or `black`. Default is `white`.
+- `eval-chart`: show an evaluation chart when the PGN has `[%eval]`.
+- `clocks`: show per-side remaining time from `[%clk]`.
+- `sound`: play move sounds. Default is off.
 
-- Ruby through mise (`mise use ruby@latest` is already captured in `.mise.toml`)
-- Bun
-- PostgreSQL running locally
-- `curl` and `tar`
+The widget supports previous, next, move-list seeking, and arrow-key navigation when focused. Multiple widgets on one page are independent.
 
-```sh
-bin/setup
+## PGN Support
+
+The parser handles tag pairs, `[SetUp "1"]` plus `[FEN "..."]`, SAN moves, captures, castling, promotion, disambiguation, checks, mates, en passant, comments, clocks, evals, and common NAG glyphs.
+
+Per ply, it keeps the SAN, side, board position, comment text, eval value or mate flag, clock, and glyph.
+
+## Lichess Eval Workflow
+
+1. Get the game PGN from wherever you played. On chess.com, use Download or Share, then PGN. That PGN has moves and clocks but no eval, which is normal. chess.com does not export eval.
+2. Go to `lichess.org/paste`, paste the PGN, import it, then request Computer analysis. Stockfish runs on lichess servers. lichess accepts any PGN. The game does not need to be played there.
+3. Export the analyzed PGN. lichess writes `{ [%eval 0.24] }`, mate as `{ [%eval #3] }`, and clocks as `{ [%clk 0:05:00] }`.
+4. Paste into the widget. The chart is built from `[%eval]`. No engine runs in the widget. A PGN with no `[%eval]`, such as a raw chess.com export, still replays fine. It just shows no chart.
+
+## CSS Variables
+
+The included styles define a complete default theme. Override variables on `chess-widget`:
+
+```css
+chess-widget {
+  --cw-paper: #fff;
+  --cw-ink: #222;
+  --cw-line: #c7c7c7;
+  --cw-light-square: #f0d9b5;
+  --cw-dark-square: #b58863;
+  --cw-board-max-width: 560px;
+}
 ```
 
-`bin/setup` copies `.env.example` to `.env` when missing, installs Bun and Ruby dependencies, downloads Stockfish 18 into `analysis-app/vendor/stockfish/`, and runs Rails database preparation. Rails loads the monorepo `.env` directly, so the scripts do not export shell variables.
-
-## Configuration
-
-Local configuration lives in `.env` and is not committed. Start with:
-
-```sh
-cp .env.example .env
-```
-
-Important variables:
-
-- `POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_TEST_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
-- `STOCKFISH_PATH`, `STOCKFISH_DEPTH`, `STOCKFISH_TIMEOUT`
-- `HOST`, `PORT`
-
-## Development
-
-```sh
-bin/run    # prepare DB and start Rails locally
-bin/lint   # Ruby syntax, StandardRB when available, Cucumber, ESLint, Prettier
-bin/fix    # StandardRB --fix when available, ESLint --fix, Prettier write
-```
-
-Open:
-
-```text
-http://localhost:3000          # PGN form
-http://localhost:3000/about    # widget demo
-http://localhost:3000/analyses # saved analyses
-```
-
-Docker is not used for local development. Use local Ruby, Bun, PostgreSQL, and Stockfish.
-
-## Production Container
-
-Docker is reserved for the production container path. `analysis-app/Dockerfile` builds the Rails app image and installs Stockfish from Debian packages, avoiding GitHub downloads during image builds. `docker-compose.yml` exists only to test that Dockerfile locally with PostgreSQL:
-
-```sh
-docker compose up --build analysis-app
-```
-
-For real production, run the Dockerfile-built image with managed PostgreSQL and replace `SECRET_KEY_BASE` and database credentials in the deployment environment.
-
-## Testing
-
-```sh
-bin/lint
-```
-
-High-level Cucumber specs live in `features/`. The host Ruby must be 3.x to run StandardRB and Cucumber locally.
-
-## Notes
-
-- The widget reads precomputed analysis JSON from the DOM and makes no API calls.
-- Analyses are keyed by a deterministic SHA-256 prefix of the PGN input.
-- If Stockfish is unavailable, the service falls back to material evaluation and marks the result as approximate.
+See `demo.html` and `sample.pgn` for a complete static page.

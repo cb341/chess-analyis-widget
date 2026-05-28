@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chess Widget Demo</title>
+    <link rel="stylesheet" href="./chess-widget.css">
+    <style>
+      body {
+        margin: 0;
+        color: #222;
+        background: #f7f5f0;
+        font: 18px/1.55 Georgia, "Times New Roman", serif;
+      }
+
+      main {
+        width: min(1040px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0 64px;
+      }
+
+      h1 {
+        font: 700 38px/1.1 system-ui, sans-serif;
+        margin: 0 0 12px;
+      }
+
+      p {
+        max-width: 760px;
+      }
+
+      chess-widget {
+        margin: 24px 0 34px;
+        --cw-board-max-width: 520px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>A Static PGN Replay</h1>
+      <p>
+        This page is only HTML, CSS, JavaScript, assets, and a PGN file. The
+        widget reads SAN, comments, clocks, and lichess eval annotations in the
+        browser.
+      </p>
+
+      <chess-widget src="./sample.pgn" start="0" end="54" eval-chart clocks></chess-widget>
+
+      <p>
+        The opening follows a normal Ruy Lopez. The comments shown under the
+        board come directly from PGN comment blocks, while the board state is
+        rebuilt from SAN moves.
+      </p>
+
+      <chess-widget src="./sample.pgn" start="1" end="10" ply="5" clocks></chess-widget>
+
+      <p>
+        In the middle game, White uses the center and queenside structure to
+        reduce Black's counterplay. The bounds keep this board focused on the
+        paragraph's moves.
+      </p>
+
+      <chess-widget src="./sample.pgn" start="30" end="44" ply="40" orientation="black" clocks></chess-widget>
+
+      <p>
+        The final tactic is shown as mate scores because lichess exports mate
+        evals as `[%eval #n]`. No engine runs here.
+      </p>
+
+      <chess-widget src="./sample.pgn" start="48" end="54" eval-chart></chess-widget>
+    </main>
+    <script src="./chess-widget.js"></script>
+  </body>
+</html>
