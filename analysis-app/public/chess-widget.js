@@ -476,7 +476,7 @@
             if (marker) board.appendChild(marker);
 
             var pieceNode = document.createElement("piece");
-            var fromTransform = this.pieceFromTransform(
+            var animation = this.pieceAnimationState(
               squareName,
               piece,
               position,
@@ -487,9 +487,15 @@
             pieceNode.className =
               pieceClass(piece) +
               " cw-piece" +
-              (fromTransform !== toTransform ? " cw-piece-arrived" : "");
+              (animation.fromTransform !== toTransform
+                ? " cw-piece-arrived"
+                : "") +
+              (animation.spawned ? " cw-piece-spawned" : "");
             pieceNode.style.setProperty("--cw-transform", toTransform);
-            pieceNode.style.setProperty("--cw-from-transform", fromTransform);
+            pieceNode.style.setProperty(
+              "--cw-from-transform",
+              animation.fromTransform,
+            );
             pieceNode.style.transform = "var(--cw-transform)";
             pieceNode.setAttribute(
               "aria-label",
@@ -518,10 +524,16 @@
       return square;
     }
 
-    pieceFromTransform(squareName, piece, position, previousData, usedOrigins) {
+    pieceAnimationState(
+      squareName,
+      piece,
+      position,
+      previousData,
+      usedOrigins,
+    ) {
       var targetTransform = this.squareTransform(squareName);
       if (!this.previousPosition || this.previousPly === this.currentPly) {
-        return targetTransform;
+        return { fromTransform: targetTransform, spawned: false };
       }
 
       var currentMove =
@@ -538,7 +550,10 @@
         previousData[currentMove.from] === piece
       ) {
         usedOrigins[currentMove.from] = true;
-        return this.squareTransform(currentMove.from);
+        return {
+          fromTransform: this.squareTransform(currentMove.from),
+          spawned: false,
+        };
       }
 
       if (
@@ -548,32 +563,18 @@
         previousData[revertedMove.to] === piece
       ) {
         usedOrigins[revertedMove.to] = true;
-        return this.squareTransform(revertedMove.to);
+        return {
+          fromTransform: this.squareTransform(revertedMove.to),
+          spawned: false,
+        };
       }
 
       if (previousData[squareName] === piece && !usedOrigins[squareName]) {
         usedOrigins[squareName] = true;
-        return targetTransform;
+        return { fromTransform: targetTransform, spawned: false };
       }
 
-      var origin = this.matchPreviousPiece(piece, previousData, usedOrigins);
-      if (origin) {
-        usedOrigins[origin] = true;
-        return this.squareTransform(origin);
-      }
-
-      return targetTransform;
-    }
-
-    matchPreviousPiece(piece, previousData, usedOrigins) {
-      var squares = Object.keys(previousData);
-      for (var i = 0; i < squares.length; i += 1) {
-        var squareName = squares[i];
-        if (usedOrigins[squareName]) continue;
-        if (previousData[squareName] === piece) return squareName;
-      }
-
-      return null;
+      return { fromTransform: targetTransform, spawned: true };
     }
 
     checkedKingSquare(position, boardData) {
