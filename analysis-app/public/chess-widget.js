@@ -469,6 +469,9 @@
         position && position.board && typeof position.board === "object"
           ? position.board
           : {};
+      var annotation = annotationFor(position);
+      var lastMoveClass =
+        "last-move " + annotationClass(annotation.kind || "good");
       var previousData =
         this.previousPosition &&
         this.previousPosition.board &&
@@ -502,10 +505,10 @@
       }
 
       if (lastMove.from) {
-        board.appendChild(this.renderBoardSquare(lastMove.from, "last-move"));
+        board.appendChild(this.renderBoardSquare(lastMove.from, lastMoveClass));
       }
       if (lastMove.to) {
-        board.appendChild(this.renderBoardSquare(lastMove.to, "last-move"));
+        board.appendChild(this.renderBoardSquare(lastMove.to, lastMoveClass));
       }
       if (position && position.flags && position.flags.check) {
         board.appendChild(

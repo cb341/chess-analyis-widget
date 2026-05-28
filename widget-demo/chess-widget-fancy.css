@@ -126,11 +126,33 @@ square.cg-square.dark {
 
 square.last-move {
   z-index: 1;
-  background: linear-gradient(
-    rgba(225, 242, 118, 0.76),
-    rgba(225, 242, 118, 0.76)
-  );
-  box-shadow: inset 0 0 0 4px rgba(173, 205, 31, 0.48);
+  background: color-mix(in srgb, var(--cw-move-highlight) 72%, transparent);
+  box-shadow: inset 0 0 0 4px
+    color-mix(in srgb, var(--cw-move-highlight) 58%, transparent);
+}
+
+square.last-move.cw-annotation-book,
+square.last-move.cw-annotation-good,
+square.last-move.cw-annotation-solid,
+square.last-move.cw-annotation-forced {
+  --cw-move-highlight: var(--cw-highlight);
+}
+
+square.last-move.cw-annotation-brilliant {
+  --cw-move-highlight: var(--cw-brilliant);
+}
+
+square.last-move.cw-annotation-blunder {
+  --cw-move-highlight: var(--cw-blunder);
+}
+
+square.last-move.cw-annotation-mistake,
+square.last-move.cw-annotation-inaccuracy {
+  --cw-move-highlight: var(--cw-mistake);
+}
+
+square.last-move.cw-annotation-checkmate {
+  --cw-move-highlight: var(--cw-checkmate);
 }
 
 square.check {
