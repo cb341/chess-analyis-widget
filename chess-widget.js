@@ -1053,7 +1053,8 @@
 
     renderAnnotation(position) {
       var box = document.createElement("aside");
-      box.className = "cw-annotation";
+      var flags = (position && position.flags) || {};
+      box.className = "cw-annotation" + (flags.capture ? " cw-annotation-capture" : "");
       var title = document.createElement("strong");
       title.textContent = moveLabel(this.game, this.currentPly);
       var text = document.createElement("span");

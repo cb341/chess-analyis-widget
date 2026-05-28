@@ -316,6 +316,16 @@ async function testMoveAnimationState() {
   assert.equal(e4Pawn.style.transform, "var(--cw-transform)");
 }
 
+async function testCaptureAnnotationClass() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const capturePosition = widget.game.positions.find(function (position) {
+    return position.flags && position.flags.capture;
+  });
+  assert.ok(capturePosition);
+  const annotation = widget.renderAnnotation(capturePosition);
+  assert.ok(annotation.className.includes("cw-annotation-capture"));
+}
+
 async function testSeekAnimationMovesMatchedPieces() {
   const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
   widget.currentPly = 0;
@@ -447,6 +457,7 @@ async function run() {
   await testBoardOnlyModeKeepsOnlyBoard();
   await testFalseFeatureAttributesHideFeatures();
   await testMoveAnimationState();
+  await testCaptureAnnotationClass();
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
   await testArrowControlLabels();
