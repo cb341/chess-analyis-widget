@@ -457,7 +457,7 @@
 
       var title = document.createElement("div");
       title.className = "cw-title";
-      title.textContent = "Live Chess";
+      title.textContent = this.widgetTitle(metadata);
 
       var players = document.createElement("div");
       players.className = "cw-players";
@@ -477,12 +477,32 @@
         escapeText(metadata.BlackElo || "-") +
         ")";
 
-      players.appendChild(white);
-      players.appendChild(result);
-      players.appendChild(black);
       header.appendChild(title);
-      header.appendChild(players);
+      if (!this.authorHidden()) {
+        players.appendChild(white);
+        players.appendChild(result);
+        players.appendChild(black);
+        header.appendChild(players);
+      }
       return header;
+    }
+
+    widgetTitle(metadata) {
+      return escapeText(
+        this.getAttribute("widget-title") ||
+          this.getAttribute("title") ||
+          metadata.Event ||
+          "Live Chess",
+      );
+    }
+
+    authorHidden() {
+      var value = this.getAttribute("show-author");
+      return (
+        this.hasAttribute("hide-author") ||
+        this.hasAttribute("hide-players") ||
+        (value && value.toLowerCase() === "false")
+      );
     }
 
     renderBoard(position) {

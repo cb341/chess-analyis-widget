@@ -27,6 +27,11 @@
           </div>
         </div>
         <div class="demo-options">
+          <label class="demo-title-option"
+            >Title
+            <input type="text" value="Live Chess" data-widget-title />
+          </label>
+          <label><input type="checkbox" data-hide-author /> Hide author</label>
           <label
             ><input type="checkbox" value="bookmarks" checked />
             Bookmarks</label
@@ -2602,7 +2607,9 @@
         (function () {
           var widget = document.querySelector("chess-widget");
           var options = Array.from(
-            document.querySelectorAll(".demo-options input"),
+            document.querySelectorAll(
+              ".demo-options input[type='checkbox'][value]",
+            ),
           );
           var actions = document.querySelector(".demo-config-actions");
 
@@ -2621,9 +2628,24 @@
             if (widget.game) widget.render();
           }
 
+          function syncWidgetChrome() {
+            var title = document.querySelector("[data-widget-title]").value;
+            var hideAuthor =
+              document.querySelector("[data-hide-author]").checked;
+            widget.setAttribute("widget-title", title);
+            widget.toggleAttribute("hide-author", hideAuthor);
+            if (widget.game) widget.render();
+          }
+
           options.forEach(function (option) {
             option.addEventListener("change", syncWidgetPanels);
           });
+          document
+            .querySelector("[data-widget-title]")
+            .addEventListener("input", syncWidgetChrome);
+          document
+            .querySelector("[data-hide-author]")
+            .addEventListener("change", syncWidgetChrome);
           actions.addEventListener("click", function (event) {
             var action = event.target.closest("[data-config-action]");
             if (!action) return;
@@ -2633,6 +2655,7 @@
             });
             syncWidgetPanels();
           });
+          syncWidgetChrome();
           syncWidgetPanels();
         })();
       </script>

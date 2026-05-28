@@ -54,6 +54,35 @@
         <pre id="embed-widget"><%= h(@embed_widget) %></pre>
       </details>
       <details class="collapsible">
+        <summary>Widget configuration</summary>
+        <dl class="config-list">
+          <div>
+            <dt><code>widget-title="Live Chess"</code></dt>
+            <dd>Sets the title shown in the widget header. If omitted, the widget uses the PGN event name.</dd>
+          </div>
+          <div>
+            <dt><code>hide-author</code></dt>
+            <dd>Hides the player/author line in the widget header. <code>hide-players</code> is also accepted.</dd>
+          </div>
+          <div>
+            <dt><code>open-panels="bookmarks summary moves"</code></dt>
+            <dd>Opens selected panels on load. Available panels: <code>bookmarks</code>, <code>controls</code>, <code>eval</code>, <code>chart</code>, <code>current</code>, <code>summary</code>, <code>moves</code>.</dd>
+          </div>
+          <div>
+            <dt><code>collapsed-panels="eval chart controls"</code></dt>
+            <dd>Forces selected panels closed on load. This overrides the default open state.</dd>
+          </div>
+          <div>
+            <dt><code>sound="off"</code></dt>
+            <dd>Disables move sounds.</dd>
+          </div>
+          <div>
+            <dt><code>orientation="black"</code></dt>
+            <dd>Renders the board from Black's perspective. The default is White.</dd>
+          </div>
+        </dl>
+      </details>
+      <details class="collapsible">
         <summary>Text Analysis</summary>
         <pre><%= h(@payload[:text_analysis]) %></pre>
       </details>

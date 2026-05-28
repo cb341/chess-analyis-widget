@@ -161,6 +161,27 @@ button {
   overflow-wrap: anywhere;
 }
 
+.config-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0 14px 14px;
+}
+
+.config-list div {
+  display: grid;
+  gap: 3px;
+}
+
+.config-list dt {
+  font-weight: 700;
+}
+
+.config-list dd {
+  margin: 0;
+  color: var(--muted);
+}
+
 .markdown-analysis {
   max-height: 560px;
   line-height: 1.35;

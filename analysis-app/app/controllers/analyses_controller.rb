@@ -62,7 +62,7 @@ class AnalysesController < ApplicationController
       <script type="application/json" id="game-data">
       #{@payload_json_minified}
       </script>
-      <chess-widget data-source="game-data"></chess-widget>
+      <chess-widget data-source="game-data" widget-title="Live Chess"></chess-widget>
       <script src="#{widget_js_url}"></script>
     HTML
   end
