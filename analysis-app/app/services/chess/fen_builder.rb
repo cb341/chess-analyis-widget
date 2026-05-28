@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Converts the current board state into a Stockfish-compatible FEN string.
+  # Serializes Board state into the FEN format Stockfish expects.
   class FenBuilder
     FILES = %w[a b c d e f g h].freeze
     RANKS = [8, 7, 6, 5, 4, 3, 2, 1].freeze

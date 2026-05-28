@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Resolves SAN notation into concrete source/destination board moves.
+  # Resolves one SAN token against the current board into a concrete move.
+  #
+  # The resolver is replay-oriented: it supports the common SAN needed for PGN
+  # playback, but it is not trying to be a complete chess arbiter.
   class MoveResolver
     FILES = %w[a b c d e f g h].freeze
     SAN_PATTERN = /\A(?<piece>[KQRBN])?(?<disambiguation>[a-h1-8]{0,2})(?<capture>x)?(?<to>[a-h][1-8])(?:=(?<promotion>[QRBN]))?(?<check>[+#])?\z/

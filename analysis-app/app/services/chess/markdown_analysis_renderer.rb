@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Renders analyzed moves as Markdown with Unicode pieces and compact eval bars.
+  # Produces copyable Markdown analysis with Unicode pieces, compact annotation
+  # marks, and an evaluation bar column.
   class MarkdownAnalysisRenderer
     PIECES = TextAnalysisRenderer::PIECES
     MARKS = TextAnalysisRenderer::MARKS

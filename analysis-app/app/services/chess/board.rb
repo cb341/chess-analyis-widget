@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Mutable board state used to replay resolved SAN moves and produce snapshots.
+  # Tracks mutable game state while resolved moves are applied.
+  #
+  # This is deliberately small: enough board state for replay, FEN generation,
+  # castling rights, en passant targets, and widget snapshots.
   class Board
     FILES = %w[a b c d e f g h].freeze
     RANKS = %w[1 2 3 4 5 6 7 8].freeze

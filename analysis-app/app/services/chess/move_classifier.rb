@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Assigns compact move quality labels from before/after evaluations.
+  # Converts before/after evaluations into simple move quality labels.
+  #
+  # The thresholds are intentionally coarse for the POC and can be replaced by
+  # richer Stockfish multi-PV analysis later.
   class MoveClassifier
     def classify(move, eval_before, eval_after)
       return "checkmate" if move[:flags]["checkmate"]

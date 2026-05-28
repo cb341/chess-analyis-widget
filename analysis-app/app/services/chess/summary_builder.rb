@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Produces a short human-readable game summary from the analyzed payload.
+  # Distills the analyzed move list into a short human-readable summary.
+  #
+  # The summary highlights state changes and tactics that matter at a glance:
+  # castling, checks, blunders, checkmate, and result.
   class SummaryBuilder
     def build(payload)
       moves = payload.fetch(:moves)

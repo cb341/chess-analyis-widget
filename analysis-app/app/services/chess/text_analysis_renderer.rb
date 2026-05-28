@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Renders the analyzed game as plain text with Unicode pieces and eval bars.
+  # Produces monospace-friendly text analysis for terminals and `<pre>` blocks.
+  #
+  # Moves use Unicode pieces and compact annotation marks, followed by a simple
+  # text evaluation bar per move pair.
   class TextAnalysisRenderer
     PIECES = {
       "K" => "♔", "Q" => "♕", "R" => "♖", "B" => "♗", "N" => "♘", "P" => "♙",

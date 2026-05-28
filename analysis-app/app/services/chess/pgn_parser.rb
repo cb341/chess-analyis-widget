@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Parses PGN headers and strips move text down to ordered SAN tokens.
+  # Extracts PGN tag-pair metadata and ordered SAN move tokens.
+  #
+  # Comments, NAGs, variations, move numbers, and result markers are removed so
+  # downstream services can replay a single main line.
   class PgnParser
     RESULT_MARKERS = %w[1-0 0-1 1/2-1/2 *].freeze
 

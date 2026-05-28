@@ -10,11 +10,9 @@ require_relative "summary_builder"
 require_relative "text_analysis_renderer"
 require_relative "markdown_analysis_renderer"
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
-  # Builds the complete analysis payload consumed by the server-rendered text
-  # output and by the static chess widget.
+  # Orchestrates PGN parsing, board replay, evaluation, annotation, and response
+  # rendering into one payload for the UI and copyable analysis formats.
   class AnalysisBuilder
     def initialize(
       parser: PgnParser.new,

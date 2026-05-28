@@ -3,8 +3,6 @@
 require "open3"
 require "timeout"
 
-# Chess contains plain Ruby services for parsing, replaying, evaluating, and
-# rendering chess games for the analysis proof of concept.
 module Chess
   # Evaluates FEN positions through a local Stockfish UCI executable.
   #
