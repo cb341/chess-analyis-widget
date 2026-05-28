@@ -198,6 +198,8 @@ chess-widget .cw-button,
 chess-widget .cw-move {
   min-height: var(--cw-control-min-height, 36px);
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 chess-widget .cw-counter {

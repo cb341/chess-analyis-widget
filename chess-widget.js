@@ -1086,9 +1086,11 @@
       var prev = document.createElement("button");
       prev.type = "button";
       prev.className = "cw-button";
+      prev.setAttribute("data-control", "previous");
       prev.textContent = this.controlLabel("previous");
       prev.title = "Previous move. Keyboard: ArrowLeft or ArrowUp.";
       prev.disabled = this.currentPly <= this.startPly();
+      prev.addEventListener("touchend", (event) => this.preventDoubleTapZoom(event));
       prev.addEventListener("click", () => this.previous());
       var counter = document.createElement("div");
       counter.className = "cw-counter";
@@ -1097,14 +1099,24 @@
       var next = document.createElement("button");
       next.type = "button";
       next.className = "cw-button";
+      next.setAttribute("data-control", "next");
       next.textContent = this.controlLabel("next");
       next.title = "Next move. Keyboard: ArrowRight or ArrowDown.";
       next.disabled = this.currentPly >= this.endPly();
+      next.addEventListener("touchend", (event) => this.preventDoubleTapZoom(event));
       next.addEventListener("click", () => this.next());
       controls.appendChild(prev);
       controls.appendChild(counter);
       controls.appendChild(next);
       return controls;
+    }
+
+    preventDoubleTapZoom(event) {
+      var now = Date.now();
+      if (this._lastControlTouch && now - this._lastControlTouch < 350) {
+        event.preventDefault();
+      }
+      this._lastControlTouch = now;
     }
 
     controlLabel(kind) {

@@ -28,7 +28,11 @@ function createNode(tagName) {
     getAttribute(name) {
       return this.attributes[name];
     },
-    addEventListener() {},
+    addEventListener(name, callback) {
+      this.listeners ||= {};
+      this.listeners[name] ||= [];
+      this.listeners[name].push(callback);
+    },
   };
 }
 
@@ -354,6 +358,22 @@ async function testArrowControlLabels() {
   assert.equal(controls.children[2].textContent, ">");
 }
 
+async function testControlTouchHandlers() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const controls = widget.renderControls(widget.game);
+  assert.equal(controls.children[0].attributes["data-control"], "previous");
+  assert.equal(controls.children[2].attributes["data-control"], "next");
+  assert.equal(controls.children[0].listeners.touchend.length, 1);
+  let prevented = false;
+  widget._lastControlTouch = Date.now();
+  widget.preventDoubleTapZoom({
+    preventDefault() {
+      prevented = true;
+    },
+  });
+  assert.equal(prevented, true);
+}
+
 async function testCustomEventsAndParserExtensionPoint() {
   const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
   assert.equal(parsed.metadata.White, "Ada");
@@ -407,6 +427,7 @@ async function run() {
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
   await testArrowControlLabels();
+  await testControlTouchHandlers();
   await testCustomEventsAndParserExtensionPoint();
   console.log("tests.js ok");
 }
