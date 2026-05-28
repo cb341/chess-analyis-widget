@@ -156,14 +156,16 @@ square.check {
 }
 
 piece.cw-piece {
-  color: var(--cw-ink);
-  font-size: clamp(38px, 8.3vw, 82px);
   transform-origin: 50% 72%;
   transition:
     transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
     filter 260ms ease;
   filter: drop-shadow(0 2px 0 rgba(255, 255, 255, 0.55))
     drop-shadow(0 5px 4px rgba(23, 21, 18, 0.18));
+}
+
+piece.cw-piece img {
+  padding: 7%;
 }
 
 piece.cw-piece-arrived {
@@ -438,10 +440,6 @@ coords.files {
 }
 
 @media (max-width: 520px) {
-  .cw-piece {
-    font-size: clamp(28px, 11vw, 48px);
-  }
-
   coords {
     font-size: 9px;
   }

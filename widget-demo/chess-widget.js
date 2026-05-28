@@ -1,20 +1,21 @@
 (function () {
   "use strict";
 
-  var PIECES = {
-    K: "♔",
-    Q: "♕",
-    R: "♖",
-    B: "♗",
-    N: "♘",
-    P: "♙",
-    k: "♚",
-    q: "♛",
-    r: "♜",
-    b: "♝",
-    n: "♞",
-    p: "♟",
+  var PIECE_IMAGES = {
+    K: "white-king.svg",
+    Q: "white-queen.svg",
+    R: "white-rook.svg",
+    B: "white-bishop.svg",
+    N: "white-knight.svg",
+    P: "white-pawn.svg",
+    k: "black-king.svg",
+    q: "black-queen.svg",
+    r: "black-rook.svg",
+    b: "black-bishop.svg",
+    n: "black-knight.svg",
+    p: "black-pawn.svg",
   };
+  var PIECE_IMAGE_PATH = "./assets/pieces/cburnett/";
 
   var FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
   var RANKS_WHITE = ["8", "7", "6", "5", "4", "3", "2", "1"];
@@ -380,7 +381,7 @@
           var squareName = files[f] + ranks[r];
           var piece = boardData[squareName];
 
-          if (PIECES[piece]) {
+          if (PIECE_IMAGES[piece]) {
             var marker = this.renderBoardMarker(position, squareName);
             if (marker) board.appendChild(marker);
 
@@ -398,7 +399,7 @@
               "aria-label",
               squareName + ", " + pieceName(piece),
             );
-            pieceNode.textContent = PIECES[piece];
+            pieceNode.appendChild(this.renderPieceImage(piece));
             board.appendChild(pieceNode);
           }
         }
@@ -467,6 +468,15 @@
       marker.textContent = mark;
       marker.setAttribute("aria-hidden", "true");
       return marker;
+    }
+
+    renderPieceImage(piece) {
+      var image = document.createElement("img");
+      image.src = PIECE_IMAGE_PATH + PIECE_IMAGES[piece];
+      image.alt = "";
+      image.draggable = false;
+      image.setAttribute("aria-hidden", "true");
+      return image;
     }
 
     renderAnnotation(annotation) {
