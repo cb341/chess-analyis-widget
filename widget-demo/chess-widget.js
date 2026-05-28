@@ -148,7 +148,7 @@
       this._keyboardBound = false;
       this._focusBound = false;
       this._soundSources = {};
-      this._activeSounds = [];
+      this._activeSound = null;
     }
 
     connectedCallback() {
@@ -248,15 +248,18 @@
       var soundName = "move";
       var flags = position.flags || {};
       var lastMove = position.last_move || {};
+      var move = this.moveForPosition(position);
       var isCastling =
         this.flagEnabled(flags.castling) ||
         this.flagEnabled(lastMove.castling) ||
-        this.flagEnabled(lastMove.flags && lastMove.flags.castling);
+        this.flagEnabled(lastMove.flags && lastMove.flags.castling) ||
+        this.sanIsCastling(move && move.san);
       var isCapture =
         this.flagEnabled(flags.capture) ||
         this.flagEnabled(lastMove.capture) ||
         this.flagEnabled(lastMove.captured) ||
-        this.flagEnabled(lastMove.flags && lastMove.flags.capture);
+        this.flagEnabled(lastMove.flags && lastMove.flags.capture) ||
+        this.sanIsCapture(move && move.san);
 
       if (this.flagEnabled(flags.checkmate)) {
         soundName = "checkmate";
@@ -276,35 +279,54 @@
       return value === true || value === "true" || value === 1 || value === "1";
     }
 
+    moveForPosition(position) {
+      var moves = Array.isArray(this.game && this.game.moves)
+        ? this.game.moves
+        : [];
+      return moves[(position.ply || 0) - 1] || null;
+    }
+
+    sanIsCapture(san) {
+      return typeof san === "string" && san.indexOf("x") !== -1;
+    }
+
+    sanIsCastling(san) {
+      return typeof san === "string" && /^O-O(?:-O)?[+#]?$/.test(san);
+    }
+
     playSound(name) {
       var source = SOUNDS[name];
       if (!source || typeof window.Audio !== "function") return;
       if (!this._soundSources[name])
         this._soundSources[name] = assetUrl(source);
 
+      this.stopActiveSound();
       var audio = new window.Audio(this._soundSources[name]);
       audio.preload = "auto";
       audio.volume = 1;
-      audio.addEventListener(
-        "ended",
-        () => {
-          this._activeSounds = this._activeSounds.filter(
-            (active) => active !== audio,
-          );
-        },
-        { once: true },
-      );
-      this._activeSounds.push(audio);
+      audio.addEventListener("ended", () => this.clearActiveSound(audio), {
+        once: true,
+      });
+      this._activeSound = audio;
 
       var attempt = audio.play();
       if (attempt && typeof attempt.catch === "function") {
         attempt.catch((error) => {
           this.setAttribute("data-sound-error", error.name || "blocked");
-          this._activeSounds = this._activeSounds.filter(
-            (active) => active !== audio,
-          );
+          this.clearActiveSound(audio);
         });
       }
+    }
+
+    stopActiveSound() {
+      if (!this._activeSound) return;
+      this._activeSound.pause();
+      this._activeSound.currentTime = 0;
+      this._activeSound = null;
+    }
+
+    clearActiveSound(audio) {
+      if (this._activeSound === audio) this._activeSound = null;
     }
 
     next() {
