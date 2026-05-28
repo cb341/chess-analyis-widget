@@ -885,10 +885,10 @@
       var hasSummary = game.summary && game.summary.trim().length > 0;
       var currentComment = position && position.pgn_comment && position.pgn_comment.trim();
       var panels = [
-        ["chart", "Eval over time", this.renderEvalChart(game), false],
-        currentComment ? ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), false] : null,
-        ["moves", "Moves", this.renderMoveList(game), false],
-        hasSummary ? ["summary", "Summary", this.renderSummary(game), false] : null,
+        ["chart", "Eval over time", this.renderEvalChart(game), true],
+        currentComment ? ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), true] : null,
+        ["moves", "Moves", this.renderMoveList(game), true],
+        hasSummary ? ["summary", "Summary", this.renderSummary(game), true] : null,
       ].filter(Boolean);
       panels.forEach(function (panel) {
         var name = panel[0], title = panel[1], content = panel[2], defaultOpen = panel[3];
