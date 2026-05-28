@@ -68,13 +68,13 @@ class AnalysesController < ApplicationController
     @payload = symbolize(analysis.payload)
     @payload_json = JSON.pretty_generate(@payload)
     @payload_json_minified = JSON.generate(@payload)
-    widget_payload = @payload.reject { |k, _| %i[text_analysis markdown_analysis summary].include?(k) }
+    widget_payload = @payload.except(:text_analysis, :markdown_analysis, :summary)
     @widget_payload_json = JSON.generate(widget_payload)
     @widget_payload_gz = gzip_base64(@widget_payload_json)
     widget_css_url = "#{request.base_url}/chess-widget.css"
     widget_js_url = "#{request.base_url}/chess-widget.js"
-    white = @payload.dig(:metadata, :White) || @payload.dig(:metadata, "White") || "White"
-    black = @payload.dig(:metadata, :Black) || @payload.dig(:metadata, "Black") || "Black"
+    @payload.dig(:metadata, :White) || @payload.dig(:metadata, "White") || "White"
+    @payload.dig(:metadata, :Black) || @payload.dig(:metadata, "Black") || "Black"
     @embed_widget = <<~HTML
       <link rel="stylesheet" href="#{widget_css_url}">
       <script type="application/x-gzip-json" id="game-data">#{@widget_payload_gz}</script>
