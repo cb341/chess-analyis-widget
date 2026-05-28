@@ -34,10 +34,16 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3 {
   margin: 0 0 16px;
   font-weight: 700;
   letter-spacing: 0;
+}
+
+h3 {
+  margin-top: 18px;
+  font-size: 16px;
 }
 
 label {

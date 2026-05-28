@@ -43,7 +43,7 @@ class AnalysesController
     pgn = params.fetch("pgn", "")
     payload = @builder.build(pgn)
     analysis = @repository.create(pgn: pgn, payload: payload)
-    render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), analysis_id: analysis.id, error: nil)
+    render_show(pgn: pgn, payload: payload, analysis_id: analysis.id)
   rescue => error
     render_template("new", pgn: pgn, error: error.message)
   end
@@ -52,17 +52,53 @@ class AnalysesController
     pgn = params.fetch("pgn", "")
     payload = @builder.build(pgn, progress: ->(message) { stream.progress(message) })
     analysis = @repository.create(pgn: pgn, payload: payload)
-    stream.finish(render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), analysis_id: analysis.id, error: nil))
+    stream.finish(render_show(pgn: pgn, payload: payload, analysis_id: analysis.id))
   rescue => error
     stream.finish(render_template("new", pgn: pgn, error: error.message))
   end
 
   private
 
+  def render_show(pgn:, payload:, analysis_id:)
+    payload_json = JSON.pretty_generate(payload)
+    render_template(
+      "show",
+      pgn: pgn,
+      payload: payload,
+      payload_json: payload_json,
+      analysis_id: analysis_id,
+      embed_css: embed_css,
+      embed_html: embed_html(payload_json),
+      embed_js: embed_js,
+      error: nil
+    )
+  end
+
   def render_template(name, locals)
     path = File.expand_path("../views/analyses/#{name}.html.erb", __dir__)
     context = ViewContext.new(locals)
     ERB.new(File.read(path), trim_mode: "-").result(context.get_binding)
+  end
+
+  def embed_css
+    <<~HTML
+      <link rel="stylesheet" href="/chess-widget.css">
+    HTML
+  end
+
+  def embed_html(payload_json)
+    <<~HTML
+      <script type="application/json" id="game-data">
+      #{payload_json}
+      </script>
+      <chess-widget data-source="game-data"></chess-widget>
+    HTML
+  end
+
+  def embed_js
+    <<~HTML
+      <script src="/chess-widget.js"></script>
+    HTML
   end
 
   # Minimal ERB context for escaping HTML and embedding script-safe JSON.
