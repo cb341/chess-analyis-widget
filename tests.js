@@ -196,6 +196,28 @@ async function testMoveListGroupsByMoveNumber() {
   assert.equal(list.children[2].children[2].tagName, "span");
 }
 
+async function testMinimalModeIsControlsOnly() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    minimal: "",
+  });
+  const boardPanel = widget.renderBoard;
+  let rendered = null;
+  widget.render = ChessWidget.prototype.render.bind(widget);
+  widget.appendChild = function (node) {
+    rendered = node;
+  };
+  widget.innerHTML = "";
+  widget.render();
+  const main = rendered.children[0];
+  const panel = main.children[0];
+  assert.equal(main.className, "cw-main cw-main-minimal");
+  assert.equal(panel.children.length, 2);
+  assert.equal(panel.children[0].className, "cw-board-with-eval");
+  assert.equal(panel.children[0].children.length, 1);
+  assert.equal(panel.children[1].className, "cw-controls");
+  assert.equal(boardPanel instanceof Function, true);
+}
+
 async function run() {
   await testSamplePgn();
   await testCommentAttachmentAndGlyphs();
@@ -203,6 +225,7 @@ async function run() {
   await testPromotionAndEnPassant();
   await testSrcWinsOverFallback();
   await testMoveListGroupsByMoveNumber();
+  await testMinimalModeIsControlsOnly();
   console.log("tests.js ok");
 }
 

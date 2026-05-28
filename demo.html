@@ -45,6 +45,22 @@
         --cw-board-max-width: 420px;
       }
 
+      .interactive-figure {
+        margin: 24px 0 34px;
+      }
+
+      .interactive-figure chess-widget {
+        margin: 0;
+        --cw-board-max-width: 460px;
+      }
+
+      .interactive-figure figcaption {
+        max-width: 620px;
+        margin-top: 10px;
+        color: #555;
+        font: 15px/1.45 system-ui, sans-serif;
+      }
+
       @media (max-width: 860px) {
         .board-pair {
           grid-template-columns: 1fr;
@@ -83,6 +99,16 @@
           <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
         </chess-widget>
       </div>
+
+      <figure class="interactive-figure">
+        <chess-widget src="./assets/games/blitz-checkmate.pgn" start="16" end="24" ply="16" minimal>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        </chess-widget>
+        <figcaption>
+          Interactive figure: step through the central break without player
+          ratings, clocks, commentary, or chart panels.
+        </figcaption>
+      </figure>
 
       <p>
         In the middle game, White uses the center and queenside structure to

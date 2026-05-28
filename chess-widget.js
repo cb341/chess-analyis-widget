@@ -732,7 +732,7 @@
       var boardWithEval = document.createElement("div");
       boardWithEval.className = "cw-board-with-eval";
       boardWithEval.appendChild(this.renderBoard(position));
-      boardWithEval.appendChild(this.renderEvalBar(whiteShare, blackShare, position.eval));
+      if (!minimal) boardWithEval.appendChild(this.renderEvalBar(whiteShare, blackShare, position.eval));
       boardPanel.appendChild(boardWithEval);
       boardPanel.appendChild(this.renderControls(game));
       if (!minimal) boardPanel.appendChild(this.renderAnnotation(position));
