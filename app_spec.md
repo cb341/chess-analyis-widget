@@ -86,6 +86,50 @@ fen_after:text
 
 For the POC, storing this inside `Analysis#payload` is enough.
 
+### Chess Value Objects
+
+The analysis pipeline should prefer concrete model/value objects over anonymous
+hash and string manipulation at important boundaries.
+
+```text
+app/models/chess/fen_position.rb
+app/models/chess/castling_rights.rb
+app/models/chess/evaluation.rb
+app/models/chess/eval_bar.rb
+```
+
+`Chess::FenPosition` declares:
+
+```text
+piece_placement
+active_color
+castling_availability
+en_passant_target
+halfmove_clock
+fullmove_number
+```
+
+`Chess::Evaluation` declares the Stockfish/fallback schema:
+
+```ruby
+{
+  type: "cp" | "mate",
+  value: Integer,
+  source: "stockfish" | "fallback_material"
+}
+```
+
+`Chess::EvalBar` declares the widget split:
+
+```ruby
+{
+  white: Integer,
+  black: Integer
+}
+```
+
+with `white + black == 100`.
+
 ## Services
 
 ```text
@@ -183,7 +227,7 @@ En passant may be added after the initial happy-path PGN works.
 
 Responsibilities:
 
-- Generate FEN before and after every move.
+- Generate FEN before and after every move through `Chess::FenPosition`.
 - Include active color, castling availability, en passant target, halfmove clock, and fullmove number.
 
 Stockfish must receive valid FEN.

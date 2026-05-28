@@ -6,6 +6,7 @@ require_relative "move_resolver"
 require_relative "fen_builder"
 require_relative "stockfish_analyzer"
 require_relative "evaluation_schema"
+require_relative "../../models/chess/eval_bar"
 require_relative "move_classifier"
 require_relative "summary_builder"
 require_relative "text_analysis_renderer"
@@ -113,7 +114,7 @@ module Chess
 
       payload[:positions].each do |position|
         EvaluationSchema.validate!(position[:eval], context: "position #{position[:ply]} eval")
-        raise ArgumentError, "eval_bar must sum to 100" unless position[:eval_bar][:white] + position[:eval_bar][:black] == 100
+        EvalBar.new(position[:eval_bar]).validate!
       end
     end
 
@@ -164,17 +165,11 @@ module Chess
     end
 
     def clean_eval(evaluation)
-      evaluation = EvaluationSchema.validate!(evaluation)
-      {type: evaluation[:type], value: evaluation[:value], source: evaluation[:source]}
+      EvaluationSchema.validate!(evaluation)
     end
 
     def eval_bar(evaluation)
-      white = if evaluation[:type].to_s == "mate"
-        evaluation[:value].to_i.positive? ? 98 : 2
-      else
-        (50 + evaluation[:value].to_i / 20).clamp(2, 98)
-      end
-      {white: white, black: 100 - white}
+      EvalBar.from_evaluation(Evaluation.from_hash(evaluation)).to_h
     end
   end
 end

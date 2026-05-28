@@ -88,6 +88,15 @@ The returned payload includes:
 - `text_analysis`
 - `markdown_analysis`
 
+## Analysis Resources
+
+Concrete value objects live under `app/models/chess/`:
+
+- `Chess::FenPosition` declares FEN attributes and serialization.
+- `Chess::CastlingRights` declares castling availability and FEN encoding.
+- `Chess::Evaluation` declares the Stockfish/fallback evaluation schema.
+- `Chess::EvalBar` declares the widget evaluation split invariant.
+
 ## Rails Wiring Later
 
 The intended Rails routes are in `config/routes.rb`:

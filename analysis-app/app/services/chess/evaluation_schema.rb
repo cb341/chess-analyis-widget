@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../models/chess/evaluation"
+
 module Chess
   # Documents and validates the evaluation hash emitted by StockfishAnalyzer.
   #
@@ -22,15 +24,7 @@ module Chess
     def self.validate!(evaluation, context: "evaluation")
       raise ArgumentError, "#{context} must be a Hash" unless evaluation.is_a?(Hash)
 
-      type = evaluation[:type]
-      value = evaluation[:value]
-      source = evaluation[:source]
-
-      raise ArgumentError, "#{context} type must be one of #{TYPES.join(", ")}" unless TYPES.include?(type)
-      raise ArgumentError, "#{context} value must be an Integer" unless value.is_a?(Integer)
-      raise ArgumentError, "#{context} source must be one of #{SOURCES.join(", ")}" unless SOURCES.include?(source)
-
-      evaluation
+      Evaluation.from_hash(evaluation, context: context).to_h
     end
   end
 end
