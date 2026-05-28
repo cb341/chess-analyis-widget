@@ -8,6 +8,12 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise not found. Install mise so Rails runs with .mise.toml:" >&2
+  echo "  https://mise.jdx.dev/getting-started.html" >&2
+  exit 1
+fi
+
 cd analysis-app
-bundle exec rails db:prepare
-bundle exec rails server "$@"
+mise exec -- bundle exec rails db:prepare
+mise exec -- bundle exec rails server "$@"

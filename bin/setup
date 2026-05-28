@@ -24,6 +24,12 @@ if ! command -v ruby >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise not found. Install mise so Rails runs with .mise.toml:" >&2
+  echo "  https://mise.jdx.dev/getting-started.html" >&2
+  exit 1
+fi
+
 if ! command -v bundle >/dev/null 2>&1; then
   echo "bundler not found. Install it with: gem install bundler" >&2
   exit 1
@@ -70,6 +76,6 @@ if [ ! -x "$STOCKFISH_BIN" ]; then
   echo "Installed Stockfish 18 to $STOCKFISH_BIN."
 fi
 
-(cd analysis-app && bundle exec rails db:prepare)
+(cd analysis-app && mise exec -- bundle exec rails db:prepare)
 
 echo "Setup complete."
