@@ -28,6 +28,19 @@
           </div>
         <% end %>
       </dl>
+      <div class="analyzer-meta">
+        <% if @payload.dig(:analyzer, :stockfish_available) %>
+          <span class="meta-badge meta-ok">Stockfish</span>
+          <% if @payload.dig(:analyzer, :stockfish_version) %>
+            <span class="analyzer-version"><%= h(@payload.dig(:analyzer, :stockfish_version)) %></span>
+          <% end %>
+        <% else %>
+          <span class="meta-badge meta-warn">Fallback evaluator</span>
+        <% end %>
+        <% if @payload.dig(:analyzer, :elapsed_seconds) %>
+          <span class="analyzer-elapsed"><%= h(@payload.dig(:analyzer, :elapsed_seconds)) %>s</span>
+        <% end %>
+      </div>
       <% unless @payload.dig(:analyzer, :stockfish_available) %>
         <p class="error">Stockfish was not available for this run. Move ratings use the fallback material evaluator and are approximate.</p>
       <% end %>
@@ -96,6 +109,10 @@
       <details class="collapsible">
         <summary>Text Analysis</summary>
         <pre><%= h(@payload[:text_analysis]) %></pre>
+      </details>
+      <details class="collapsible">
+        <summary>Original PGN Input</summary>
+        <pre class="wrap-pre"><%= h(@pgn) %></pre>
       </details>
 
       <h2>Board Positions</h2>

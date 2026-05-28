@@ -535,12 +535,11 @@
     }
 
     widgetTitle(metadata) {
-      return escapeText(
-        this.getAttribute("widget-title") ||
-          this.getAttribute("title") ||
-          metadata.Event ||
-          "Live Chess",
-      );
+      var custom = this.getAttribute("widget-title") || this.getAttribute("title");
+      if (custom) return escapeText(custom);
+      var white = metadata.White || "White";
+      var black = metadata.Black || "Black";
+      return escapeText(white + " vs " + black);
     }
 
     authorHidden() {
@@ -642,6 +641,12 @@
               squareName + ", " + pieceName(piece),
             );
             pieceNode.appendChild(this.renderPieceImage(piece));
+            if (squareName === lastMove.to && annotation.kind && annotation.kind !== "good") {
+              var badge = document.createElement("span");
+              badge.className = "cw-piece-badge " + annotationClass(annotation.kind);
+              badge.textContent = annotationMark(annotation.kind);
+              pieceNode.appendChild(badge);
+            }
             board.appendChild(pieceNode);
           }
         }
@@ -865,14 +870,16 @@
         <div data-slot="moves"></div>
       `;
 
+      var hasSummary = game.summary && game.summary.trim().length > 0;
+      var showCurrent = this.currentPly > 0;
       var panels = [
         ["controls", "Controls", this.renderControls(game), false],
         ["eval", "Evaluation", this.renderEvalBar(whiteShare, blackShare), false],
         ["chart", "Eval over time", this.renderEvalChart(game), false],
-        ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), false],
-        ["summary", "Summary", this.renderSummary(game), false],
+        showCurrent ? ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), false] : null,
         ["moves", "Moves", this.renderMoveList(game), false],
-      ];
+        hasSummary ? ["summary", "Summary", this.renderSummary(game), false] : null,
+      ].filter(Boolean);
       panels.forEach(function (panel) {
         var name = panel[0], title = panel[1], content = panel[2], defaultOpen = panel[3];
         var slot = side.querySelector('[data-slot="' + name + '"]');
@@ -931,8 +938,8 @@
           class="cw-eval"
           aria-label="Evaluation: White ${whiteShare} percent, Black ${blackShare} percent"
         >
-          <div class="cw-eval-black" style="height: ${blackShare}%; width: ${blackShare}%"></div>
-          <div class="cw-eval-white" style="height: ${whiteShare}%; width: ${whiteShare}%"></div>
+          <div class="cw-eval-black" style="height: ${blackShare}%"></div>
+          <div class="cw-eval-white" style="height: ${whiteShare}%"></div>
         </div>
         <div class="cw-eval-text">White ${whiteShare}%</div>
       `;
@@ -1024,33 +1031,70 @@
       var section = document.createElement("div");
       section.className = "cw-moves";
 
-      var list = document.createElement("div");
-      list.className = "cw-move-list";
+      var allMoves = Array.isArray(game.moves) ? game.moves : [];
+      var interestingKinds = {blunder: 1, brilliant: 1, mistake: 1, inaccuracy: 1, checkmate: 1};
+      var hasInteresting = allMoves.some(function (m) { return interestingKinds[m.annotation]; });
 
-      var moves = Array.isArray(game.moves) ? game.moves : [];
-      for (var i = 0; i < moves.length; i += 2) {
-        var row = document.createElement("div");
-        row.className = "cw-move-row";
+      var showAll = true;
 
-        var number = document.createElement("span");
-        number.className = "cw-move-number";
-        number.textContent =
-          escapeText(moves[i].move_number || Math.floor(i / 2) + 1) + ".";
-        row.appendChild(number);
+      var buildList = function (moves) {
+        var list = document.createElement("div");
+        list.className = "cw-move-list";
+        for (var i = 0; i < moves.length; i += 2) {
+          var row = document.createElement("div");
+          row.className = "cw-move-row";
+          var number = document.createElement("span");
+          number.className = "cw-move-number";
+          number.textContent = escapeText(moves[i].move_number || Math.floor(i / 2) + 1) + ".";
+          row.appendChild(number);
+          row.appendChild(this.renderMoveButton(moves[i]));
+          if (moves[i + 1]) {
+            row.appendChild(this.renderMoveButton(moves[i + 1]));
+          } else {
+            var empty = document.createElement("span");
+            empty.className = "cw-move-empty";
+            row.appendChild(empty);
+          }
+          list.appendChild(row);
+        }
+        return list;
+      }.bind(this);
 
-        row.appendChild(this.renderMoveButton(moves[i]));
-        if (moves[i + 1]) {
-          row.appendChild(this.renderMoveButton(moves[i + 1]));
-        } else {
+      var buildInterestingList = function (moves) {
+        var list = document.createElement("div");
+        list.className = "cw-move-list";
+        moves.filter(function (m) { return interestingKinds[m.annotation]; }).forEach(function (m) {
+          var row = document.createElement("div");
+          row.className = "cw-move-row";
+          var number = document.createElement("span");
+          number.className = "cw-move-number";
+          number.textContent = escapeText(m.move_number) + (m.color === "black" ? "..." : ".");
+          row.appendChild(number);
+          row.appendChild(this.renderMoveButton(m));
           var empty = document.createElement("span");
           empty.className = "cw-move-empty";
           row.appendChild(empty);
-        }
+          list.appendChild(row);
+        }, this);
+        return list;
+      }.bind(this);
 
-        list.appendChild(row);
+      if (hasInteresting) {
+        var toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "cw-button cw-moves-toggle";
+        toggle.textContent = "Key moves";
+        toggle.addEventListener("click", function () {
+          showAll = !showAll;
+          toggle.textContent = showAll ? "Key moves" : "All moves";
+          var old = section.querySelector(".cw-move-list");
+          var next = showAll ? buildList(allMoves) : buildInterestingList(allMoves);
+          old.replaceWith(next);
+        });
+        section.appendChild(toggle);
       }
 
-      section.appendChild(list);
+      section.appendChild(buildList(allMoves));
       return section;
     }
 

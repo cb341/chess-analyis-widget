@@ -264,9 +264,8 @@ chess-widget .cw-eval {
 
 chess-widget .cw-eval-black,
 chess-widget .cw-eval-white {
-  transition:
-    height 220ms ease,
-    width 220ms ease;
+  transition: height 220ms ease;
+  width: 100%;
 }
 
 chess-widget .cw-eval-black {
@@ -274,8 +273,8 @@ chess-widget .cw-eval-black {
 }
 
 chess-widget .cw-eval-white {
-  background: #fffaf0;
-  border-top: 1px solid rgba(23, 21, 18, 0.28);
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 chess-widget .cw-eval-text {
@@ -411,6 +410,65 @@ chess-widget .cw-error {
   background: #fff5f2;
   color: var(--cw-blunder);
   padding: 16px;
+}
+
+chess-widget .cw-piece-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 10;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--cw-ink);
+}
+
+chess-widget .cw-piece-badge.cw-annotation-blunder {
+  background: var(--cw-blunder);
+  color: #fff;
+}
+
+chess-widget .cw-piece-badge.cw-annotation-mistake {
+  background: var(--cw-mistake);
+  color: #fff;
+}
+
+chess-widget .cw-piece-badge.cw-annotation-brilliant {
+  background: var(--cw-brilliant);
+  color: #fff;
+}
+
+chess-widget piece.cw-piece {
+  position: relative;
+}
+
+chess-widget .cw-moves-toggle {
+  margin-bottom: 8px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--cw-line);
+  background: var(--cw-paper);
+  color: var(--cw-muted);
+}
+
+chess-widget .cw-moves-toggle:hover {
+  background: var(--cw-paper-deep);
+  color: var(--cw-ink);
+}
+
+chess-widget .cw-bookmark {
+  border-color: transparent;
+  background: transparent;
+  color: var(--cw-ink);
+}
+
+chess-widget .cw-bookmark:hover {
+  background: var(--cw-paper-deep);
+  border-color: var(--cw-line);
 }
 
 @keyframes cw-piece-arrive {

@@ -41,6 +41,7 @@ module Chess
     end
 
     def build(pgn, progress: nil)
+      started_at = Time.now
       report(progress, "Parsing PGN")
       parsed = @parser.parse(pgn)
       board = Board.new
@@ -89,6 +90,8 @@ module Chess
         moves: moves,
         analyzer: {
           stockfish_available: @analyzer.available?,
+          stockfish_version: @analyzer.version,
+          elapsed_seconds: (Time.now - started_at).round(1),
           note: @analyzer.available? ? "Using Stockfish UCI evaluation" : "Using fallback material evaluator; annotations are approximate"
         }
       }

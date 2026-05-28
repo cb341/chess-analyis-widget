@@ -517,6 +517,21 @@ button {
   cursor: pointer;
 }
 
+.analyzer-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.analyzer-version,
+.analyzer-elapsed {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .annotation-badge {
   font-size: 11px;
   padding: 1px 5px;
