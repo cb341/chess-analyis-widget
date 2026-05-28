@@ -38,6 +38,16 @@
         font: 16px/1.4 system-ui, sans-serif;
       }
 
+      .pgn-sample {
+        max-width: 760px;
+        overflow: auto;
+        padding: 14px 16px;
+        border: 1px solid #c8c2b8;
+        background: #fffdf8;
+        color: #222;
+        font: 14px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
       chess-widget {
         margin: 24px 0 34px;
         --cw-board-max-width: 520px;
@@ -101,6 +111,16 @@
         <li>Symbolic and numeric NAG glyphs</li>
         <li>Main-line replay with variations skipped</li>
       </ul>
+
+      <pre class="pgn-sample"><code>[White "Ada"]
+[Black "Grace"]
+[Result "1-0"]
+
+1. e4 { [%eval 0.20] [%clk 0:05:00] White takes the center. }
+   e5 { [%eval 0.10] [%clk 0:05:00] Black replies symmetrically. }
+2. Nf3! { [%eval 0.18] Development with tempo. } Nc6
+3. Bb5 { [%eval 0.24] The Ruy Lopez starts asking questions. } a6
+1-0</code></pre>
 
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="0" end="51" eval-chart clocks>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
