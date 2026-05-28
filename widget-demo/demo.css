@@ -98,6 +98,30 @@ chess-widget {
   --cw-widget-border-width: 0;
   --cw-paper: #ffffff;
   --cw-paper-deep: #f0f0f0;
+  border: none !important;
+}
+
+chess-widget .cw-shell {
+  background: #ffffff;
+  border: none;
+}
+
+chess-widget .cw-annotation {
+  background: #ffffff;
+}
+
+chess-widget .cw-button,
+chess-widget .cw-move,
+chess-widget .cw-bookmark {
+  background: #ffffff;
+}
+
+chess-widget .cw-chart svg {
+  background: #ffffff;
+}
+
+chess-widget .cw-players strong {
+  background: #ffffff;
 }
 
 @media (max-width: 860px) {
