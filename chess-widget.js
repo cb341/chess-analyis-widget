@@ -607,6 +607,8 @@
 
     connectedCallback() {
       if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
+      if (!this.hasAttribute("title")) this.setAttribute("title", "Keyboard: Arrow keys step through moves. Home goes to the first shown move. End goes to the last shown move.");
+      this.setAttribute("aria-keyshortcuts", "ArrowLeft ArrowRight ArrowUp ArrowDown Home End");
       this.classList.add("cw-widget");
       this.bindKeyboard();
       this.loadFromAttributes();
@@ -689,9 +691,11 @@
       if (!this.game) return;
       var target = this.clampPly(ply);
       if (target === this.currentPly) return;
+      var distance = Math.abs(target - this.currentPly);
       this.previousPly = this.currentPly;
       this.previousPosition = this.game.positions[this.currentPly] || null;
-      this.navigationDirection = target >= this.currentPly ? "forward" : "backward";
+      this.navigationDirection =
+        distance > 1 ? "seek" : target >= this.currentPly ? "forward" : "backward";
       this.currentPly = target;
       this.render();
       this.playSoundForPosition(this.game.positions[target]);
@@ -795,6 +799,10 @@
       var lastMove = position.last_move || {};
       var previousData = (this.previousPosition && this.previousPosition.board) || {};
       var usedOrigins = {};
+      var seekOrigins =
+        this.navigationDirection === "seek"
+          ? this.seekOriginsForPosition(position.board || {}, previousData)
+          : {};
       wrap.className = "cg-wrap cgv1 orientation-" + orientation + " manipulable";
       board.className = "cw-board";
       board.setAttribute("role", "grid");
@@ -813,7 +821,7 @@
       Object.keys(position.board || {}).forEach((square) => {
         var piece = position.board[square];
         var node = document.createElement("piece");
-        var animation = this.pieceAnimationState(square, piece, position, previousData, usedOrigins);
+        var animation = this.pieceAnimationState(square, piece, position, previousData, usedOrigins, seekOrigins);
         var toTransform = this.squareTransform(square);
         node.className =
           pieceClass(piece) +
@@ -842,10 +850,19 @@
       return square;
     }
 
-    pieceAnimationState(squareName, piece, position, previousData, usedOrigins) {
+    pieceAnimationState(squareName, piece, position, previousData, usedOrigins, seekOrigins) {
       var targetTransform = this.squareTransform(squareName);
       if (!this.previousPosition || this.previousPly === this.currentPly) {
         return { fromTransform: targetTransform, spawned: false };
+      }
+
+      if (this.navigationDirection === "seek") {
+        var origin = seekOrigins[squareName];
+        if (!origin) return { fromTransform: targetTransform, spawned: true };
+        return {
+          fromTransform: this.squareTransform(origin),
+          spawned: false,
+        };
       }
 
       var currentMove = position && position.last_move ? position.last_move : {};
@@ -907,6 +924,42 @@
       }
 
       return { fromTransform: targetTransform, spawned: true };
+    }
+
+    seekOriginsForPosition(targetData, previousData) {
+      var origins = {};
+      var used = {};
+      var targets = Object.keys(targetData);
+
+      targets.forEach(function (square) {
+        if (previousData[square] === targetData[square]) {
+          origins[square] = square;
+          used[square] = true;
+        }
+      });
+
+      targets.forEach(function (square) {
+        if (origins[square]) return;
+        var piece = targetData[square];
+        var best = null;
+        var bestDistance = Infinity;
+        Object.keys(previousData).forEach(function (candidate) {
+          if (used[candidate] || previousData[candidate] !== piece) return;
+          var distance =
+            Math.abs(fileIndex(square) - fileIndex(candidate)) +
+            Math.abs(rankNumber(square) - rankNumber(candidate));
+          if (distance < bestDistance) {
+            best = candidate;
+            bestDistance = distance;
+          }
+        });
+        if (best) {
+          origins[square] = best;
+          used[best] = true;
+        }
+      });
+
+      return origins;
     }
 
     castlingRookMove(move, flags) {
@@ -990,18 +1043,18 @@
       prev.type = "button";
       prev.className = "cw-button";
       prev.textContent = "Previous";
-      prev.title = "Previous move";
+      prev.title = "Previous move. Keyboard: ArrowLeft or ArrowUp.";
       prev.disabled = this.currentPly <= this.startPly();
       prev.addEventListener("click", () => this.previous());
       var counter = document.createElement("div");
       counter.className = "cw-counter";
-      counter.title = "Moves " + this.startPly() + "-" + this.endPly();
+      counter.title = "Moves " + this.startPly() + "-" + this.endPly() + ". Keyboard: Home and End jump to the bounds.";
       counter.textContent = this.currentPly + " / " + this.endPly();
       var next = document.createElement("button");
       next.type = "button";
       next.className = "cw-button";
       next.textContent = "Next";
-      next.title = "Next move";
+      next.title = "Next move. Keyboard: ArrowRight or ArrowDown.";
       next.disabled = this.currentPly >= this.endPly();
       next.addEventListener("click", () => this.next());
       controls.appendChild(prev);
@@ -1085,6 +1138,7 @@
       var button = document.createElement("button");
       button.type = "button";
       button.className = "cw-move" + (move.ply === this.currentPly ? " cw-active-move" : "");
+      button.title = "Go to " + moveLabel(this.game, move.ply) + ". Keyboard: arrow keys continue from there.";
       button.addEventListener("click", () => this.goTo(move.ply));
       var san = document.createElement("span");
       san.textContent = move.san;

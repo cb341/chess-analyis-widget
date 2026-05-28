@@ -283,6 +283,39 @@ async function testMoveAnimationState() {
   assert.equal(e4Pawn.style.transform, "var(--cw-transform)");
 }
 
+async function testSeekAnimationMovesMatchedPieces() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  widget.currentPly = 0;
+  widget.goTo(4);
+  const boardWrap = widget.renderBoard(widget.game.positions[4]);
+  const board = boardWrap.children[0].children[0];
+  const e4Pawn = board.children.find(function (node) {
+    return node.tagName === "piece" && node.attributes["aria-label"] === "e4, White pawn";
+  });
+  const c6Knight = board.children.find(function (node) {
+    return node.tagName === "piece" && node.attributes["aria-label"] === "c6, Black knight";
+  });
+  assert.ok(e4Pawn);
+  assert.ok(c6Knight);
+  assert.ok(e4Pawn.className.includes("cw-piece-arrived"));
+  assert.ok(c6Knight.className.includes("cw-piece-arrived"));
+  assert.equal(e4Pawn.style["--cw-from-transform"], "translate(400%, 600%)");
+  assert.equal(c6Knight.style["--cw-from-transform"], "translate(100%, 0%)");
+}
+
+async function testKeyboardTitlesAreDiscoverable() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  assert.match(widget.attrs.title, /Arrow keys/);
+  assert.equal(widget.attrs["aria-keyshortcuts"], "ArrowLeft ArrowRight ArrowUp ArrowDown Home End");
+  const controls = widget.renderControls(widget.game);
+  assert.match(controls.children[0].title, /ArrowLeft/);
+  assert.match(controls.children[1].title, /Home and End/);
+  assert.match(controls.children[2].title, /ArrowRight/);
+  const moveButton = widget.renderMoveButton(widget.game.moves[3]);
+  assert.match(moveButton.title, /Go to 2\.\.\. Nc6/);
+  assert.match(moveButton.title, /arrow keys/);
+}
+
 async function run() {
   await testSamplePgn();
   await testCommentAttachmentAndGlyphs();
@@ -294,6 +327,8 @@ async function run() {
   await testBoardOnlyModeKeepsOnlyBoard();
   await testFalseFeatureAttributesHideFeatures();
   await testMoveAnimationState();
+  await testSeekAnimationMovesMatchedPieces();
+  await testKeyboardTitlesAreDiscoverable();
   console.log("tests.js ok");
 }
 
