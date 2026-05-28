@@ -14,6 +14,32 @@
         <p>Static no-build demo &middot; embedded JSON only</p>
       </div>
 
+      <section class="demo-config" aria-label="Widget display options">
+        <div class="demo-config-heading">
+          <h2>Widget options</h2>
+          <div class="demo-config-actions">
+            <button type="button" data-config-action="select-all">
+              Select all
+            </button>
+            <button type="button" data-config-action="unselect-all">
+              Unselect all
+            </button>
+          </div>
+        </div>
+        <div class="demo-options">
+          <label
+            ><input type="checkbox" value="bookmarks" checked />
+            Bookmarks</label
+          >
+          <label><input type="checkbox" value="controls" /> Controls</label>
+          <label><input type="checkbox" value="eval" /> Eval bar</label>
+          <label><input type="checkbox" value="chart" /> Eval chart</label>
+          <label><input type="checkbox" value="current" /> Current move</label>
+          <label><input type="checkbox" value="summary" /> Summary</label>
+          <label><input type="checkbox" value="moves" /> Moves</label>
+        </div>
+      </section>
+
       <chess-widget data-source="game-data"></chess-widget>
 
       <script type="application/json" id="game-data">
@@ -2572,6 +2598,44 @@
         }
       </script>
       <script src="./chess-widget.js"></script>
+      <script>
+        (function () {
+          var widget = document.querySelector("chess-widget");
+          var options = Array.from(
+            document.querySelectorAll(".demo-options input"),
+          );
+          var actions = document.querySelector(".demo-config-actions");
+
+          function syncWidgetPanels() {
+            var open = [];
+            var collapsed = [];
+            options.forEach(function (option) {
+              if (option.checked) {
+                open.push(option.value);
+              } else {
+                collapsed.push(option.value);
+              }
+            });
+            widget.setAttribute("open-panels", open.join(" "));
+            widget.setAttribute("collapsed-panels", collapsed.join(" "));
+            if (widget.game) widget.render();
+          }
+
+          options.forEach(function (option) {
+            option.addEventListener("change", syncWidgetPanels);
+          });
+          actions.addEventListener("click", function (event) {
+            var action = event.target.closest("[data-config-action]");
+            if (!action) return;
+            var checked = action.dataset.configAction === "select-all";
+            options.forEach(function (option) {
+              option.checked = checked;
+            });
+            syncWidgetPanels();
+          });
+          syncWidgetPanels();
+        })();
+      </script>
     </main>
   </body>
 </html>

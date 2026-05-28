@@ -23,6 +23,9 @@
   var MARKS = {
     book: "book",
     good: "!",
+    great: "!",
+    great_move: "!",
+    greatmove: "!",
     mistake: "?",
     blunder: "??",
     brilliant: "!!",
@@ -795,39 +798,139 @@
       var side = document.createElement("aside");
       side.className = "cw-side";
       side.innerHTML = `
-        <div class="cw-eval-wrap">
-          <div
-            class="cw-eval"
-            aria-label="Evaluation: White ${whiteShare} percent, Black ${blackShare} percent"
-          >
-            <div class="cw-eval-black" style="height: ${blackShare}%; width: ${blackShare}%"></div>
-            <div class="cw-eval-white" style="height: ${whiteShare}%; width: ${whiteShare}%"></div>
-          </div>
-          <div class="cw-eval-text">White ${whiteShare}%</div>
-        </div>
         <div data-slot="controls"></div>
+        <div data-slot="eval"></div>
         <div data-slot="chart"></div>
-        <section class="cw-current">
-          <h2>${escapeHtml(moveLabel(game, this.currentPly))}</h2>
-          <p>${escapeHtml(annotationFor(position).text || "Starting position.")}</p>
-        </section>
-        <section class="cw-summary">
-          <h2>Summary</h2>
-          <p>${escapeHtml(game.summary || "")}</p>
-        </section>
+        <div data-slot="current"></div>
+        <div data-slot="summary"></div>
         <div data-slot="moves"></div>
       `;
 
       side
         .querySelector('[data-slot="controls"]')
-        .replaceWith(this.renderControls(game));
+        .replaceWith(
+          this.renderCollapsible(
+            "Controls",
+            "controls",
+            this.renderControls(game),
+            false,
+          ),
+        );
+      side
+        .querySelector('[data-slot="eval"]')
+        .replaceWith(
+          this.renderCollapsible(
+            "Evaluation",
+            "eval",
+            this.renderEvalBar(whiteShare, blackShare),
+            false,
+          ),
+        );
       side
         .querySelector('[data-slot="chart"]')
-        .replaceWith(this.renderEvalChart(game));
+        .replaceWith(
+          this.renderCollapsible(
+            "Eval over time",
+            "chart",
+            this.renderEvalChart(game),
+            false,
+          ),
+        );
+      side
+        .querySelector('[data-slot="current"]')
+        .replaceWith(
+          this.renderCollapsible(
+            moveLabel(game, this.currentPly),
+            "current",
+            this.renderCurrent(position),
+            false,
+          ),
+        );
+      side
+        .querySelector('[data-slot="summary"]')
+        .replaceWith(
+          this.renderCollapsible(
+            "Summary",
+            "summary",
+            this.renderSummary(game),
+            false,
+          ),
+        );
       side
         .querySelector('[data-slot="moves"]')
-        .replaceWith(this.renderMoveList(game));
+        .replaceWith(
+          this.renderCollapsible(
+            "Moves",
+            "moves",
+            this.renderMoveList(game),
+            false,
+          ),
+        );
       return side;
+    }
+
+    renderCollapsible(title, name, content, openByDefault) {
+      var details = document.createElement("details");
+      details.className = "cw-panel cw-panel-" + name;
+      details.setAttribute("data-panel", name);
+      if (this.panelOpen(name, openByDefault)) details.open = true;
+
+      var summary = document.createElement("summary");
+      summary.textContent = title;
+      details.appendChild(summary);
+      details.appendChild(content);
+      return details;
+    }
+
+    panelOpen(name, defaultOpen) {
+      var openPanels = this.panelNamesFromAttribute("open-panels");
+      var collapsedPanels = this.panelNamesFromAttribute("collapsed-panels");
+      if (openPanels[name]) return true;
+      if (collapsedPanels[name]) return false;
+      if (this.hasAttribute(name + "-open")) return true;
+      if (this.hasAttribute(name + "-collapsed")) return false;
+      return defaultOpen;
+    }
+
+    panelNamesFromAttribute(attributeName) {
+      var value = this.getAttribute(attributeName) || "";
+      return value
+        .split(/[\s,]+/)
+        .filter(Boolean)
+        .reduce(function (names, name) {
+          names[name.toLowerCase()] = true;
+          return names;
+        }, {});
+    }
+
+    renderEvalBar(whiteShare, blackShare) {
+      var wrap = document.createElement("div");
+      wrap.className = "cw-eval-wrap";
+      wrap.innerHTML = `
+        <div
+          class="cw-eval"
+          aria-label="Evaluation: White ${whiteShare} percent, Black ${blackShare} percent"
+        >
+          <div class="cw-eval-black" style="height: ${blackShare}%; width: ${blackShare}%"></div>
+          <div class="cw-eval-white" style="height: ${whiteShare}%; width: ${whiteShare}%"></div>
+        </div>
+        <div class="cw-eval-text">White ${whiteShare}%</div>
+      `;
+      return wrap;
+    }
+
+    renderCurrent(position) {
+      var section = document.createElement("div");
+      section.className = "cw-current-body";
+      section.innerHTML = `<p>${escapeHtml(annotationFor(position).text || "Starting position.")}</p>`;
+      return section;
+    }
+
+    renderSummary(game) {
+      var section = document.createElement("div");
+      section.className = "cw-summary-body";
+      section.innerHTML = `<p>${escapeHtml(game.summary || "")}</p>`;
+      return section;
     }
 
     renderControls(game) {
@@ -862,7 +965,7 @@
     }
 
     renderEvalChart(game) {
-      var section = document.createElement("section");
+      var section = document.createElement("div");
       var positions = Array.isArray(game.positions) ? game.positions : [];
       var width = 320;
       var height = 86;
@@ -879,7 +982,6 @@
 
       section.className = "cw-chart";
       section.innerHTML = `
-        <h2>Eval over time</h2>
         <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Evaluation over time">
           <rect class="cw-chart-white" x="0" y="0" width="${width}" height="${height / 2}"></rect>
           <rect class="cw-chart-black" x="0" y="${height / 2}" width="${width}" height="${height / 2}"></rect>
@@ -896,12 +998,8 @@
     }
 
     renderMoveList(game) {
-      var section = document.createElement("section");
+      var section = document.createElement("div");
       section.className = "cw-moves";
-
-      var title = document.createElement("h2");
-      title.textContent = "Moves";
-      section.appendChild(title);
 
       var list = document.createElement("div");
       list.className = "cw-move-list";
@@ -953,10 +1051,12 @@
     }
 
     renderBookmarks(game) {
-      var section = document.createElement("section");
-      section.className = "cw-bookmarks";
+      var section = document.createElement("details");
+      section.className = "cw-panel cw-bookmarks";
+      section.setAttribute("data-panel", "bookmarks");
+      if (this.panelOpen("bookmarks", true)) section.open = true;
 
-      var title = document.createElement("h2");
+      var title = document.createElement("summary");
       title.textContent = "Bookmarks";
       section.appendChild(title);
 

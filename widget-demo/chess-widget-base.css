@@ -7,6 +7,10 @@ chess-widget.cw-widget {
   container-type: inline-size;
   display: block;
   outline: none;
+  border: var(--cw-widget-border-width, 1px)
+    var(--cw-widget-border-style, dashed)
+    var(--cw-widget-border-color, currentColor);
+  padding: var(--cw-widget-padding, 12px);
 }
 
 chess-widget .cw-shell,
@@ -20,6 +24,7 @@ chess-widget .cw-current,
 chess-widget .cw-summary,
 chess-widget .cw-moves,
 chess-widget .cw-bookmarks,
+chess-widget .cw-panel,
 chess-widget .cw-move-list,
 chess-widget .cw-move-row {
   display: grid;
@@ -53,9 +58,11 @@ chess-widget .cw-board-panel {
 }
 
 chess-widget .cg-wrap {
-  width: min(100%, 640px);
+  width: 100%;
+  max-width: var(--cw-board-max-width, 640px);
   aspect-ratio: 1 / 1;
   margin: 0 0 22px 22px;
+  justify-self: stretch;
 }
 
 chess-widget .cg-wrap,
@@ -128,7 +135,7 @@ chess-widget .cw-annotation {
 }
 
 chess-widget .cw-side {
-  grid-template-columns: 44px 1fr;
+  grid-template-columns: 1fr;
   gap: 14px;
   align-items: start;
 }
@@ -148,12 +155,8 @@ chess-widget .cw-eval {
   overflow: hidden;
 }
 
-chess-widget .cw-controls,
-chess-widget .cw-chart,
-chess-widget .cw-current,
-chess-widget .cw-summary,
-chess-widget .cw-moves {
-  grid-column: 2;
+chess-widget .cw-panel {
+  grid-column: 1;
 }
 
 chess-widget .cw-controls {
@@ -199,12 +202,13 @@ chess-widget .cw-mark {
 }
 
 chess-widget .cw-bookmarks {
-  gap: 8px;
+  gap: 6px;
 }
 
 chess-widget .cw-bookmarks ol {
-  display: grid;
-  gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -213,10 +217,10 @@ chess-widget .cw-bookmarks ol {
 chess-widget .cw-bookmark {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
-  width: 100%;
-  min-height: 34px;
+  width: auto;
+  min-height: 28px;
   cursor: pointer;
 }
 
@@ -237,10 +241,6 @@ chess-widget .cw-live {
   chess-widget .cw-header,
   chess-widget .cw-main {
     grid-template-columns: 1fr;
-  }
-
-  chess-widget .cw-side {
-    grid-template-columns: 34px 1fr;
   }
 
   chess-widget .cw-eval {
@@ -279,15 +279,7 @@ chess-widget .cw-live {
     max-width: none;
   }
 
-  chess-widget .cw-side {
-    grid-template-columns: 1fr;
-  }
-
-  chess-widget .cw-controls,
-  chess-widget .cw-chart,
-  chess-widget .cw-current,
-  chess-widget .cw-summary,
-  chess-widget .cw-moves {
+  chess-widget .cw-panel {
     grid-column: 1;
   }
 

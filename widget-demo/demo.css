@@ -34,6 +34,53 @@ body {
   text-align: right;
 }
 
+.demo-config {
+  margin: 0 0 14px;
+  border: 1px solid #a89e8c;
+  background: #eee8dc;
+  padding: 12px;
+}
+
+.demo-config-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 10px;
+}
+
+.demo-config h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.demo-config-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.demo-config button {
+  border: 1px solid #171512;
+  background: #fffaf0;
+  color: #171512;
+  padding: 5px 9px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.demo-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.demo-options label {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 14px;
+}
+
 @media (max-width: 860px) {
   .demo-page {
     padding: 12px;
@@ -46,5 +93,10 @@ body {
 
   .demo-heading p {
     text-align: left;
+  }
+
+  .demo-config-heading {
+    align-items: start;
+    display: grid;
   }
 }

@@ -12,16 +12,24 @@ chess-widget {
   --cw-blunder: #c43c35;
   --cw-brilliant: #16a1d9;
   --cw-checkmate: #171512;
+  --cw-focus-outline: 3px solid rgba(22, 161, 217, 0.36);
+  --cw-shell-shadow: none;
+  --cw-board-shadow: none;
+  --cw-piece-shadow: none;
+  --cw-annotation-shadow: none;
+  --cw-marker-shadow: none;
+  --cw-move-highlight-ring: none;
 }
 
 chess-widget.cw-widget:focus-visible {
-  box-shadow: 0 0 0 4px rgba(22, 161, 217, 0.3);
+  outline: var(--cw-focus-outline);
+  outline-offset: 4px;
 }
 
 chess-widget .cw-shell {
   background: var(--cw-paper);
   border: 1px solid #cdbfaa;
-  box-shadow: 0 18px 46px rgba(23, 21, 18, 0.18);
+  box-shadow: var(--cw-shell-shadow);
   padding: 20px;
 }
 
@@ -39,8 +47,8 @@ chess-widget .cw-players,
 chess-widget .cw-eval-text,
 chess-widget .cw-button,
 chess-widget .cw-counter,
-chess-widget .cw-current p,
-chess-widget .cw-summary p,
+chess-widget .cw-current-body p,
+chess-widget .cw-summary-body p,
 chess-widget .cw-move,
 chess-widget .cw-move-number,
 chess-widget .cw-error {
@@ -68,7 +76,7 @@ chess-widget .cw-players strong {
 chess-widget .cw-board {
   border: 2px solid var(--cw-line);
   background: var(--cw-light-square);
-  box-shadow: 0 10px 24px rgba(23, 21, 18, 0.12);
+  box-shadow: var(--cw-board-shadow);
 }
 
 chess-widget square.cg-square {
@@ -91,8 +99,7 @@ chess-widget square.cg-square.dark {
 chess-widget square.last-move {
   z-index: 1;
   background: color-mix(in srgb, var(--cw-move-highlight) 72%, transparent);
-  box-shadow: inset 0 0 0 4px
-    color-mix(in srgb, var(--cw-move-highlight) 58%, transparent);
+  box-shadow: var(--cw-move-highlight-ring);
 }
 
 chess-widget square.last-move.cw-annotation-book,
@@ -135,8 +142,7 @@ chess-widget piece.cw-piece {
   transition:
     transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
     filter 260ms ease;
-  filter: drop-shadow(0 2px 0 rgba(255, 255, 255, 0.55))
-    drop-shadow(0 5px 4px rgba(23, 21, 18, 0.18));
+  filter: var(--cw-piece-shadow);
 }
 
 chess-widget piece.cw-piece img {
@@ -165,11 +171,7 @@ chess-widget move-marker.cw-board-marker {
   line-height: 1.1;
   transform-origin: 50% 100%;
   text-align: right;
-  text-shadow:
-    0 1px 0 #fffaf0,
-    1px 0 0 #fffaf0,
-    0 -1px 0 #fffaf0,
-    -1px 0 0 #fffaf0;
+  text-shadow: var(--cw-marker-shadow);
   animation: cw-marker-drop 360ms cubic-bezier(0.2, 1.2, 0.2, 1);
 }
 
@@ -206,7 +208,7 @@ chess-widget .cw-annotation {
   border-left: 6px solid var(--cw-good);
   background: rgba(255, 250, 240, 0.94);
   padding: 12px 14px;
-  box-shadow: 0 8px 20px rgba(23, 21, 18, 0.12);
+  box-shadow: var(--cw-annotation-shadow);
   font-family:
     ui-sans-serif,
     system-ui,
@@ -317,23 +319,23 @@ chess-widget .cw-move-number {
   font-size: 13px;
 }
 
-chess-widget .cw-current,
-chess-widget .cw-chart,
-chess-widget .cw-summary,
-chess-widget .cw-moves,
-chess-widget .cw-bookmarks {
+chess-widget .cw-panel {
   border-top: 1px solid #d3c5b0;
   padding-top: 12px;
 }
 
-chess-widget .cw-current h2,
-chess-widget .cw-chart h2,
-chess-widget .cw-summary h2,
-chess-widget .cw-moves h2,
-chess-widget .cw-bookmarks h2 {
-  margin: 0 0 8px;
+chess-widget .cw-panel summary {
+  cursor: pointer;
+  list-style-position: outside;
+  margin: 0;
+  color: var(--cw-ink);
+  font-weight: 700;
   font-size: 16px;
   line-height: 1.2;
+}
+
+chess-widget .cw-panel[open] summary {
+  margin-bottom: 8px;
 }
 
 chess-widget .cw-chart svg {
@@ -370,8 +372,8 @@ chess-widget .cw-chart-current {
   stroke-width: 3;
 }
 
-chess-widget .cw-current p,
-chess-widget .cw-summary p {
+chess-widget .cw-current-body p,
+chess-widget .cw-summary-body p {
   margin: 0;
   color: var(--cw-muted);
   font-size: 14px;
@@ -384,8 +386,9 @@ chess-widget .cw-move {
 }
 
 chess-widget .cw-bookmark {
-  padding: 5px 8px;
+  padding: 3px 7px;
   text-align: left;
+  font-size: 12px;
 }
 
 chess-widget .cw-bookmarks p {

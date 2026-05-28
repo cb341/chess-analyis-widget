@@ -44,25 +44,14 @@
       </details>
       <details class="collapsible">
         <summary>Analysis JSON Minified</summary>
-        <button class="copy-button" type="button" data-copy-target="analysis-json-minified">Copy</button>
         <pre id="analysis-json-minified"><%= h(@payload_json_minified) %></pre>
       </details>
       <h2>Embed This Analysis</h2>
-      <p class="summary">Use these snippets to render this analyzed game on another page. The widget makes no API calls.</p>
+      <p class="summary">Copy this widget block into another page. It includes the minified analysis JSON and makes no API calls.</p>
       <details class="collapsible">
-        <summary>CSS</summary>
-        <button class="copy-button" type="button" data-copy-target="embed-css">Copy</button>
-        <pre id="embed-css"><%= h(@embed_css) %></pre>
-      </details>
-      <details class="collapsible">
-        <summary>HTML</summary>
-        <button class="copy-button" type="button" data-copy-target="embed-html">Copy</button>
-        <pre id="embed-html"><%= h(@embed_html) %></pre>
-      </details>
-      <details class="collapsible">
-        <summary>JavaScript</summary>
-        <button class="copy-button" type="button" data-copy-target="embed-js">Copy</button>
-        <pre id="embed-js"><%= h(@embed_js) %></pre>
+        <summary>&lt;widget&gt;</summary>
+        <button class="copy-button" type="button" data-copy-target="embed-widget">Copy widget</button>
+        <pre id="embed-widget"><%= h(@embed_widget) %></pre>
       </details>
       <details class="collapsible">
         <summary>Text Analysis</summary>
