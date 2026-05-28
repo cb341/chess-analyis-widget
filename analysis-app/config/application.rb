@@ -21,7 +21,7 @@ module AnalysisApp
   def self.load_env_file(path = File.join(MONOREPO_ROOT, ".env"))
     return unless File.file?(path)
 
-    File.each_line(path) do |line|
+    File.foreach(path) do |line|
       line = line.strip
       next if line.empty? || line.start_with?("#") || !line.include?("=")
 
