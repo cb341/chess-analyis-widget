@@ -35,12 +35,7 @@ module Chess
     def version
       return nil unless available?
 
-      @version ||= begin
-        out = IO.popen([@path, "--version"], err: File::NULL, &:read).strip
-        out.empty? ? detect_version_from_uci : out
-      rescue
-        detect_version_from_uci
-      end
+      @version ||= detect_version_from_uci
     end
 
     def evaluate_fen(fen, board: nil)
