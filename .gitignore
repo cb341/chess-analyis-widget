@@ -1,12 +1,3 @@
-PROMPT.md
-*.pdf
-
-/node_modules/
-/.bundle/
-/vendor/bundle/
-
-/analysis-app/tmp/
-/analysis-app/log/
-/analysis-app/storage/
-/analysis-app/vendor/stockfish/
-/.env
+.DS_Store
+*.log
+node_modules/
