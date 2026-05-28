@@ -345,6 +345,15 @@ async function testKeyboardTitlesAreDiscoverable() {
   assert.match(moveButton.title, /arrow keys/);
 }
 
+async function testArrowControlLabels() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    "control-style": "arrows",
+  });
+  const controls = widget.renderControls(widget.game);
+  assert.equal(controls.children[0].textContent, "<");
+  assert.equal(controls.children[2].textContent, ">");
+}
+
 async function testCustomEventsAndParserExtensionPoint() {
   const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
   assert.equal(parsed.metadata.White, "Ada");
@@ -397,6 +406,7 @@ async function run() {
   await testMoveAnimationState();
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
+  await testArrowControlLabels();
   await testCustomEventsAndParserExtensionPoint();
   console.log("tests.js ok");
 }

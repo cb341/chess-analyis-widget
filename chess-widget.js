@@ -1086,7 +1086,7 @@
       var prev = document.createElement("button");
       prev.type = "button";
       prev.className = "cw-button";
-      prev.textContent = "Previous";
+      prev.textContent = this.controlLabel("previous");
       prev.title = "Previous move. Keyboard: ArrowLeft or ArrowUp.";
       prev.disabled = this.currentPly <= this.startPly();
       prev.addEventListener("click", () => this.previous());
@@ -1097,7 +1097,7 @@
       var next = document.createElement("button");
       next.type = "button";
       next.className = "cw-button";
-      next.textContent = "Next";
+      next.textContent = this.controlLabel("next");
       next.title = "Next move. Keyboard: ArrowRight or ArrowDown.";
       next.disabled = this.currentPly >= this.endPly();
       next.addEventListener("click", () => this.next());
@@ -1105,6 +1105,13 @@
       controls.appendChild(counter);
       controls.appendChild(next);
       return controls;
+    }
+
+    controlLabel(kind) {
+      if (this.getAttribute("control-style") === "arrows") {
+        return kind === "previous" ? "<" : ">";
+      }
+      return kind === "previous" ? "Previous" : "Next";
     }
 
     renderSidePanel(game, position) {
