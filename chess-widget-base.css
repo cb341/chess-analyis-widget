@@ -51,6 +51,10 @@ chess-widget .cw-main {
   align-items: start;
 }
 
+chess-widget .cw-main-minimal {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 chess-widget .cw-board-panel {
   position: relative;
   gap: 12px;

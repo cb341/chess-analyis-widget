@@ -8,6 +8,8 @@ function createNode(tagName) {
     tagName,
     children: [],
     attributes: {},
+    textContent: "",
+    className: "",
     style: {
       setProperty(name, value) {
         this[name] = value;
@@ -176,12 +178,31 @@ async function testSrcWinsOverFallback() {
   delete global.fetch;
 }
 
+async function testMoveListGroupsByMoveNumber() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    start: "2",
+    end: "5",
+  });
+  const list = widget.renderMoveList(widget.game).children[0];
+  assert.equal(list.children.length, 3);
+  assert.equal(list.children[0].children[0].textContent, "1.");
+  assert.equal(list.children[0].children[1].tagName, "span");
+  assert.equal(list.children[0].children[2].children[0].textContent, "e5");
+  assert.equal(list.children[1].children[0].textContent, "2.");
+  assert.equal(list.children[1].children[1].children[0].textContent, "Nf3");
+  assert.equal(list.children[1].children[2].children[0].textContent, "Nc6");
+  assert.equal(list.children[2].children[0].textContent, "3.");
+  assert.equal(list.children[2].children[1].children[0].textContent, "Bb5");
+  assert.equal(list.children[2].children[2].tagName, "span");
+}
+
 async function run() {
   await testSamplePgn();
   await testCommentAttachmentAndGlyphs();
   await testFenStartAndBounds();
   await testPromotionAndEnPassant();
   await testSrcWinsOverFallback();
+  await testMoveListGroupsByMoveNumber();
   console.log("tests.js ok");
 }
 

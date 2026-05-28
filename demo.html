@@ -32,6 +32,24 @@
         margin: 24px 0 34px;
         --cw-board-max-width: 520px;
       }
+
+      .board-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin: 24px 0 34px;
+      }
+
+      .board-pair chess-widget {
+        margin: 0;
+        --cw-board-max-width: 420px;
+      }
+
+      @media (max-width: 860px) {
+        .board-pair {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -43,7 +61,7 @@
         browser.
       </p>
 
-      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="0" end="54" eval-chart clocks>
+      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="0" end="51" eval-chart clocks>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
 
@@ -56,6 +74,15 @@
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="5" clocks>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
+
+      <div class="board-pair">
+        <chess-widget src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="1" minimal>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        </chess-widget>
+        <chess-widget src="./assets/games/blitz-checkmate.pgn" start="30" end="40" ply="30" orientation="black" minimal>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        </chess-widget>
+      </div>
 
       <p>
         In the middle game, White uses the center and queenside structure to
@@ -72,7 +99,7 @@
         evals as `[%eval #n]`. No engine runs here.
       </p>
 
-      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="48" end="54" eval-chart>
+      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="48" end="51" eval-chart>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
     </main>

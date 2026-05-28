@@ -572,7 +572,7 @@
     return move.move_number + (move.color === "black" ? "... " : ". ") + move.san;
   }
 
-  var OBSERVED_ATTRS = ["orientation", "start", "end", "ply", "sound", "eval-chart", "clocks"];
+  var OBSERVED_ATTRS = ["orientation", "start", "end", "ply", "sound", "eval-chart", "clocks", "minimal"];
 
   class ChessWidget extends HTMLElement {
     static get observedAttributes() {
@@ -721,9 +721,12 @@
       this.innerHTML = "";
       var shell = document.createElement("div");
       shell.className = "cw-shell";
-      shell.appendChild(this.renderHeader(game.metadata));
+      var minimal = hasBooleanAttr(this, "minimal", false);
+      if (minimal) shell.className += " cw-shell-minimal";
+      if (!minimal) shell.appendChild(this.renderHeader(game.metadata));
       var main = document.createElement("div");
       main.className = "cw-main";
+      if (minimal) main.className += " cw-main-minimal";
       var boardPanel = document.createElement("div");
       boardPanel.className = "cw-board-panel";
       var boardWithEval = document.createElement("div");
@@ -732,9 +735,9 @@
       boardWithEval.appendChild(this.renderEvalBar(whiteShare, blackShare, position.eval));
       boardPanel.appendChild(boardWithEval);
       boardPanel.appendChild(this.renderControls(game));
-      boardPanel.appendChild(this.renderAnnotation(position));
+      if (!minimal) boardPanel.appendChild(this.renderAnnotation(position));
       main.appendChild(boardPanel);
-      main.appendChild(this.renderSidePanel(game, position));
+      if (!minimal) main.appendChild(this.renderSidePanel(game, position));
       shell.appendChild(main);
       var live = document.createElement("div");
       live.className = "cw-live";
@@ -942,18 +945,28 @@
       var list = document.createElement("div");
       list.className = "cw-move-list";
       var visible = game.moves.filter((move) => move.ply >= this.startPly() && move.ply <= this.endPly());
-      for (var i = 0; i < visible.length; i += 2) {
+      var rows = [];
+      visible.forEach(function (move) {
+        var row = rows.find(function (item) {
+          return item.moveNumber === move.move_number;
+        });
+        if (!row) {
+          row = { moveNumber: move.move_number, white: null, black: null };
+          rows.push(row);
+        }
+        row[move.color] = move;
+      });
+      rows.forEach((moveRow) => {
         var row = document.createElement("div");
         row.className = "cw-move-row";
         var number = document.createElement("span");
         number.className = "cw-move-number";
-        number.textContent = visible[i].move_number + ".";
+        number.textContent = moveRow.moveNumber + ".";
         row.appendChild(number);
-        row.appendChild(this.renderMoveButton(visible[i]));
-        if (visible[i + 1]) row.appendChild(this.renderMoveButton(visible[i + 1]));
-        else row.appendChild(document.createElement("span"));
+        row.appendChild(moveRow.white ? this.renderMoveButton(moveRow.white) : document.createElement("span"));
+        row.appendChild(moveRow.black ? this.renderMoveButton(moveRow.black) : document.createElement("span"));
         list.appendChild(row);
-      }
+      });
       section.appendChild(list);
       return section;
     }
