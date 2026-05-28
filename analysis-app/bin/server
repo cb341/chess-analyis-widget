@@ -4,11 +4,13 @@
 require "webrick"
 require "uri"
 require_relative "../app/controllers/analyses_controller"
+require_relative "../app/controllers/admin/analyses_controller"
 require_relative "../app/controllers/progress_stream"
 require_relative "../config/application"
 require_relative "../config/route_set"
 
 controller = AnalysesController.new
+admin_controller = Admin::AnalysesController.new
 
 server = WEBrick::HTTPServer.new(
   BindAddress: AnalysisApp.host,
@@ -18,9 +20,12 @@ server = WEBrick::HTTPServer.new(
 
 server.mount_proc("/") do |request, response|
   route = ANALYSIS_ROUTES.find do |candidate|
-    candidate[:path] == request.path &&
+    exact_match = candidate[:path] == request.path
+    pattern_match = candidate[:path_pattern]&.match(request.path)
+    (exact_match || pattern_match) &&
       (candidate[:verb] == request.request_method || (request.request_method == "HEAD" && candidate[:verb] == "GET"))
   end
+  route_params = route && route[:path_pattern]&.match(request.path)&.named_captures || {}
 
   case route && [route[:controller], route[:action]]
   when ["analyses", "new"]
@@ -33,6 +38,12 @@ server.mount_proc("/") do |request, response|
     response.body = proc do |output|
       controller.create_stream(params, ProgressStream.new(output))
     end
+  when ["admin/analyses", "index"]
+    response["Content-Type"] = "text/html; charset=utf-8"
+    response.body = (request.request_method == "HEAD") ? "" : admin_controller.index
+  when ["admin/analyses", "show"]
+    response["Content-Type"] = "text/html; charset=utf-8"
+    response.body = (request.request_method == "HEAD") ? "" : admin_controller.show(route_params)
   else
     response.status = 404
     response["Content-Type"] = "text/plain; charset=utf-8"

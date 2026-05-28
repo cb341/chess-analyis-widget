@@ -9,8 +9,11 @@
   </head>
   <body>
     <main class="page wide">
-      <nav><a href="/">Analyze another PGN</a></nav>
+      <nav><a href="/">Analyze another PGN</a> · <a href="/admin">Admin</a></nav>
       <h1>Analysis Result</h1>
+      <% if @analysis_id %>
+        <p class="summary">Saved as <a href="/admin/analyses/<%= h(@analysis_id) %>"><%= h(@analysis_id) %></a>.</p>
+      <% end %>
       <p class="summary"><%= h(@payload[:summary]) %></p>
       <script type="application/json" id="game-data"><%= json_script(@payload_json) %></script>
       <chess-widget data-source="game-data"></chess-widget>

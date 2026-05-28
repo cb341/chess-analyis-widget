@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin · Analyses</title>
+    <link rel="stylesheet" href="/app.css">
+  </head>
+  <body>
+    <main class="page wide">
+      <nav><a href="/">New analysis</a></nav>
+      <h1>Admin · Game Analyses</h1>
+      <% if @analyses.empty? %>
+        <p class="summary">No analyses have been saved yet.</p>
+      <% else %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Created</th>
+              <th>Game</th>
+              <th>Result</th>
+              <th>Moves</th>
+              <th>Boards</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @analyses.each do |analysis| %>
+              <tr>
+                <td><%= h(analysis.created_at) %></td>
+                <td><a href="/admin/analyses/<%= h(analysis.id) %>"><%= h(title_for(analysis)) %></a></td>
+                <td><%= h(analysis.metadata["Result"] || "*") %></td>
+                <td><%= h(analysis.moves.length) %></td>
+                <td><%= h(analysis.positions.length) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </main>
+  </body>
+</html>

@@ -91,6 +91,9 @@ During `POST /analyses`, the WEBrick runner streams a small progress page before
 the final result. Progress messages come from `Chess::AnalysisBuilder`, for
 example parsing PGN, evaluating the starting position, and analyzing each move.
 
+Saved analyses are available under `/admin`. The admin pages list stored games
+and show metadata, moves, evaluations, and board snapshots.
+
 ## Analysis Resources
 
 Concrete value objects live under `app/models/chess/`:

@@ -46,6 +46,18 @@ resources :analyses, only: [:new, :create]
 For the POC, `create` analyzes inline and renders the result page. Persistence
 and `show` can be added when storing Stockfish results becomes necessary.
 
+Admin routes:
+
+```ruby
+namespace :admin do
+  root "analyses#index"
+  resources :analyses, only: [:index, :show]
+end
+```
+
+The dependency-light runner maps equivalent `/admin` routes through
+`config/route_set.rb`.
+
 ## Data Model
 
 ### Analysis

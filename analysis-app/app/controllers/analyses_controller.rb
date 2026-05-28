@@ -3,6 +3,7 @@
 require "json"
 require "erb"
 require_relative "../services/chess/analysis_builder"
+require_relative "../models/analysis_repository"
 
 # Handles the dependency-free analysis form flow used by the WEBrick fallback
 # and mirrors the intended Rails controller boundary.
@@ -29,8 +30,9 @@ class AnalysesController
     Bh6+ Ke8 22. Bxf8 Kxf8 23. Rd8# 1-0
   PGN
 
-  def initialize(builder: Chess::AnalysisBuilder.new)
+  def initialize(builder: Chess::AnalysisBuilder.new, repository: AnalysisRepository.new)
     @builder = builder
+    @repository = repository
   end
 
   def new
@@ -40,7 +42,8 @@ class AnalysesController
   def create(params)
     pgn = params.fetch("pgn", "")
     payload = @builder.build(pgn)
-    render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), error: nil)
+    analysis = @repository.create(pgn: pgn, payload: payload)
+    render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), analysis_id: analysis.id, error: nil)
   rescue => error
     render_template("new", pgn: pgn, error: error.message)
   end
@@ -48,7 +51,8 @@ class AnalysesController
   def create_stream(params, stream)
     pgn = params.fetch("pgn", "")
     payload = @builder.build(pgn, progress: ->(message) { stream.progress(message) })
-    stream.finish(render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), error: nil))
+    analysis = @repository.create(pgn: pgn, payload: payload)
+    stream.finish(render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), analysis_id: analysis.id, error: nil))
   rescue => error
     stream.finish(render_template("new", pgn: pgn, error: error.message))
   end
