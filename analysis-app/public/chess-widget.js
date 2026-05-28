@@ -21,6 +21,7 @@
   var RANKS_WHITE = ["8", "7", "6", "5", "4", "3", "2", "1"];
   var RANKS_BLACK = ["1", "2", "3", "4", "5", "6", "7", "8"];
   var MARKS = {
+    book: "book",
     good: "!",
     mistake: "?",
     blunder: "??",
@@ -28,6 +29,7 @@
     checkmate: "#",
   };
   var BOARD_MARKERS = {
+    book: "book",
     good: "!",
     mistake: "?!",
     blunder: "??",
@@ -140,6 +142,8 @@
       this.game = null;
       this.currentPly = 0;
       this.previousPly = 0;
+      this.previousPosition = null;
+      this.navigationDirection = "forward";
       this._keyboardBound = false;
       this._focusBound = false;
       this._sounds = {};
@@ -149,7 +153,7 @@
       if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
       this.setAttribute(
         "aria-keyshortcuts",
-        "ArrowLeft ArrowRight ArrowUp ArrowDown Home End",
+        "ArrowLeft ArrowRight ArrowUp ArrowDown Home End Space",
       );
       this.classList.add("cw-widget");
       this.bindKeyboard();
@@ -173,6 +177,9 @@
         } else if (event.key === "End") {
           event.preventDefault();
           this.end();
+        } else if (event.key === " " || event.key === "Spacebar") {
+          event.preventDefault();
+          this.play();
         }
       });
     }
@@ -226,6 +233,9 @@
       );
       if (target === this.currentPly) return;
       this.previousPly = this.currentPly;
+      this.previousPosition = this.game.positions[this.currentPly] || null;
+      this.navigationDirection =
+        target >= this.currentPly ? "forward" : "backward";
       this.currentPly = target;
       this.render();
       this.playSoundForPosition(this.game.positions[target]);
@@ -269,6 +279,25 @@
 
     previous() {
       this.goTo(this.currentPly - 1);
+    }
+
+    play() {
+      if (!this.game || !Array.isArray(this.game.positions)) return;
+      if (this.currentPly < this.game.positions.length - 1) {
+        this.next();
+        return;
+      }
+
+      this.replayCurrent();
+    }
+
+    replayCurrent() {
+      if (!this.game || this.currentPly < 1) return;
+      this.previousPly = this.currentPly - 1;
+      this.previousPosition = this.game.positions[this.previousPly] || null;
+      this.navigationDirection = "forward";
+      this.render();
+      this.playSoundForPosition(this.game.positions[this.currentPly]);
     }
 
     start() {
@@ -384,7 +413,14 @@
         position && position.board && typeof position.board === "object"
           ? position.board
           : {};
+      var previousData =
+        this.previousPosition &&
+        this.previousPosition.board &&
+        typeof this.previousPosition.board === "object"
+          ? this.previousPosition.board
+          : {};
       var lastMove = position && position.last_move ? position.last_move : {};
+      var usedOrigins = {};
 
       wrap.className =
         "cg-wrap cgv1 orientation-" + orientation + " manipulable";
@@ -434,18 +470,20 @@
             if (marker) board.appendChild(marker);
 
             var pieceNode = document.createElement("piece");
+            var fromTransform = this.pieceFromTransform(
+              squareName,
+              piece,
+              position,
+              previousData,
+              usedOrigins,
+            );
+            var toTransform = this.squareTransform(squareName);
             pieceNode.className =
               pieceClass(piece) +
               " cw-piece" +
-              (lastMove.to === squareName ? " cw-piece-arrived" : "");
-            pieceNode.style.setProperty(
-              "--cw-transform",
-              this.squareTransform(squareName),
-            );
-            pieceNode.style.setProperty(
-              "--cw-from-transform",
-              this.arrivalFromTransform(squareName, lastMove),
-            );
+              (fromTransform !== toTransform ? " cw-piece-arrived" : "");
+            pieceNode.style.setProperty("--cw-transform", toTransform);
+            pieceNode.style.setProperty("--cw-from-transform", fromTransform);
             pieceNode.style.transform = "var(--cw-transform)";
             pieceNode.setAttribute(
               "aria-label",
@@ -474,17 +512,62 @@
       return square;
     }
 
-    arrivalFromTransform(squareName, lastMove) {
-      if (
-        this.previousPly !== this.currentPly &&
-        lastMove &&
-        lastMove.to === squareName &&
-        lastMove.from
-      ) {
-        return this.squareTransform(lastMove.from);
+    pieceFromTransform(squareName, piece, position, previousData, usedOrigins) {
+      var targetTransform = this.squareTransform(squareName);
+      if (!this.previousPosition || this.previousPly === this.currentPly) {
+        return targetTransform;
       }
 
-      return this.squareTransform(squareName);
+      var currentMove =
+        position && position.last_move ? position.last_move : {};
+      var revertedMove =
+        this.previousPosition && this.previousPosition.last_move
+          ? this.previousPosition.last_move
+          : {};
+
+      if (
+        this.navigationDirection === "forward" &&
+        currentMove.to === squareName &&
+        currentMove.from &&
+        previousData[currentMove.from] === piece
+      ) {
+        usedOrigins[currentMove.from] = true;
+        return this.squareTransform(currentMove.from);
+      }
+
+      if (
+        this.navigationDirection === "backward" &&
+        revertedMove.from === squareName &&
+        revertedMove.to &&
+        previousData[revertedMove.to] === piece
+      ) {
+        usedOrigins[revertedMove.to] = true;
+        return this.squareTransform(revertedMove.to);
+      }
+
+      if (previousData[squareName] === piece && !usedOrigins[squareName]) {
+        usedOrigins[squareName] = true;
+        return targetTransform;
+      }
+
+      var origin = this.matchPreviousPiece(piece, previousData, usedOrigins);
+      if (origin) {
+        usedOrigins[origin] = true;
+        return this.squareTransform(origin);
+      }
+
+      return targetTransform;
+    }
+
+    matchPreviousPiece(piece, previousData, usedOrigins) {
+      var squares = Object.keys(previousData);
+      for (var i = 0; i < squares.length; i += 1) {
+        var squareName = squares[i];
+        if (usedOrigins[squareName]) continue;
+        if (previousData[squareName] === piece) return squareName;
+      }
+
+      return null;
     }
 
     checkedKingSquare(position, boardData) {

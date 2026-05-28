@@ -32,12 +32,12 @@
         <p class="error">Stockfish was not available for this run. Move ratings use the fallback material evaluator and are approximate.</p>
       <% end %>
       <p class="summary"><%= h(@payload[:summary]) %></p>
-      <script type="application/json" id="game-data"><%= json_script(@payload_json) %></script>
+      <script type="application/json" id="game-data"><%= raw json_escape(@payload_json) %></script>
       <chess-widget data-source="game-data"></chess-widget>
       <h2>Verbose Markdown Analysis</h2>
       <pre class="markdown-analysis"><%= h(@payload[:markdown_analysis]) %></pre>
       <h2>Analysis JSON</h2>
-      <textarea readonly rows="14"><%= h(@payload_json) %></textarea>
+      <textarea class="copy-text" readonly rows="14"><%= h(@payload_json) %></textarea>
       <h2>Embed This Analysis</h2>
       <p class="summary">Use these snippets to render this analyzed game on another page. The widget makes no API calls.</p>
       <h3>CSS</h3>

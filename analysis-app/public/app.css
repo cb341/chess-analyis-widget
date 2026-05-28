@@ -132,8 +132,15 @@ button {
 }
 
 .markdown-analysis {
-  line-height: 1;
+  max-height: 560px;
+  line-height: 1.35;
   letter-spacing: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.copy-text {
+  min-height: 260px;
 }
 
 .analysis-board {
@@ -142,6 +149,7 @@ button {
   line-height: 1;
   letter-spacing: 0;
   white-space: pre;
+  overflow-wrap: normal;
 }
 
 .summary {
