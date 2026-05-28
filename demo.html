@@ -88,18 +88,19 @@
       .customized-widget {
         margin: 34px 0 48px;
         padding: 18px;
-        background: #101820;
+        border-radius: 22px;
+        background: #233d4d;
         font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-        --cw-paper: #f8fafc;
-        --cw-paper-deep: #e2e8f0;
-        --cw-ink: #101820;
-        --cw-muted: #475569;
-        --cw-line: #0f172a;
-        --cw-light-square: #f8fafc;
-        --cw-dark-hatch: #14b8a6;
-        --cw-highlight: #facc15;
-        --cw-good: #0f766e;
-        --cw-brilliant: #0891b2;
+        --cw-paper: #fff7e6;
+        --cw-paper-deep: #fddf9a;
+        --cw-ink: #13293d;
+        --cw-muted: #59656f;
+        --cw-line: #13293d;
+        --cw-light-square: #fff4d6;
+        --cw-dark-hatch: #fe7f2d;
+        --cw-highlight: #c9f299;
+        --cw-good: #619b8a;
+        --cw-brilliant: #33658a;
         --cw-main-columns: minmax(280px, 430px) minmax(260px, 1fr);
         --cw-main-gap: 36px;
         --cw-shell-gap: 26px;
@@ -107,10 +108,10 @@
         --cw-side-gap: 22px;
         --cw-board-max-width: 430px;
         --cw-shell-padding: 26px;
-        --cw-shell-border: 3px solid #0f172a;
-        --cw-board-border: 3px solid #0f172a;
-        --cw-square-border: 1px solid #94a3b8;
-        --cw-control-border: 2px solid #0f172a;
+        --cw-shell-border: 0;
+        --cw-board-border: 4px solid #13293d;
+        --cw-square-border: 1px solid rgba(19, 41, 61, 0.28);
+        --cw-control-border: 2px solid #13293d;
         --cw-control-font-size: 12px;
         --cw-control-min-height: 42px;
         --cw-control-gap: 12px;
@@ -121,6 +122,19 @@
         --cw-piece-transform-origin: 50% 50%;
         --cw-move-list-max-height: 220px;
         --cw-chart-height: 110px;
+        --cw-chart-radius: 14px;
+      }
+
+      .customized-widget .cw-shell {
+        border-radius: 16px;
+      }
+
+      .customized-widget .cw-board {
+        border-radius: 14px;
+      }
+
+      .customized-widget cg-board {
+        border-radius: 10px;
       }
 
       .customized-widget .cw-annotation {
@@ -158,8 +172,8 @@
       .customized-widget .cw-move-number {
         display: grid;
         place-items: center;
-        border-right: 3px solid #14b8a6;
-        color: #0f766e;
+        border-right: 3px solid #fe7f2d;
+        color: #33658a;
         font-weight: 800;
       }
 
@@ -167,22 +181,82 @@
         min-height: 34px;
         border: 0;
         border-radius: 999px;
-        background: #dff7f3;
+        background: #fddf9a;
         padding: 7px 12px;
-        color: #0f172a;
+        color: #13293d;
         font-weight: 700;
-        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.16);
+        box-shadow: inset 0 0 0 1px rgba(19, 41, 61, 0.18);
       }
 
       .customized-widget .cw-move:hover {
-        background: #baeadd;
+        background: #fecc7a;
       }
 
       .customized-widget .cw-active-move {
-        background: #facc15;
+        background: #c9f299;
         box-shadow:
-          inset 0 0 0 2px #0f172a,
-          0 4px 0 rgba(15, 23, 42, 0.2);
+          inset 0 0 0 2px #13293d,
+          0 4px 0 rgba(19, 41, 61, 0.24);
+      }
+
+      .customized-widget .cw-chart svg {
+        background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 50%, #233d4d 100%);
+        border: 2px solid #13293d;
+      }
+
+      .customized-widget .cw-chart-white,
+      .customized-widget .cw-chart-black {
+        fill: transparent;
+      }
+
+      .customized-widget .cw-chart-zero {
+        stroke: rgba(19, 41, 61, 0.42);
+        stroke-dasharray: 5 4;
+      }
+
+      .customized-widget .cw-chart-line,
+      .customized-widget .cw-chart-current {
+        stroke: #13293d;
+        stroke-width: 4;
+      }
+
+      .customized-widget .cw-controls {
+        align-items: stretch;
+      }
+
+      .customized-widget .cw-button {
+        border: 0;
+        border-radius: 14px;
+        background: #13293d;
+        color: #fff7e6;
+        font-weight: 900;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        box-shadow: 0 5px 0 #0b1724;
+      }
+
+      .customized-widget .cw-button:hover:not(:disabled) {
+        background: #33658a;
+      }
+
+      .customized-widget .cw-button:active:not(:disabled) {
+        transform: translateY(3px);
+        box-shadow: 0 2px 0 #0b1724;
+      }
+
+      .customized-widget .cw-button:disabled {
+        background: #9ca3af;
+        color: #475569;
+        box-shadow: none;
+      }
+
+      .customized-widget .cw-counter {
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        background: #fff7e6;
+        color: #13293d;
+        font-weight: 900;
       }
 
       @media (max-width: 860px) {
@@ -239,12 +313,16 @@
       <pre class="pgn-sample"><code>chess-widget.customized-widget {
   margin: 34px 0 48px;
   padding: 18px;
-  background: #101820;
+  border-radius: 22px;
+  background: #233d4d;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   --cw-main-gap: 36px;
   --cw-board-max-width: 430px;
-  --cw-shell-border: 3px solid #0f172a;
-  --cw-board-border: 3px solid #0f172a;
+  --cw-paper: #fff7e6;
+  --cw-dark-hatch: #fe7f2d;
+  --cw-highlight: #c9f299;
+  --cw-shell-border: 0;
+  --cw-board-border: 4px solid #13293d;
   --cw-control-min-height: 42px;
   --cw-piece-padding: 5%;
   --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -264,6 +342,18 @@ chess-widget.customized-widget .cw-move {
   border-radius: 999px;
   background: #dff7f3;
   font-weight: 700;
+}
+
+chess-widget.customized-widget .cw-chart svg {
+  background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 50%, #233d4d 100%);
+}
+
+chess-widget.customized-widget .cw-button {
+  border: 0;
+  border-radius: 14px;
+  background: #13293d;
+  color: #fff7e6;
+  font-weight: 900;
 }</code></pre>
 
       <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks>
