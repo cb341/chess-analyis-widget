@@ -4,9 +4,8 @@ chess-widget {
   --cw-ink: #171512;
   --cw-muted: #6c655e;
   --cw-line: #c7c7c7;
-  --cw-light-square: #f0d9b5;
-  --cw-dark-square: #b58863;
-  --cw-dark-hatch: #cfcfcf;
+  --cw-light-square: #ffffff;
+  --cw-dark-hatch: #cccccc;
   --cw-highlight: #e1f276;
   --cw-good: #5fa65e;
   --cw-mistake: #d99328;
@@ -75,19 +74,26 @@ chess-widget .cw-players strong {
 }
 
 chess-widget .cw-board {
-  border: none;
-  background: var(--cw-dark-square);
+  border: 1px solid var(--cw-line);
+  background: var(--cw-light-square);
   box-shadow: var(--cw-board-shadow);
 }
 
 chess-widget square.cg-square {
   z-index: 0;
-  border: none;
+  border: 1px solid var(--cw-line);
   background: var(--cw-light-square);
 }
 
 chess-widget square.cg-square.dark {
-  background: var(--cw-dark-square);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      var(--cw-dark-hatch) 10px 14px,
+      transparent 14px 24px
+    ),
+    var(--cw-light-square);
 }
 
 chess-widget square.last-move {
@@ -170,7 +176,7 @@ chess-widget move-marker.cw-board-marker {
 }
 
 chess-widget coords {
-  color: var(--cw-light-square);
+  color: rgba(23, 21, 18, 0.52);
   display: flex;
   font-size: 11px;
   font-weight: 700;
@@ -193,7 +199,7 @@ chess-widget coords.files {
 }
 
 chess-widget .coord-light {
-  color: var(--cw-dark-square);
+  color: rgba(255, 255, 255, 0.86);
 }
 
 chess-widget .cw-annotation {
