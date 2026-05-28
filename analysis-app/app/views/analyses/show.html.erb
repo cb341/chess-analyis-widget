@@ -33,7 +33,7 @@
       <% end %>
       <p class="summary"><%= h(@payload[:summary]) %></p>
 
-      <script type="application/json" id="game-data"><%= raw json_escape(@widget_payload_json) %></script>
+      <script type="application/x-gzip-json" id="game-data"><%= h(@widget_payload_gz) %></script>
       <div class="widget-preview-wrap">
         <chess-widget id="the-widget" data-source="game-data"></chess-widget>
       </div>
@@ -166,12 +166,10 @@
           if (soundOff) attrs += ' sound="off"';
           if (orientation) attrs += ' orientation="' + escapeAttr(orientation) + '"';
           if (initialPly > 0) attrs += ' initial-ply="' + initialPly + '"';
-          var minified = <%= raw json_escape(@widget_payload_json) %>;
+          var gz = "<%= h(@widget_payload_gz) %>";
           embedPre.textContent =
             '<link rel="stylesheet" href="' + widgetCssUrl + '">\n' +
-            '<script type="application/json" id="game-data">\n' +
-            minified + "\n" +
-            "<\/script>\n" +
+            '<script type="application/x-gzip-json" id="game-data">' + gz + '<\/script>\n' +
             '<chess-widget data-source="game-data"' + attrs + '><\/chess-widget>\n' +
             '<script src="' + widgetJsUrl + '"><\/script>';
         }

@@ -1,6 +1,17 @@
 (function () {
   "use strict";
 
+  async function decompressJson(base64) {
+    var bytes = Uint8Array.from(atob(base64), function (c) {
+      return c.charCodeAt(0);
+    });
+    var stream = new Blob([bytes])
+      .stream()
+      .pipeThrough(new DecompressionStream("gzip"));
+    var text = await new Response(stream).text();
+    return JSON.parse(text);
+  }
+
   var PIECE_IMAGES = {
     K: "white-king.svg",
     Q: "white-queen.svg",
@@ -243,10 +254,17 @@
         return;
       }
 
-      try {
-        this.load(JSON.parse(source.textContent || ""));
-      } catch {
-        this.renderError("Invalid chess data.");
+      if (source.type === "application/x-gzip-json") {
+        decompressJson(source.textContent.trim()).then(
+          (data) => this.load(data),
+          () => this.renderError("Invalid chess data."),
+        );
+      } else {
+        try {
+          this.load(JSON.parse(source.textContent || ""));
+        } catch {
+          this.renderError("Invalid chess data.");
+        }
       }
     }
 

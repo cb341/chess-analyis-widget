@@ -2,6 +2,8 @@
 
 require "json"
 require "erb"
+require "zlib"
+require "base64"
 require_relative "../services/chess/analysis_builder"
 require_relative "../services/chess/board_presenter"
 require_relative "../models/analysis"
@@ -68,13 +70,12 @@ class AnalysesController < ApplicationController
     @payload_json_minified = JSON.generate(@payload)
     widget_payload = @payload.reject { |k, _| %i[text_analysis markdown_analysis summary].include?(k) }
     @widget_payload_json = JSON.generate(widget_payload)
+    @widget_payload_gz = gzip_base64(@widget_payload_json)
     widget_css_url = "#{request.base_url}/chess-widget.css"
     widget_js_url = "#{request.base_url}/chess-widget.js"
     @embed_widget = <<~HTML
       <link rel="stylesheet" href="#{widget_css_url}">
-      <script type="application/json" id="game-data">
-      #{@widget_payload_json}
-      </script>
+      <script type="application/x-gzip-json" id="game-data">#{@widget_payload_gz}</script>
       <chess-widget data-source="game-data" widget-title="Live Chess"></chess-widget>
       <script src="#{widget_js_url}"></script>
     HTML
@@ -96,6 +97,12 @@ class AnalysesController < ApplicationController
   def title_for(analysis)
     metadata = analysis.metadata
     "#{metadata.fetch("White", "White")} vs #{metadata.fetch("Black", "Black")}"
+  end
+
+  def gzip_base64(str)
+    gz = StringIO.new
+    Zlib::GzipWriter.wrap(gz) { |w| w.write(str) }
+    Base64.strict_encode64(gz.string)
   end
 
   def board_text(position)
