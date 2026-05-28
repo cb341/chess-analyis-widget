@@ -42,6 +42,15 @@
     capture: "./assets/sounds/capture.wav",
     check: "./assets/sounds/check.mp3",
     checkmate: "./assets/sounds/checkmate.mp3",
+    book: "./assets/sounds/book.wav",
+    forced: "./assets/sounds/forced.wav",
+    good: "./assets/sounds/good.wav",
+    great: "./assets/sounds/great.wav",
+    brilliant: "./assets/sounds/brilliant.wav",
+    mistake: "./assets/sounds/mistake.wav",
+    inaccuracy: "./assets/sounds/mistake.wav",
+    blunder: "./assets/sounds/blunder.wav",
+    solid: "./assets/sounds/good.wav",
   };
   var SCRIPT_URL =
     document.currentScript && document.currentScript.src
@@ -249,6 +258,7 @@
       var flags = position.flags || {};
       var lastMove = position.last_move || {};
       var move = this.moveForPosition(position);
+      var annotation = this.soundAnnotationKind(position, move);
       var isCastling =
         this.flagEnabled(flags.castling) ||
         this.flagEnabled(lastMove.castling) ||
@@ -261,7 +271,9 @@
         this.flagEnabled(lastMove.flags && lastMove.flags.capture) ||
         this.sanIsCapture(move && move.san);
 
-      if (this.flagEnabled(flags.checkmate)) {
+      if (annotation && SOUNDS[annotation]) {
+        soundName = annotation;
+      } else if (this.flagEnabled(flags.checkmate)) {
         soundName = "checkmate";
       } else if (isCapture) {
         soundName = "capture";
@@ -273,6 +285,18 @@
 
       this.setAttribute("data-sound-current", soundName);
       this.playSound(soundName);
+    }
+
+    soundAnnotationKind(position, move) {
+      var annotation = annotationFor(position);
+      var kind = annotation.kind || (move && move.annotation);
+      if (!kind) return null;
+
+      kind = String(kind)
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, "");
+      if (kind === "great_move" || kind === "greatmove") return "great";
+      return kind;
     }
 
     flagEnabled(value) {
