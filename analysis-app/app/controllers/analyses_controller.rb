@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 require "json"
-require "erb"
-require_relative "../../config/application"
 require_relative "../services/chess/analysis_builder"
-require_relative "../models/analysis_repository"
+require_relative "../models/analysis"
 
-# Handles the dependency-free analysis form flow used by the WEBrick fallback
-# and mirrors the intended Rails controller boundary.
-class AnalysesController
+# Handles the Rails analysis resource: new form, create, and show.
+class AnalysesController < ApplicationController
   SAMPLE_PGN = <<~PGN
     [Event "Live Chess"]
     [Site "Chess.com"]
@@ -31,116 +28,53 @@ class AnalysesController
     Bh6+ Ke8 22. Bxf8 Kxf8 23. Rd8# 1-0
   PGN
 
-  def initialize(builder: Chess::AnalysisBuilder.new, repository: AnalysisRepository.new)
-    @builder = builder
-    @repository = repository
-  end
-
   def new
-    AnalysisApp.logger.debug("render analyses#new")
-    render_template("new", pgn: SAMPLE_PGN, error: nil)
+    Rails.logger.debug("render analyses#new")
+    @pgn = SAMPLE_PGN
   end
 
-  def create(params)
-    pgn = params.fetch("pgn", "")
-    AnalysisApp.logger.info("analysis create started pgn_bytes=#{pgn.bytesize}")
-    payload = @builder.build(pgn)
-    analysis = @repository.create(pgn: pgn, payload: payload)
-    AnalysisApp.logger.info("analysis create saved id=#{analysis.id} moves=#{payload[:moves].length} positions=#{payload[:positions].length}")
-    redirect_to("/analyses/#{analysis.id}")
+  def create
+    pgn = params.fetch(:pgn, "")
+    Rails.logger.info("analysis create started pgn_bytes=#{pgn.bytesize}")
+    payload = Chess::AnalysisBuilder.new.build(pgn)
+    analysis = Analysis.create_from_pgn!(pgn: pgn, payload: payload)
+    Rails.logger.info("analysis create saved id=#{analysis.id} moves=#{payload[:moves].length} positions=#{payload[:positions].length}")
+    redirect_to analysis_path(analysis.id), status: :see_other
   rescue => error
-    AnalysisApp.logger.error("analysis create failed class=#{error.class} message=#{error.message}")
-    render_template("new", pgn: pgn, error: error.message)
+    Rails.logger.error("analysis create failed class=#{error.class} message=#{error.message}")
+    @pgn = pgn
+    @error = error.message
+    render :new, status: :unprocessable_entity
   end
 
-  def show(params)
-    analysis = @repository.find(params.fetch("id"))
-    return render_template("new", pgn: SAMPLE_PGN, error: "Analysis not found.") unless analysis
+  def show
+    analysis = Analysis.find_by(id: params.fetch(:id))
+    return redirect_to new_analysis_path, alert: "Analysis not found." unless analysis
 
-    render_show(pgn: analysis.pgn, payload: symbolize(analysis.payload), analysis_id: analysis.id)
+    @analysis_id = analysis.id
+    @pgn = analysis.pgn
+    @payload = symbolize(analysis.payload)
+    @payload_json = JSON.pretty_generate(@payload)
+    @embed_css = "<link rel=\"stylesheet\" href=\"/chess-widget.css\">\n"
+    @embed_html = <<~HTML
+      <script type="application/json" id="game-data">
+      #{@payload_json}
+      </script>
+      <chess-widget data-source="game-data"></chess-widget>
+    HTML
+    @embed_js = "<script src=\"/chess-widget.js\"></script>\n"
   end
 
   private
 
-  def redirect_to(location)
-    {
-      status: 303,
-      headers: {"Location" => location},
-      body: "See Other"
-    }
-  end
-
-  def render_show(pgn:, payload:, analysis_id:)
-    payload_json = JSON.pretty_generate(payload)
-    render_template(
-      "show",
-      pgn: pgn,
-      payload: payload,
-      payload_json: payload_json,
-      analysis_id: analysis_id,
-      embed_css: embed_css,
-      embed_html: embed_html(payload_json),
-      embed_js: embed_js,
-      error: nil
-    )
-  end
-
   def symbolize(value)
     case value
     when Hash
-      value.each_with_object({}) do |(key, item), result|
-        result[key.to_sym] = symbolize(item)
-      end
+      value.each_with_object({}) { |(key, item), result| result[key.to_sym] = symbolize(item) }
     when Array
       value.map { |item| symbolize(item) }
     else
       value
-    end
-  end
-
-  def render_template(name, locals)
-    path = File.expand_path("../views/analyses/#{name}.html.erb", __dir__)
-    context = ViewContext.new(locals)
-    ERB.new(File.read(path), trim_mode: "-").result(context.get_binding)
-  end
-
-  def embed_css
-    <<~HTML
-      <link rel="stylesheet" href="/chess-widget.css">
-    HTML
-  end
-
-  def embed_html(payload_json)
-    <<~HTML
-      <script type="application/json" id="game-data">
-      #{payload_json}
-      </script>
-      <chess-widget data-source="game-data"></chess-widget>
-    HTML
-  end
-
-  def embed_js
-    <<~HTML
-      <script src="/chess-widget.js"></script>
-    HTML
-  end
-
-  # Minimal ERB context for escaping HTML and embedding script-safe JSON.
-  class ViewContext
-    def initialize(locals)
-      locals.each { |key, value| instance_variable_set("@#{key}", value) }
-    end
-
-    def get_binding
-      binding
-    end
-
-    def h(value)
-      value.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub('"', "&quot;")
-    end
-
-    def json_script(value)
-      value.to_s.gsub("</", '<\/').gsub("<", "\\u003c")
     end
   end
 end

@@ -3,4 +3,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-docker compose up --build analysis-app
+if [ ! -f .env ]; then
+  echo ".env missing. Run bin/setup first." >&2
+  exit 1
+fi
+
+cd analysis-app
+bundle exec rails db:prepare
+bundle exec rails server "$@"

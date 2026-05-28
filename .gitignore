@@ -8,3 +8,5 @@ PROMPT.md
 /analysis-app/tmp/
 /analysis-app/log/
 /analysis-app/storage/
+/analysis-app/vendor/stockfish/
+/.env

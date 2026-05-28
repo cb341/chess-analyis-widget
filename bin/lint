@@ -11,12 +11,10 @@ else
 fi
 
 ruby analysis-app/script/check_sample
-find analysis-app -type f \( -name '*.rb' -o -path 'analysis-app/bin/server' -o -path 'analysis-app/script/check_sample' \) -exec ruby -c {} \;
+find analysis-app -type f \( -name '*.rb' -o -path 'analysis-app/script/check_sample' \) -exec ruby -c {} \;
 
 bunx eslint widget-demo analysis-app/public
 bunx prettier --check "**/*.{md,yml,yaml,json,css,html,js}"
 
 node --check widget-demo/chess-widget.js
 node --check analysis-app/public/chess-widget.js
-
-docker compose config >/dev/null

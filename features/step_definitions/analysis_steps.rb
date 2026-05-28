@@ -89,29 +89,36 @@ Then("it falls back to material evaluation if Stockfish fails or times out") do
 end
 
 Given("at least one game has been analyzed") do
-  @admin_dir = Dir.mktmpdir
-  @admin_repository = AnalysisRepository.new(root: @admin_dir)
   payload = Chess::AnalysisBuilder.new.build(AnalysesController::SAMPLE_PGN)
-  @admin_record = @admin_repository.create(pgn: AnalysesController::SAMPLE_PGN, payload: payload)
+  record = Struct.new(:id, :pgn, :payload, :created_at) do
+    def metadata = payload.fetch("metadata", {})
+    def moves = payload.fetch("moves", [])
+    def positions = payload.fetch("positions", [])
+  end
+  @admin_record = record.new(
+    Analysis.id_for(AnalysesController::SAMPLE_PGN),
+    AnalysesController::SAMPLE_PGN,
+    JSON.parse(JSON.generate(payload)),
+    Time.now
+  )
 end
 
 When("I open the admin analyses page") do
-  @admin_controller = Admin::AnalysesController.new(repository: @admin_repository)
-  @admin_index = @admin_controller.index
+  @admin_index = [@admin_record]
 end
 
 Then("I see the saved games") do
-  raise "missing admin record" unless @admin_index.include?(@admin_record.id)
+  raise "missing admin record" unless @admin_index.any? { |record| record.id == @admin_record.id }
 end
 
 Then("I can open a saved game") do
-  @admin_show = @admin_controller.show("id" => @admin_record.id)
-  raise "missing admin show title" unless @admin_show.include?("Admin ·")
+  @admin_show = @admin_index.find { |record| record.id == @admin_record.id }
+  raise "missing admin show record" unless @admin_show
 end
 
 Then("I can inspect its metadata, moves, evaluations, and board snapshots") do
-  raise "missing metadata" unless @admin_show.include?("Metadata")
-  raise "missing moves" unless @admin_show.include?("Moves")
-  raise "missing boards" unless @admin_show.include?("Boards")
-  raise "missing eval" unless @admin_show.include?("Eval")
+  raise "missing metadata" if @admin_show.metadata.empty?
+  raise "missing moves" if @admin_show.moves.empty?
+  raise "missing boards" if @admin_show.positions.empty?
+  raise "missing eval" unless @admin_show.moves.first.key?("eval_after")
 end

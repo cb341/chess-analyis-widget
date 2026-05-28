@@ -40,23 +40,22 @@ The server should also be able to render the analysis as standalone text using U
 ```ruby
 root "analyses#new"
 
-resources :analyses, only: [:new, :create]
+resources :analyses, only: [:new, :create, :show]
 ```
 
-For the POC, `create` analyzes inline and renders the result page. Persistence
-and `show` can be added when storing Stockfish results becomes necessary.
+For the POC, `create` analyzes inline, upserts the deterministic analysis
+record, and redirects to `show`.
 
 Admin routes:
 
 ```ruby
+get "/admin/", to: "admin/analyses#index"
+
 namespace :admin do
   root "analyses#index"
   resources :analyses, only: [:index, :show]
 end
 ```
-
-The dependency-light runner maps equivalent `/admin` routes through
-`config/route_set.rb`.
 
 ## Data Model
 
@@ -65,11 +64,7 @@ The dependency-light runner maps equivalent `/admin` routes through
 ```text
 id
 pgn:text
-metadata:json
-summary_text:text
 payload:json
-status:string
-error_message:text
 created_at
 updated_at
 ```

@@ -1,7 +1,5 @@
 source "https://rubygems.org"
 
-gem "webrick", "~> 1.9"
-
-# Rails is intentionally not declared for this dependency-free POC because the
-# current environment has no Rails and network installs are out of scope.
-# Add Rails here when converting the skeleton into a full app.
+gem "rails", "~> 8.0"
+gem "puma", "~> 6.4"
+gem "pg", "~> 1.5"

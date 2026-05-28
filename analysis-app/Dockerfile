@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends ca-certificates curl tar; \
+    apt-get install -y --no-install-recommends build-essential ca-certificates curl libpq-dev tar; \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \
@@ -30,4 +30,4 @@ ENV STOCKFISH_TIMEOUT=2.0
 
 EXPOSE 3000
 
-CMD ["ruby", "bin/server"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
