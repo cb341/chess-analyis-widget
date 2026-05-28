@@ -18,7 +18,6 @@ chess-widget .cw-header,
 chess-widget .cw-main,
 chess-widget .cw-board-panel,
 chess-widget .cw-side,
-chess-widget .cw-eval-wrap,
 chess-widget .cw-controls,
 chess-widget .cw-current,
 chess-widget .cw-summary,
@@ -57,12 +56,38 @@ chess-widget .cw-board-panel {
   gap: 12px;
 }
 
+chess-widget .cw-board-with-eval {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+}
+
+chess-widget .cw-board-with-eval .cw-eval-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 22px;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+chess-widget .cw-board-with-eval .cw-eval {
+  flex: 1;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
 chess-widget .cg-wrap {
   width: 100%;
   max-width: var(--cw-board-max-width, 640px);
   aspect-ratio: 1 / 1;
-  margin: 0 0 22px 22px;
+  margin: 0 0 22px;
   justify-self: stretch;
+  flex: 1;
+  min-width: 0;
 }
 
 chess-widget .cg-wrap,
@@ -138,11 +163,6 @@ chess-widget .cw-side {
   grid-template-columns: 1fr;
   gap: 14px;
   align-items: start;
-}
-
-chess-widget .cw-eval-wrap {
-  gap: 8px;
-  justify-items: center;
 }
 
 chess-widget .cw-eval {
@@ -275,22 +295,10 @@ chess-widget .cw-live {
   }
 
   chess-widget .cg-wrap {
-    width: calc(100% - 22px);
     max-width: none;
   }
 
   chess-widget .cw-panel {
     grid-column: 1;
-  }
-
-  chess-widget .cw-eval-wrap {
-    justify-items: stretch;
-  }
-
-  chess-widget .cw-eval {
-    flex-direction: row;
-    width: 100%;
-    height: 24px;
-    min-height: 24px;
   }
 }

@@ -479,7 +479,18 @@
 
       var boardPanel = document.createElement("div");
       boardPanel.className = "cw-board-panel";
-      boardPanel.appendChild(this.renderBoard(position));
+
+      var boardWithEval = document.createElement("div");
+      boardWithEval.className = "cw-board-with-eval";
+      if (!this.panelHidden("eval")) {
+        boardWithEval.appendChild(this.renderEvalBar(whiteShare, blackShare));
+      }
+      boardWithEval.appendChild(this.renderBoard(position));
+      boardPanel.appendChild(boardWithEval);
+
+      if (!this.panelHidden("controls")) {
+        boardPanel.appendChild(this.renderControls(game));
+      }
       boardPanel.appendChild(this.renderAnnotation(annotation));
       boardPanel.appendChild(this.renderBookmarks(game));
       main.appendChild(boardPanel);
@@ -865,8 +876,6 @@
       var side = document.createElement("aside");
       side.className = "cw-side";
       side.innerHTML = `
-        <div data-slot="controls"></div>
-        <div data-slot="eval"></div>
         <div data-slot="chart"></div>
         <div data-slot="current"></div>
         <div data-slot="summary"></div>
@@ -876,8 +885,6 @@
       var hasSummary = game.summary && game.summary.trim().length > 0;
       var showCurrent = this.currentPly > 0;
       var panels = [
-        ["controls", "Controls", this.renderControls(game), false],
-        ["eval", "Evaluation", this.renderEvalBar(whiteShare, blackShare), false],
         ["chart", "Eval over time", this.renderEvalChart(game), false],
         showCurrent ? ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), false] : null,
         ["moves", "Moves", this.renderMoveList(game), false],

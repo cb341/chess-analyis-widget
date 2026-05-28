@@ -531,13 +531,6 @@ chess-widget .cw-bookmark:hover {
   }
 }
 
-@container (max-width: 760px) {
-  chess-widget .cw-eval-text {
-    writing-mode: horizontal-tb;
-    transform: none;
-    text-align: center;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   chess-widget,
