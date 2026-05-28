@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "webrick"
+require "uri"
+require_relative "../app/controllers/analyses_controller"
+
+root = File.expand_path("..", __dir__)
+public_root = File.join(root, "public")
+port = Integer(ENV.fetch("PORT", "3000"))
+controller = AnalysesController.new
+
+server = WEBrick::HTTPServer.new(
+  BindAddress: ENV.fetch("HOST", "127.0.0.1"),
+  Port: port,
+  DocumentRoot: public_root
+)
+
+server.mount_proc("/") do |request, response|
+  case [request.request_method, request.path]
+  when ["GET", "/"], ["GET", "/analyses/new"], ["HEAD", "/"], ["HEAD", "/analyses/new"]
+    response["Content-Type"] = "text/html; charset=utf-8"
+    response.body = request.request_method == "HEAD" ? "" : controller.new
+  when ["POST", "/analyses"]
+    response["Content-Type"] = "text/html; charset=utf-8"
+    params = URI.decode_www_form(request.body.to_s).to_h
+    response.body = controller.create(params)
+  else
+    response.status = 404
+    response["Content-Type"] = "text/plain; charset=utf-8"
+    response.body = "Not found"
+  end
+end
+
+trap("INT") { server.shutdown }
+puts "Listening on http://localhost:#{port}"
+server.start

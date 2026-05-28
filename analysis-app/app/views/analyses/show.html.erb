@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chess Analysis Result</title>
+    <link rel="stylesheet" href="/app.css">
+    <link rel="stylesheet" href="/chess-widget.css">
+  </head>
+  <body>
+    <main class="page wide">
+      <nav><a href="/">Analyze another PGN</a></nav>
+      <h1>Analysis Result</h1>
+      <p class="summary"><%= h(@payload[:summary]) %></p>
+      <script type="application/json" id="game-data"><%= json_script(@payload_json) %></script>
+      <chess-widget data-source="game-data"></chess-widget>
+      <h2>Text Analysis</h2>
+      <pre><%= h(@payload[:text_analysis]) %></pre>
+      <h2>Payload JSON</h2>
+      <pre><%= h(@payload_json) %></pre>
+    </main>
+    <script src="/chess-widget.js"></script>
+  </body>
+</html>

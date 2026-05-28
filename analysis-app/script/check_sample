@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require_relative "../app/services/chess/analysis_builder"
+
+pgn = <<~PGN
+  [Event "Live Chess"]
+  [Site "Chess.com"]
+  [Date "2026.05.27"]
+  [Round "?"]
+  [White "CuddlyBunion341"]
+  [Black "KamKam777"]
+  [Result "1-0"]
+  [TimeControl "300"]
+  [WhiteElo "204"]
+  [BlackElo "185"]
+  [Termination "CuddlyBunion341 won by checkmate"]
+  [ECO "A06"]
+  [EndTime "19:50:16 GMT+0000"]
+  [Link "https://www.chess.com/game/live/169329691518?move=0"]
+
+  1. e4 d5 2. Nf3 dxe4 3. Ng5 e5 4. Nxe4 Bf5 5. d3 Qc8 6. Be2 Bg4 7. Bxg4 f5 8.
+  Bh3 fxe4 9. Bxc8 Nc6 10. dxe4 Rxc8 11. O-O Rd8 12. Bd2 Bb4 13. c3 Bc5 14. b4 Bb6
+  15. b5 Na5 16. Qh5+ g6 17. Qxe5+ Ne7 18. Qxh8+ Kd7 19. Qxh7 Nc4 20. Rd1 Rf8 21.
+  Bh6+ Ke8 22. Bxf8 Kxf8 23. Rd8# 1-0
+PGN
+
+payload = Chess::AnalysisBuilder.new.build(pgn)
+
+checks = {
+  "45 moves" => payload[:moves].length == 45,
+  "46 positions" => payload[:positions].length == 46,
+  "metadata parsed" => payload[:metadata]["White"] == "CuddlyBunion341",
+  "castling detected" => payload[:moves].any? { |move| move[:san] == "O-O" && move[:flags]["castling"] },
+  "checkmate detected" => payload[:moves].any? { |move| move[:san] == "Rd8#" && move[:flags]["checkmate"] },
+  "text analysis rendered" => payload[:text_analysis].include?("♖d8#")
+}
+
+failed = checks.select { |_name, passed| !passed }
+if failed.empty?
+  puts "OK"
+  puts payload[:summary]
+else
+  failed.each_key { |name| warn "FAILED: #{name}" }
+  exit 1
+end

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chess Analysis</title>
+    <link rel="stylesheet" href="/app.css">
+  </head>
+  <body>
+    <main class="page">
+      <h1>Chess Analysis</h1>
+      <% if @error %>
+        <p class="error"><%= h(@error) %></p>
+      <% end %>
+      <form action="/analyses" method="post">
+        <label for="pgn">PGN</label>
+        <textarea id="pgn" name="pgn" rows="18"><%= h(@pgn) %></textarea>
+        <button type="submit">Analyze</button>
+      </form>
+    </main>
+  </body>
+</html>
