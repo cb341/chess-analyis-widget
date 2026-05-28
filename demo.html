@@ -259,6 +259,24 @@
         font-weight: 900;
       }
 
+      .customized-widget piece.cw-piece-arrived {
+        animation-name: customized-piece-spin;
+      }
+
+      @keyframes customized-piece-spin {
+        0% {
+          transform: var(--cw-from-transform) rotate(0deg) scale(0.92);
+        }
+
+        70% {
+          transform: var(--cw-transform) rotate(360deg) scale(1.08);
+        }
+
+        100% {
+          transform: var(--cw-transform) rotate(360deg) scale(1);
+        }
+      }
+
       @media (max-width: 860px) {
         .board-pair,
         .feature-list {
@@ -354,6 +372,10 @@ chess-widget.customized-widget .cw-button {
   background: #13293d;
   color: #fff7e6;
   font-weight: 900;
+}
+
+chess-widget.customized-widget piece.cw-piece-arrived {
+  animation-name: customized-piece-spin;
 }</code></pre>
 
       <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks control-style="arrows">
