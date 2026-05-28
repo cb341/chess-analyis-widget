@@ -5,6 +5,7 @@ require_relative "board"
 require_relative "move_resolver"
 require_relative "fen_builder"
 require_relative "stockfish_analyzer"
+require_relative "evaluation_schema"
 require_relative "move_classifier"
 require_relative "summary_builder"
 require_relative "text_analysis_renderer"
@@ -14,6 +15,9 @@ module Chess
   # Orchestrates PGN parsing, board replay, evaluation, annotation, and response
   # rendering into one payload for the UI and copyable analysis formats.
   class AnalysisBuilder
+    PAYLOAD_VERSION = 1
+    COLORS = %w[white black].freeze
+
     def initialize(
       parser: PgnParser.new,
       resolver: MoveResolver.new,
@@ -70,7 +74,7 @@ module Chess
       end
 
       payload = {
-        version: 1,
+        version: PAYLOAD_VERSION,
         metadata: parsed[:metadata],
         summary: "",
         text_analysis: "",
@@ -85,13 +89,32 @@ module Chess
       payload[:summary] = @summary_builder.build(payload)
       payload[:text_analysis] = @text_renderer.render(payload)
       payload[:markdown_analysis] = @markdown_renderer.render(payload)
+      validate_payload!(payload)
       payload
     end
 
     private
 
     def evaluate(board)
-      @analyzer.evaluate_fen(@fen_builder.build(board), board: board)
+      EvaluationSchema.validate!(@analyzer.evaluate_fen(@fen_builder.build(board), board: board))
+    end
+
+    def validate_payload!(payload)
+      raise ArgumentError, "payload version must be #{PAYLOAD_VERSION}" unless payload[:version] == PAYLOAD_VERSION
+      raise ArgumentError, "positions must include starting position" if payload[:positions].empty?
+      raise ArgumentError, "positions must equal moves + 1" unless payload[:positions].length == payload[:moves].length + 1
+
+      payload[:moves].each do |move|
+        raise ArgumentError, "move color must be white or black" unless COLORS.include?(move[:color])
+
+        EvaluationSchema.validate!(move[:eval_before], context: "move #{move[:ply]} eval_before")
+        EvaluationSchema.validate!(move[:eval_after], context: "move #{move[:ply]} eval_after")
+      end
+
+      payload[:positions].each do |position|
+        EvaluationSchema.validate!(position[:eval], context: "position #{position[:ply]} eval")
+        raise ArgumentError, "eval_bar must sum to 100" unless position[:eval_bar][:white] + position[:eval_bar][:black] == 100
+      end
     end
 
     def move_payload(move)
@@ -141,7 +164,8 @@ module Chess
     end
 
     def clean_eval(evaluation)
-      {type: evaluation[:type], value: evaluation[:value]}
+      evaluation = EvaluationSchema.validate!(evaluation)
+      {type: evaluation[:type], value: evaluation[:value], source: evaluation[:source]}
     end
 
     def eval_bar(evaluation)

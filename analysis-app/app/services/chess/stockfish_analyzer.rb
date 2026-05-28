@@ -2,6 +2,7 @@
 
 require "open3"
 require "timeout"
+require_relative "evaluation_schema"
 
 module Chess
   # Evaluates FEN positions through a local Stockfish UCI executable.
@@ -31,16 +32,20 @@ module Chess
     end
 
     def evaluate_fen(fen, board: nil)
-      return fallback_evaluation(board, fen) unless available?
+      return validate(fallback_evaluation(board, fen), "fallback evaluation") unless available?
 
-      stockfish_evaluation(fen)
+      validate(stockfish_evaluation(fen), "stockfish evaluation")
     rescue
-      fallback_evaluation(board, fen)
+      validate(fallback_evaluation(board, fen), "fallback evaluation")
     end
 
     private
 
     attr_reader :path, :depth, :timeout
+
+    def validate(evaluation, context)
+      EvaluationSchema.validate!(evaluation, context: context)
+    end
 
     def executable_available?
       return File.executable?(path) if path.include?("/")
@@ -62,7 +67,7 @@ module Chess
           stdin.puts "go depth #{depth}"
 
           stdout.each_line do |line|
-            best_score = parse_score(line) || best_score
+            best_score = parse_score(line, active_color(fen)) || best_score
             break if line.start_with?("bestmove")
           end
 
@@ -89,13 +94,21 @@ module Chess
       stdout.each_line.any? { |line| line.strip == marker }
     end
 
-    def parse_score(line)
+    def parse_score(line, active_color)
       case line
       when /\bscore cp (-?\d+)/
-        {type: "cp", value: Regexp.last_match(1).to_i, source: "stockfish"}
+        {type: "cp", value: normalize_score(Regexp.last_match(1).to_i, active_color), source: "stockfish"}
       when /\bscore mate (-?\d+)/
-        {type: "mate", value: Regexp.last_match(1).to_i, source: "stockfish"}
+        {type: "mate", value: normalize_score(Regexp.last_match(1).to_i, active_color), source: "stockfish"}
       end
+    end
+
+    def active_color(fen)
+      (fen.to_s.split[1] == "b") ? "black" : "white"
+    end
+
+    def normalize_score(value, active_color)
+      (active_color == "black") ? -value : value
     end
 
     def fallback_evaluation(board, fen)

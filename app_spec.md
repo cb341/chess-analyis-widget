@@ -211,7 +211,8 @@ Expected normalized output:
 ```ruby
 {
   type: "cp",
-  value: 42
+  value: 42,
+  source: "stockfish"
 }
 ```
 
@@ -220,7 +221,8 @@ or:
 ```ruby
 {
   type: "mate",
-  value: 3
+  value: 3,
+  source: "stockfish"
 }
 ```
 
@@ -230,6 +232,9 @@ Evaluation should be normalized from White's perspective:
 positive = White is better
 negative = Black is better
 ```
+
+This invariant is validated in `Chess::EvaluationSchema`. Fallback material
+evaluation uses the same schema with `source: "fallback_material"`.
 
 ### Chess::MoveClassifier
 
@@ -423,7 +428,8 @@ Rails must emit a complete payload. The widget must not derive chess rules from 
       "annotation": null,
       "eval": {
         "type": "cp",
-        "value": 0
+        "value": 0,
+        "source": "fallback_material"
       },
       "eval_bar": {
         "white": 50,
@@ -452,11 +458,13 @@ Rails must emit a complete payload. The widget must not derive chess rules from 
       "annotation": "good",
       "eval_before": {
         "type": "cp",
-        "value": 0
+        "value": 0,
+        "source": "fallback_material"
       },
       "eval_after": {
         "type": "cp",
-        "value": 22
+        "value": 22,
+        "source": "fallback_material"
       },
       "eval_loss": 0,
       "flags": {

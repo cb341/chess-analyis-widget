@@ -83,6 +83,7 @@ The returned payload includes:
 - FEN before and after each move
 - annotations
 - evaluation bar data
+- validated evaluation hashes: `{type:, value:, source:}`
 - summary text
 - `text_analysis`
 - `markdown_analysis`
@@ -111,8 +112,12 @@ fallback:
 
 - positive centipawns favor White
 - negative centipawns favor Black
-- `source: "fallback_material"` is omitted from the public payload but used
-  internally
+- `source` records whether the value came from Stockfish or fallback material
+  evaluation
+
+`Chess::EvaluationSchema` documents and validates the evaluation shape. Stockfish
+UCI scores are normalized from side-to-move perspective into White perspective
+before entering the payload.
 
 The Docker path uses Stockfish 18. Local non-Docker runs may still use fallback
 unless Stockfish is installed on the host.
