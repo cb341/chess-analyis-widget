@@ -4,12 +4,12 @@ WORKDIR /app
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends build-essential ca-certificates libpq-dev stockfish; \
+    apt-get install -y --no-install-recommends build-essential ca-certificates libpq-dev libyaml-dev stockfish; \
     ln -sf "$(find /usr/games /usr/bin -type f -name stockfish -perm /111 | head -n 1)" /usr/local/bin/stockfish; \
     rm -rf /var/lib/apt/lists/*; \
     stockfish bench 1
 
-COPY Gemfile /app/Gemfile
+COPY Gemfile Gemfile.lock /app/
 RUN bundle install
 
 COPY . /app
