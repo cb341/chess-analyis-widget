@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if ruby -e "exit Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0') ? 0 : 1"; then
+  BUNDLE_PATH=vendor/bundle bundle exec standardrb
+else
+  echo "Skipping StandardRB: requires Ruby 3.0+, current Ruby is $(ruby -v)."
+fi
+
+ruby analysis-app/script/check_sample
+find analysis-app -type f \( -name '*.rb' -o -path 'analysis-app/bin/server' -o -path 'analysis-app/script/check_sample' \) -exec ruby -c {} \;
+
+bunx eslint widget-demo analysis-app/public
+bunx prettier --check "**/*.{md,yml,yaml,json,css,html,js}"
+
+node --check widget-demo/chess-widget.js
+node --check analysis-app/public/chess-widget.js
+
+docker compose config >/dev/null

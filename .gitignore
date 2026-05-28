@@ -1,0 +1,9 @@
+PROMPT.md
+*.pdf
+
+/node_modules/
+/.bundle/
+/vendor/bundle/
+
+/analysis-app/tmp/
+/analysis-app/log/

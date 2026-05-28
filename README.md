@@ -95,10 +95,13 @@ consistently, including on Apple Silicon through Docker emulation.
 ## Testing
 
 ```sh
-docker compose run --rm analysis-app ruby script/check_sample
-docker compose run --rm analysis-app ruby -c app/services/chess/stockfish_analyzer.rb
-node --check widget-demo/chess-widget.js
+bin/setup
+bin/lint
+bin/fix
 ```
+
+JavaScript and Markdown tooling use Bun, ESLint, and Prettier. Ruby formatting
+uses StandardRB; it requires Ruby 3.x locally and runs under Ruby 3.3 in CI.
 
 High-level Cucumber specs live in `features/`. They document the intended
 behavior but do not yet have step definitions:

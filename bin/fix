@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if ruby -e "exit Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0') ? 0 : 1"; then
+  BUNDLE_PATH=vendor/bundle bundle exec standardrb --fix
+else
+  echo "Skipping StandardRB fix: requires Ruby 3.0+, current Ruby is $(ruby -v)."
+fi
+bunx eslint widget-demo analysis-app/public --fix
+bunx prettier --write "**/*.{md,yml,yaml,json,css,html,js}"

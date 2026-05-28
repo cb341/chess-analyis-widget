@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+bun install
+
+if ruby -e "exit Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0') ? 0 : 1"; then
+  BUNDLE_PATH=vendor/bundle bundle install
+else
+  echo "Skipping Ruby lint gems: StandardRB requires Ruby 3.0+, current Ruby is $(ruby -v)."
+  echo "Use Docker/CI or install Ruby 3.x to run the full Ruby lint locally."
+fi
+
+echo "Setup complete."

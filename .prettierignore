@@ -1,0 +1,9 @@
+.git
+node_modules
+vendor
+
+PROMPT.md
+*.pdf
+
+analysis-app/tmp
+analysis-app/log

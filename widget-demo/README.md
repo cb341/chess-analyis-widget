@@ -16,8 +16,8 @@ No server, package install, or build step is required.
 
 ```sh
 node --check widget-demo/chess-widget.js
-rg -n "fetch|XMLHttpRequest|WebSocket|EventSource|import\\s" widget-demo
+bunx eslint widget-demo
+bin/lint
 ```
 
-The second command should produce no matches. The widget reads only embedded
-JSON from the DOM and makes no API calls.
+The widget reads only embedded JSON from the DOM and makes no API calls.
