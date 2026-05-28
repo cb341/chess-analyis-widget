@@ -50,6 +50,15 @@ ruby script/check_sample
 Local runs use real Stockfish when `stockfish` is on `PATH`; otherwise they use
 the deterministic material fallback.
 
+Development logs are written to:
+
+```text
+analysis-app/log/development.log
+```
+
+The app uses `AnalysisApp.logger`, which delegates to `Rails.logger` when Rails
+is present and otherwise uses Ruby's `Logger`.
+
 ## Testing
 
 From the repo root:

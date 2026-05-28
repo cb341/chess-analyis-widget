@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "pgn_parser"
+require_relative "../../../config/application"
 require_relative "board"
 require_relative "move_resolver"
 require_relative "fen_builder"
@@ -103,6 +104,7 @@ module Chess
     private
 
     def report(progress, message)
+      AnalysisApp.logger.debug("analysis_builder #{message}")
       progress&.call(message)
     end
 

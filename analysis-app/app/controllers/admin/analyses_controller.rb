@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "erb"
+require_relative "../../../config/application"
 require_relative "../../models/analysis_repository"
 
 module Admin
@@ -11,11 +12,14 @@ module Admin
     end
 
     def index
-      render_template("index", analyses: @repository.all)
+      analyses = @repository.all
+      AnalysisApp.logger.debug("admin analyses#index count=#{analyses.length}")
+      render_template("index", analyses: analyses)
     end
 
     def show(params)
       analysis = @repository.find(params.fetch("id"))
+      AnalysisApp.logger.debug("admin analyses#show id=#{params.fetch("id")} found=#{!analysis.nil?}")
       return not_found unless analysis
 
       render_template("show", analysis: analysis)

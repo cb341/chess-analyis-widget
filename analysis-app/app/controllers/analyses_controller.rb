@@ -2,6 +2,7 @@
 
 require "json"
 require "erb"
+require_relative "../../config/application"
 require_relative "../services/chess/analysis_builder"
 require_relative "../models/analysis_repository"
 
@@ -36,28 +37,40 @@ class AnalysesController
   end
 
   def new
+    AnalysisApp.logger.debug("render analyses#new")
     render_template("new", pgn: SAMPLE_PGN, error: nil)
   end
 
   def create(params)
     pgn = params.fetch("pgn", "")
+    AnalysisApp.logger.info("analysis create started pgn_bytes=#{pgn.bytesize}")
     payload = @builder.build(pgn)
     analysis = @repository.create(pgn: pgn, payload: payload)
+    AnalysisApp.logger.info("analysis create saved id=#{analysis.id} moves=#{payload[:moves].length} positions=#{payload[:positions].length}")
     render_show(pgn: pgn, payload: payload, analysis_id: analysis.id)
   rescue => error
+    AnalysisApp.logger.error("analysis create failed class=#{error.class} message=#{error.message}")
     render_template("new", pgn: pgn, error: error.message)
   end
 
   def create_stream(params, stream)
     pgn = params.fetch("pgn", "")
-    payload = @builder.build(pgn, progress: ->(message) { stream.progress(message) })
+    AnalysisApp.logger.info("analysis stream started pgn_bytes=#{pgn.bytesize}")
+    payload = @builder.build(pgn, progress: ->(message) { progress(stream, message) })
     analysis = @repository.create(pgn: pgn, payload: payload)
+    AnalysisApp.logger.info("analysis stream saved id=#{analysis.id} moves=#{payload[:moves].length} positions=#{payload[:positions].length}")
     stream.finish(render_show(pgn: pgn, payload: payload, analysis_id: analysis.id))
   rescue => error
+    AnalysisApp.logger.error("analysis stream failed class=#{error.class} message=#{error.message}")
     stream.finish(render_template("new", pgn: pgn, error: error.message))
   end
 
   private
+
+  def progress(stream, message)
+    AnalysisApp.logger.debug("analysis progress #{message}")
+    stream.progress(message)
+  end
 
   def render_show(pgn:, payload:, analysis_id:)
     payload_json = JSON.pretty_generate(payload)

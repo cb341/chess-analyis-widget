@@ -20,10 +20,10 @@ module Chess
 
     def fen
       rights = [
-        white_kingside && "K",
-        white_queenside && "Q",
-        black_kingside && "k",
-        black_queenside && "q"
+        white_kingside ? "K" : nil,
+        white_queenside ? "Q" : nil,
+        black_kingside ? "k" : nil,
+        black_queenside ? "q" : nil
       ].compact.join
 
       rights.empty? ? "-" : rights

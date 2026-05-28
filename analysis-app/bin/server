@@ -11,6 +11,7 @@ require_relative "../config/route_set"
 
 controller = AnalysesController.new
 admin_controller = Admin::AnalysesController.new
+logger = AnalysisApp.logger
 
 server = WEBrick::HTTPServer.new(
   BindAddress: AnalysisApp.host,
@@ -19,6 +20,9 @@ server = WEBrick::HTTPServer.new(
 )
 
 server.mount_proc("/") do |request, response|
+  started_at = Time.now
+  logger.info("#{request.request_method} #{request.path} started")
+
   route = ANALYSIS_ROUTES.find do |candidate|
     exact_match = candidate[:path] == request.path
     pattern_match = candidate[:path_pattern]&.match(request.path)
@@ -49,8 +53,11 @@ server.mount_proc("/") do |request, response|
     response["Content-Type"] = "text/plain; charset=utf-8"
     response.body = "Not found"
   end
+
+  logger.info("#{request.request_method} #{request.path} completed status=#{response.status} duration_ms=#{((Time.now - started_at) * 1000).round}")
 end
 
 trap("INT") { server.shutdown }
 puts "Listening on http://#{AnalysisApp.host}:#{AnalysisApp.port}"
+logger.info("server boot host=#{AnalysisApp.host} port=#{AnalysisApp.port} env=#{AnalysisApp.environment}")
 server.start

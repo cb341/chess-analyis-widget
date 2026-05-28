@@ -2,6 +2,7 @@
 
 require "open3"
 require "timeout"
+require_relative "../../../config/application"
 require_relative "evaluation_schema"
 
 module Chess
@@ -32,10 +33,15 @@ module Chess
     end
 
     def evaluate_fen(fen, board: nil)
-      return validate(fallback_evaluation(board, fen), "fallback evaluation") unless available?
+      unless available?
+        AnalysisApp.logger.debug("stockfish unavailable; using fallback fen=#{fen}")
+        return validate(fallback_evaluation(board, fen), "fallback evaluation")
+      end
 
+      AnalysisApp.logger.debug("stockfish evaluate depth=#{depth} fen=#{fen}")
       validate(stockfish_evaluation(fen), "stockfish evaluation")
-    rescue
+    rescue => error
+      AnalysisApp.logger.warn("stockfish failed; using fallback class=#{error.class} message=#{error.message}")
       validate(fallback_evaluation(board, fen), "fallback evaluation")
     end
 
