@@ -883,10 +883,10 @@
       `;
 
       var hasSummary = game.summary && game.summary.trim().length > 0;
-      var showCurrent = this.currentPly > 0;
+      var currentComment = position && position.pgn_comment && position.pgn_comment.trim();
       var panels = [
         ["chart", "Eval over time", this.renderEvalChart(game), false],
-        showCurrent ? ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), false] : null,
+        currentComment ? ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), false] : null,
         ["moves", "Moves", this.renderMoveList(game), false],
         hasSummary ? ["summary", "Summary", this.renderSummary(game), false] : null,
       ].filter(Boolean);
@@ -959,9 +959,7 @@
     renderCurrent(position) {
       var section = document.createElement("div");
       section.className = "cw-current-body";
-      var text = position && position.pgn_comment
-        ? position.pgn_comment
-        : (annotationFor(position).text || "Starting position.");
+      var text = (position && position.pgn_comment) || "";
       section.innerHTML = `<p>${escapeHtml(text)}</p>`;
       return section;
     }
