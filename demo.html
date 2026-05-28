@@ -28,6 +28,16 @@
         max-width: 760px;
       }
 
+      .feature-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 18px;
+        max-width: 760px;
+        margin: 18px 0 28px;
+        padding-left: 20px;
+        font: 16px/1.4 system-ui, sans-serif;
+      }
+
       chess-widget {
         margin: 24px 0 34px;
         --cw-board-max-width: 520px;
@@ -62,7 +72,8 @@
       }
 
       @media (max-width: 860px) {
-        .board-pair {
+        .board-pair,
+        .feature-list {
           grid-template-columns: 1fr;
         }
       }
@@ -76,6 +87,20 @@
         widget reads SAN, comments, clocks, and lichess eval annotations in the
         browser.
       </p>
+
+      <h2>Supported PGN Features</h2>
+      <ul class="feature-list">
+        <li>Tag pairs, including player names, result, ratings, and site data</li>
+        <li>Custom starts with `[SetUp "1"]` and `[FEN "..."]`</li>
+        <li>SAN moves for pieces and pawns</li>
+        <li>Captures, castling, promotion, and en passant</li>
+        <li>Disambiguation such as `Nbd7` and `R1e2`</li>
+        <li>Check and checkmate suffixes</li>
+        <li>Comments attached to each ply</li>
+        <li>Lichess `[%eval]` and `[%clk]` annotations</li>
+        <li>Symbolic and numeric NAG glyphs</li>
+        <li>Main-line replay with variations skipped</li>
+      </ul>
 
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="0" end="51" eval-chart clocks>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
