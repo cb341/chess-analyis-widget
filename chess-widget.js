@@ -572,7 +572,7 @@
     return move.move_number + (move.color === "black" ? "... " : ". ") + move.san;
   }
 
-  var OBSERVED_ATTRS = ["orientation", "start", "end", "ply", "sound", "eval-chart", "clocks", "minimal"];
+  var OBSERVED_ATTRS = ["orientation", "start", "end", "ply", "sound", "eval-chart", "clocks", "minimal", "board-only"];
 
   class ChessWidget extends HTMLElement {
     static get observedAttributes() {
@@ -721,7 +721,8 @@
       this.innerHTML = "";
       var shell = document.createElement("div");
       shell.className = "cw-shell";
-      var minimal = hasBooleanAttr(this, "minimal", false);
+      var boardOnly = hasBooleanAttr(this, "board-only", false);
+      var minimal = boardOnly || hasBooleanAttr(this, "minimal", false);
       if (minimal) shell.className += " cw-shell-minimal";
       if (!minimal) shell.appendChild(this.renderHeader(game.metadata));
       var main = document.createElement("div");
@@ -734,7 +735,7 @@
       boardWithEval.appendChild(this.renderBoard(position));
       if (!minimal) boardWithEval.appendChild(this.renderEvalBar(whiteShare, blackShare, position.eval));
       boardPanel.appendChild(boardWithEval);
-      boardPanel.appendChild(this.renderControls(game));
+      if (!boardOnly) boardPanel.appendChild(this.renderControls(game));
       if (!minimal) boardPanel.appendChild(this.renderAnnotation(position));
       main.appendChild(boardPanel);
       if (!minimal) main.appendChild(this.renderSidePanel(game, position));
