@@ -275,6 +275,24 @@ chess-widget .cw-live {
 }
 
 @media (max-width: 520px) {
+  chess-widget.cw-widget {
+    padding: var(--cw-widget-padding-small, 12px);
+  }
+
+  chess-widget .cw-board-with-eval {
+    display: block;
+    width: 100%;
+  }
+
+  chess-widget .cw-board-with-eval .cw-eval-wrap {
+    display: none;
+  }
+
+  chess-widget .cg-wrap {
+    width: min(100%, 300px);
+    margin-left: 0;
+  }
+
   chess-widget .cw-controls {
     grid-template-columns: 1fr 1fr;
   }

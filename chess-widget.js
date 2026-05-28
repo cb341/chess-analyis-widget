@@ -310,7 +310,9 @@
       } else if (char === "{") {
         var end = text.indexOf("}", index + 1);
         if (end === -1) end = text.length - 1;
-        pending = text.slice(index + 1, end).trim();
+        var comment = text.slice(index + 1, end).trim();
+        if (tokens.length) tokens[tokens.length - 1].comment = comment;
+        else pending = comment;
         index = end + 1;
       } else if (char === "(") {
         index = skipVariation(text, index + 1);

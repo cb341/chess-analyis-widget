@@ -9,7 +9,9 @@ No server, Stockfish, database, build step, or precomputed JSON is required.
 ```html
 <link rel="stylesheet" href="./chess-widget.css">
 
-<chess-widget src="./sample.pgn" eval-chart clocks></chess-widget>
+<chess-widget src="/assets/games/blitz-checkmate.pgn" eval-chart clocks>
+  <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+</chess-widget>
 
 <script src="./chess-widget.js"></script>
 ```
@@ -63,4 +65,4 @@ chess-widget {
 }
 ```
 
-See `demo.html` and `sample.pgn` for a complete static page.
+See `demo.html` and `assets/games/blitz-checkmate.pgn` for a complete static page.
