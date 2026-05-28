@@ -23,7 +23,7 @@ class ProgressStream
       write <<~HTML
         <script>
           document.open();
-          document.write(#{html.inspect});
+          document.write(#{javascript_string(html)});
           document.close();
         </script>
       HTML
@@ -35,7 +35,11 @@ class ProgressStream
   private
 
   def write(chunk)
-    @output << chunk
+    @output.write(chunk)
+  end
+
+  def javascript_string(value)
+    value.inspect.gsub("</", '<\/')
   end
 
   def start

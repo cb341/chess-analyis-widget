@@ -13,6 +13,30 @@ controller = AnalysesController.new
 admin_controller = Admin::AnalysesController.new
 logger = AnalysisApp.logger
 
+def serve_static?(request, response)
+  return false unless %w[GET HEAD].include?(request.request_method)
+
+  path = request.path.delete_prefix("/")
+  return false if path.empty? || path.include?("..")
+
+  file = File.join(AnalysisApp::PUBLIC_ROOT, path)
+  return false unless File.file?(file)
+
+  response.status = 200
+  response["Content-Type"] = content_type_for(file)
+  response.body = (request.request_method == "HEAD") ? "" : File.binread(file)
+  true
+end
+
+def content_type_for(file)
+  case File.extname(file)
+  when ".css" then "text/css; charset=utf-8"
+  when ".js" then "application/javascript; charset=utf-8"
+  when ".html" then "text/html; charset=utf-8"
+  else "application/octet-stream"
+  end
+end
+
 server = WEBrick::HTTPServer.new(
   BindAddress: AnalysisApp.host,
   Port: AnalysisApp.port,
@@ -22,6 +46,11 @@ server = WEBrick::HTTPServer.new(
 server.mount_proc("/") do |request, response|
   started_at = Time.now
   logger.info("#{request.request_method} #{request.path} started")
+
+  if serve_static?(request, response)
+    logger.info("#{request.request_method} #{request.path} completed status=#{response.status} duration_ms=#{((Time.now - started_at) * 1000).round}")
+    next
+  end
 
   route = ANALYSIS_ROUTES.find do |candidate|
     exact_match = candidate[:path] == request.path
