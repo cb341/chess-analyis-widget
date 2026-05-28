@@ -1,10 +1,10 @@
 chess-widget {
-  --cw-paper: #f6f2e8;
-  --cw-paper-deep: #e8ddca;
+  --cw-paper: #ffffff;
+  --cw-paper-deep: #f0f0f0;
   --cw-ink: #171512;
   --cw-muted: #6c655e;
   --cw-line: #c7c7c7;
-  --cw-light-square: #fffefd;
+  --cw-light-square: #ffffff;
   --cw-dark-hatch: #cfcfcf;
   --cw-highlight: #e1f276;
   --cw-good: #5fa65e;
@@ -28,13 +28,13 @@ chess-widget.cw-widget:focus-visible {
 
 chess-widget .cw-shell {
   background: var(--cw-paper);
-  border: 1px solid #cdbfaa;
+  border: 1px solid var(--cw-line);
   box-shadow: var(--cw-shell-shadow);
   padding: 20px;
 }
 
 chess-widget .cw-header {
-  border-bottom: 1px solid #d3c5b0;
+  border-bottom: 1px solid var(--cw-line);
   padding-bottom: 14px;
 }
 
@@ -68,9 +68,9 @@ chess-widget .cw-players {
 
 chess-widget .cw-players strong {
   color: var(--cw-ink);
-  border: 1px solid #d3c5b0;
+  border: 1px solid var(--cw-line);
   padding: 3px 8px;
-  background: #fffaf0;
+  background: var(--cw-paper);
 }
 
 chess-widget .cw-board {
@@ -206,7 +206,7 @@ chess-widget .cw-annotation {
   max-width: 430px;
   min-height: 72px;
   border-left: 6px solid var(--cw-good);
-  background: rgba(255, 250, 240, 0.94);
+  background: var(--cw-paper);
   padding: 12px 14px;
   box-shadow: var(--cw-annotation-shadow);
   font-family:
@@ -288,7 +288,7 @@ chess-widget .cw-button,
 chess-widget .cw-move,
 chess-widget .cw-bookmark {
   border: 1px solid var(--cw-ink);
-  background: #fffaf0;
+  background: var(--cw-paper);
   color: var(--cw-ink);
   font-size: 14px;
 }
@@ -307,9 +307,9 @@ chess-widget .cw-bookmark:focus-visible {
 }
 
 chess-widget .cw-button:disabled {
-  color: #9b907f;
+  color: var(--cw-muted);
   cursor: not-allowed;
-  background: #ebe3d4;
+  background: var(--cw-paper-deep);
 }
 
 chess-widget .cw-counter,
@@ -319,7 +319,7 @@ chess-widget .cw-move-number {
 }
 
 chess-widget .cw-panel {
-  border-top: 1px solid #d3c5b0;
+  border-top: 1px solid var(--cw-line);
   padding-top: 12px;
 }
 
@@ -343,7 +343,7 @@ chess-widget .cw-chart svg {
   height: 86px;
   overflow: visible;
   border-radius: 8px;
-  background: #fffaf0;
+  background: var(--cw-paper);
 }
 
 chess-widget .cw-chart-white {
@@ -414,22 +414,23 @@ chess-widget .cw-error {
 
 chess-widget .cw-piece-badge {
   position: absolute;
-  top: 2%;
-  right: 2%;
+  top: 0;
+  left: 0;
   z-index: 10;
-  font-size: clamp(9px, 1.4vw, 13px);
+  font-size: clamp(8px, 1.2vw, 12px);
   font-weight: 900;
   line-height: 1;
   padding: 2px 3px;
-  border-radius: 3px;
+  border-radius: 0 3px 0 3px;
   pointer-events: none;
   background: rgba(255, 255, 255, 0.92);
   color: var(--cw-ink);
   width: 12.5%;
   height: 12.5%;
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
+  transform: var(--cw-transform) translate(700%, 0%);
 }
 
 chess-widget .cw-piece-badge.cw-annotation-blunder {

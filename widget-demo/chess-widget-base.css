@@ -7,9 +7,9 @@ chess-widget.cw-widget {
   container-type: inline-size;
   display: block;
   outline: none;
-  border: var(--cw-widget-border-width, 1px)
-    var(--cw-widget-border-style, dashed)
-    var(--cw-widget-border-color, currentColor);
+  border: var(--cw-widget-border-width, 0px)
+    var(--cw-widget-border-style, solid)
+    var(--cw-widget-border-color, var(--cw-line, #c7c7c7));
   padding: var(--cw-widget-padding, 12px);
 }
 
@@ -69,7 +69,8 @@ chess-widget .cw-board-with-eval .cw-eval-wrap {
   align-items: center;
   gap: 4px;
   padding-bottom: 22px;
-  width: 28px;
+  padding-left: 8px;
+  width: 36px;
   flex-shrink: 0;
 }
 
@@ -84,7 +85,7 @@ chess-widget .cg-wrap {
   width: 100%;
   max-width: var(--cw-board-max-width, 640px);
   aspect-ratio: 1 / 1;
-  margin: 0 0 22px;
+  margin: 0 0 22px 22px;
   justify-self: stretch;
   flex: 1;
   min-width: 0;
