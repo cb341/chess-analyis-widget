@@ -187,7 +187,14 @@
     return new URL(path, ASSET_BASE_URL).toString();
   }
 
+  var OBSERVED_ATTRS = [
+    "orientation", "widget-title", "open-panels", "collapsed-panels",
+    "hidden-panels", "sound", "initial-ply",
+  ];
+
   class ChessWidget extends HTMLElement {
+    static get observedAttributes() { return OBSERVED_ATTRS; }
+
     constructor() {
       super();
       this.game = null;
@@ -199,6 +206,13 @@
       this._focusBound = false;
       this._soundSources = {};
       this._activeSound = null;
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      if (oldValue === newValue) return;
+      if (!this.game) return;
+      this._openPanelState = null;
+      this.render();
     }
 
     connectedCallback() {
@@ -467,10 +481,14 @@
       var whiteShare = total > 0 ? Math.round((whiteEval / total) * 100) : 50;
       var blackShare = 100 - whiteShare;
 
-      this._openPanelState = {};
-      this.querySelectorAll("[data-panel]").forEach(function (el) {
-        if (el.open) this._openPanelState[el.getAttribute("data-panel")] = true;
-      }, this);
+      this._openPanelState = this._openPanelState || null;
+      var hadPanels = !!this.querySelector("[data-panel]");
+      if (hadPanels) {
+        this._openPanelState = {};
+        this.querySelectorAll("[data-panel]").forEach(function (el) {
+          this._openPanelState[el.getAttribute("data-panel")] = el.open;
+        }, this);
+      }
 
       this.innerHTML = "";
 
@@ -931,7 +949,7 @@
       if (collapsedPanels[name]) return false;
       if (this.hasAttribute(name + "-open")) return true;
       if (this.hasAttribute(name + "-collapsed")) return false;
-      if (this._openPanelState && name in this._openPanelState) return this._openPanelState[name];
+      if (this._openPanelState && name in this._openPanelState) return !!this._openPanelState[name];
       return defaultOpen;
     }
 
