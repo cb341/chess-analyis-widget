@@ -49,7 +49,7 @@ body {
 }
 
 .analyses-link {
-  display: block;
+  display: inline-block;
   margin-bottom: 20px;
   font-size: 13px;
   color: var(--muted);
@@ -58,6 +58,18 @@ body {
 
 .analyses-link:hover {
   color: var(--ink);
+}
+
+.about-ctas {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.about-ctas .analyses-link {
+  margin-bottom: 0;
 }
 
 .form-header h1 {
@@ -149,6 +161,7 @@ body {
 }
 
 .btn-analyze {
+  display: inline-block;
   background: #1a1a1a;
   color: #fff;
   border: none;
@@ -159,6 +172,7 @@ body {
   cursor: pointer;
   letter-spacing: 0.01em;
   transition: background 0.15s;
+  text-decoration: none;
   width: auto;
 }
 

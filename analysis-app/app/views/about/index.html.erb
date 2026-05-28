@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chess Analysis Widget</title>
+    <link rel="stylesheet" href="/app.css">
+    <link rel="stylesheet" href="/chess-widget.css">
+  </head>
+  <body>
+    <main class="page wide">
+      <header class="about-header">
+        <h1>Chess Analysis Widget</h1>
+        <p class="about-tagline">Embeddable move-by-move game analysis. Paste a PGN, get a navigable board with engine annotations.</p>
+        <ul class="about-features">
+          <li>Stockfish engine evaluation</li>
+          <li>Blunders, mistakes &amp; brilliant moves marked</li>
+          <li>Eval bar &amp; eval-over-time chart</li>
+          <li>No build step &mdash; single JS file, self-contained data</li>
+          <li>Keyboard navigation</li>
+        </ul>
+        <div class="about-ctas">
+          <%= link_to "Analyze a game →", new_analysis_path, class: "btn-analyze" %>
+          <%= link_to "View saved analyses →", analyses_path, class: "analyses-link" %>
+        </div>
+      </header>
+
+      <script type="application/x-gzip-json" id="demo-game"><%= h(@demo_gz) %></script>
+      <div class="widget-preview-wrap">
+        <chess-widget data-source="demo-game"></chess-widget>
+      </div>
+    </main>
+    <script src="/chess-widget.js"></script>
+  </body>
+</html>

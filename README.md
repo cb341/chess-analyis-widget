@@ -1,11 +1,10 @@
 # Chess Analysis Widget
 
-Monorepo for a Rails chess analysis service and a no-build `<chess-widget>` demo.
+Rails chess analysis service with an embeddable `<chess-widget>`.
 
-## Projects
+## Project
 
-- `analysis-app/` - Rails app that parses PGN, replays boards, calls Stockfish 18, stores analyses in PostgreSQL, and renders analysis pages.
-- `widget-demo/` - static no-build widget demo that reads embedded JSON only and makes no API calls.
+`analysis-app/` — Rails app that parses PGN, replays boards, calls Stockfish 18, stores analyses in PostgreSQL, and renders analysis pages. The widget lives in `analysis-app/public/` and is served statically.
 
 ## System Overview
 
@@ -84,8 +83,9 @@ bin/fix    # StandardRB --fix when available, ESLint --fix, Prettier write
 Open:
 
 ```text
-http://localhost:3000
-http://localhost:3000/analyses
+http://localhost:3000          # PGN form
+http://localhost:3000/about    # widget demo
+http://localhost:3000/analyses # saved analyses
 ```
 
 Docker is not used for local development. Use local Ruby, Bun, PostgreSQL, and Stockfish.
