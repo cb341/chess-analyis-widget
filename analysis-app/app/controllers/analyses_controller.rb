@@ -45,6 +45,14 @@ class AnalysesController
     render_template("new", pgn: pgn, error: error.message)
   end
 
+  def create_stream(params, stream)
+    pgn = params.fetch("pgn", "")
+    payload = @builder.build(pgn, progress: ->(message) { stream.progress(message) })
+    stream.finish(render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), error: nil))
+  rescue => error
+    stream.finish(render_template("new", pgn: pgn, error: error.message))
+  end
+
   private
 
   def render_template(name, locals)

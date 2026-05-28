@@ -39,18 +39,22 @@ module Chess
       @markdown_renderer = markdown_renderer
     end
 
-    def build(pgn)
+    def build(pgn, progress: nil)
+      report(progress, "Parsing PGN")
       parsed = @parser.parse(pgn)
       board = Board.new
       positions = []
       moves = []
       ply = 0
+      report(progress, "Evaluating starting position")
       current_eval = evaluate(board)
       positions << position_payload(board, ply, 0, nil, nil, nil, current_eval)
 
+      report(progress, "Replaying #{parsed[:moves].length} moves")
       parsed[:moves].each_with_index do |san, index|
         move_number = (index / 2) + 1
         color = board.current_color
+        report(progress, "Analyzing #{move_number}. #{san} for #{color}")
         fen_before = @fen_builder.build(board)
         eval_before = current_eval
         resolved = @resolver.resolve(board, san)
@@ -74,6 +78,7 @@ module Chess
         raise ArgumentError, "Move #{move_number} #{color} #{san}: #{error.message}"
       end
 
+      report(progress, "Rendering analysis output")
       payload = {
         version: PAYLOAD_VERSION,
         metadata: parsed[:metadata],
@@ -91,10 +96,15 @@ module Chess
       payload[:text_analysis] = @text_renderer.render(payload)
       payload[:markdown_analysis] = @markdown_renderer.render(payload)
       validate_payload!(payload)
+      report(progress, "Analysis complete")
       payload
     end
 
     private
+
+    def report(progress, message)
+      progress&.call(message)
+    end
 
     def evaluate(board)
       EvaluationSchema.validate!(@analyzer.evaluate_fen(@fen_builder.build(board), board: board))

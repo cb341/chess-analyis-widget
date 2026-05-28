@@ -6,6 +6,7 @@ Feature: Server-side chess analysis
 
   Scenario: Analyze the sample game
     When I submit the PGN to the analysis app
+    Then I see progress while Stockfish analysis is running
     Then the response includes parsed game metadata
     And the response includes 46 board positions
     And the response includes 45 analyzed moves

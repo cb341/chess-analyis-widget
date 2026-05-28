@@ -27,7 +27,8 @@ pgn = <<~PGN
   Bh6+ Ke8 22. Bxf8 Kxf8 23. Rd8# 1-0
 PGN
 
-payload = Chess::AnalysisBuilder.new.build(pgn)
+progress_messages = []
+payload = Chess::AnalysisBuilder.new.build(pgn, progress: ->(message) { progress_messages << message })
 starting_fen = Chess::FenPosition.from_board(Chess::Board.new).to_s
 
 checks = {
@@ -40,7 +41,8 @@ checks = {
   "markdown analysis rendered" => payload[:markdown_analysis].include?("**♖d8#**"),
   "evaluation schema exposed" => payload[:moves].all? { |move| move[:eval_after].keys.sort == %i[source type value] },
   "positions match moves" => payload[:positions].length == payload[:moves].length + 1,
-  "fen resource serializes start" => starting_fen == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+  "fen resource serializes start" => starting_fen == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "progress reports emitted" => progress_messages.any? { |message| message.include?("Analyzing 23. Rd8#") }
 }
 
 failed = checks.select { |_name, passed| !passed }

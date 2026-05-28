@@ -4,6 +4,7 @@
 require "webrick"
 require "uri"
 require_relative "../app/controllers/analyses_controller"
+require_relative "../app/controllers/progress_stream"
 require_relative "../config/application"
 require_relative "../config/route_set"
 
@@ -28,7 +29,10 @@ server.mount_proc("/") do |request, response|
   when ["analyses", "create"]
     response["Content-Type"] = "text/html; charset=utf-8"
     params = URI.decode_www_form(request.body.to_s).to_h
-    response.body = controller.create(params)
+    response.chunked = true
+    response.body = proc do |output|
+      controller.create_stream(params, ProgressStream.new(output))
+    end
   else
     response.status = 404
     response["Content-Type"] = "text/plain; charset=utf-8"

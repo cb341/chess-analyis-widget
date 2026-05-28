@@ -87,6 +87,10 @@ The returned payload includes:
 - `text_analysis`
 - `markdown_analysis`
 
+During `POST /analyses`, the WEBrick runner streams a small progress page before
+the final result. Progress messages come from `Chess::AnalysisBuilder`, for
+example parsing PGN, evaluating the starting position, and analyzing each move.
+
 ## Analysis Resources
 
 Concrete value objects live under `app/models/chess/`:

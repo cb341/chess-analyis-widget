@@ -99,3 +99,39 @@ button {
   padding: 10px 12px;
   background: #fff4f1;
 }
+
+.progress-shell {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffaf0;
+  padding: 18px;
+}
+
+.progress-bar {
+  height: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #e7decf;
+}
+
+.progress-bar span {
+  display: block;
+  width: 6%;
+  height: 100%;
+  background: var(--ink);
+  transition: width 160ms ease;
+}
+
+#analysis-progress-message {
+  margin: 14px 0 10px;
+  font-weight: 650;
+}
+
+#analysis-progress-log {
+  max-height: 220px;
+  overflow: auto;
+  margin: 0;
+  padding-left: 22px;
+  color: var(--muted);
+}
