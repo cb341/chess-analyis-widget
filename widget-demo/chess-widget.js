@@ -546,10 +546,17 @@
 
       var currentMove =
         position && position.last_move ? position.last_move : {};
+      var currentFlags = position && position.flags ? position.flags : {};
       var revertedMove =
         this.previousPosition && this.previousPosition.last_move
           ? this.previousPosition.last_move
           : {};
+      var revertedFlags =
+        this.previousPosition && this.previousPosition.flags
+          ? this.previousPosition.flags
+          : {};
+      var currentRookMove = this.castlingRookMove(currentMove, currentFlags);
+      var revertedRookMove = this.castlingRookMove(revertedMove, revertedFlags);
 
       if (
         this.navigationDirection === "forward" &&
@@ -560,6 +567,19 @@
         usedOrigins[currentMove.from] = true;
         return {
           fromTransform: this.squareTransform(currentMove.from),
+          spawned: false,
+        };
+      }
+
+      if (
+        this.navigationDirection === "forward" &&
+        currentRookMove &&
+        currentRookMove.to === squareName &&
+        previousData[currentRookMove.from] === piece
+      ) {
+        usedOrigins[currentRookMove.from] = true;
+        return {
+          fromTransform: this.squareTransform(currentRookMove.from),
           spawned: false,
         };
       }
@@ -577,12 +597,39 @@
         };
       }
 
+      if (
+        this.navigationDirection === "backward" &&
+        revertedRookMove &&
+        revertedRookMove.from === squareName &&
+        previousData[revertedRookMove.to] === piece
+      ) {
+        usedOrigins[revertedRookMove.to] = true;
+        return {
+          fromTransform: this.squareTransform(revertedRookMove.to),
+          spawned: false,
+        };
+      }
+
       if (previousData[squareName] === piece && !usedOrigins[squareName]) {
         usedOrigins[squareName] = true;
         return { fromTransform: targetTransform, spawned: false };
       }
 
       return { fromTransform: targetTransform, spawned: true };
+    }
+
+    castlingRookMove(move, flags) {
+      if (!move || !flags || !flags.castling || !move.to) return null;
+
+      var rank = move.to.slice(1);
+      if (move.to.slice(0, 1) === "g") {
+        return { from: "h" + rank, to: "f" + rank };
+      }
+      if (move.to.slice(0, 1) === "c") {
+        return { from: "a" + rank, to: "d" + rank };
+      }
+
+      return null;
     }
 
     checkedKingSquare(position, boardData) {
