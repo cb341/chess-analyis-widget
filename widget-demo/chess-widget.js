@@ -100,13 +100,19 @@
       this.game = null;
       this.currentPly = 0;
       this._keyboardBound = false;
+      this._focusBound = false;
       this._sounds = {};
     }
 
     connectedCallback() {
       if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
+      this.setAttribute(
+        "aria-keyshortcuts",
+        "ArrowLeft ArrowRight ArrowUp ArrowDown Home End",
+      );
       this.classList.add("cw-widget");
       this.bindKeyboard();
+      this.bindFocus();
       this.loadFromSource();
     }
 
@@ -114,10 +120,10 @@
       if (this._keyboardBound) return;
       this._keyboardBound = true;
       this.addEventListener("keydown", (event) => {
-        if (event.key === "ArrowLeft") {
+        if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
           event.preventDefault();
           this.previous();
-        } else if (event.key === "ArrowRight") {
+        } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
           event.preventDefault();
           this.next();
         } else if (event.key === "Home") {
@@ -127,6 +133,15 @@
           event.preventDefault();
           this.end();
         }
+      });
+    }
+
+    bindFocus() {
+      if (this._focusBound) return;
+      this._focusBound = true;
+      this.addEventListener("click", (event) => {
+        if (event.target.closest("button")) return;
+        this.focus({ preventScroll: true });
       });
     }
 
