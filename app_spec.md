@@ -97,6 +97,7 @@ app/services/chess/stockfish_analyzer.rb
 app/services/chess/move_classifier.rb
 app/services/chess/summary_builder.rb
 app/services/chess/text_analysis_renderer.rb
+app/services/chess/markdown_analysis_renderer.rb
 app/services/chess/analysis_builder.rb
 ```
 
@@ -354,6 +355,31 @@ Rules:
 
 Fallback ASCII mode may be added later, but Unicode is the default.
 
+### Chess::MarkdownAnalysisRenderer
+
+Responsibilities:
+
+- Render a Markdown response type on the server.
+- Use Unicode chess pieces in SAN-like move notation.
+- Use compact annotations such as `!`, `?!`, `??`, and `!!`.
+- Include an evaluation bar per move pair.
+- Render from the same analyzed payload used by the widget.
+
+Example output:
+
+```markdown
+# CuddlyBunion341 (204) vs KamKam777 (185)
+
+- **Result:** 1-0
+- **Summary:** White castled on move 11. The game ended with 23. Rd8# checkmate.
+
+| Move | White     | Black      | Eval                    |
+| ---: | --------- | ---------- | ----------------------- |
+|    1 | **♙e4** ! | **♟d5** ?! | `W [█████░░░░░] B +0.3` |
+```
+
+The Markdown response is intended for copying into notes, posts, or documents.
+
 ### Chess::AnalysisBuilder
 
 Orchestrates the full flow:
@@ -382,6 +408,7 @@ Rails must emit a complete payload. The widget must not derive chess rules from 
   },
   "summary": "White castled on move 11. The game ended with 23. Rd8# checkmate.",
   "text_analysis": "CuddlyBunion341 (204) vs KamKam777 (185)\nResult: 1-0\n\n1. ♙e4 !      ♟d5 ?!\n   Eval: White [██████████░░░░░░░░░░] Black +0.3",
+  "markdown_analysis": "# CuddlyBunion341 (204) vs KamKam777 (185)\n\n| Move | White | Black | Eval |\n| ---: | --- | --- | --- |\n| 1 | **♙e4** ! | **♟d5** ?! | `W [█████░░░░░] B +0.3` |",
   "positions": [
     {
       "ply": 0,
@@ -504,4 +531,5 @@ Given the sample PGN in `PROMPT.md`, the app should:
 - classify every move as one of the POC annotations
 - produce an evaluation bar value for every position
 - produce a server-rendered text analysis with Unicode pieces, `??`, `?!`, `!`, `!!`, and text eval bars
+- produce a server-rendered Markdown analysis with Unicode pieces and compact annotations
 - render a page where the static widget can step through the game without API calls

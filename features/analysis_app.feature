@@ -19,6 +19,13 @@ Feature: Server-side chess analysis
     And the text analysis includes compact annotations such as "!", "?!", "??", or "!!"
     And the text analysis includes a text evaluation bar
 
+  Scenario: Render a Markdown analysis response
+    When I submit the PGN to the analysis app
+    Then the Markdown analysis includes Unicode chess pieces
+    And the Markdown analysis includes compact annotations such as "!", "?!", "??", or "!!"
+    And the Markdown analysis includes a move table
+    And the Markdown analysis includes a Markdown-safe evaluation bar
+
   Scenario: Use Stockfish when available
     Given Stockfish 18 is available in the container
     When the analysis app evaluates a position

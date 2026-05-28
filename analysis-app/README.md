@@ -85,6 +85,7 @@ The returned payload includes:
 - evaluation bar data
 - summary text
 - `text_analysis`
+- `markdown_analysis`
 
 ## Rails Wiring Later
 

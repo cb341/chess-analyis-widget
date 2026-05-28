@@ -8,6 +8,7 @@ require_relative "stockfish_analyzer"
 require_relative "move_classifier"
 require_relative "summary_builder"
 require_relative "text_analysis_renderer"
+require_relative "markdown_analysis_renderer"
 
 # Chess contains plain Ruby services for parsing, replaying, evaluating, and
 # rendering chess games for the analysis proof of concept.
@@ -22,7 +23,8 @@ module Chess
       analyzer: StockfishAnalyzer.new,
       classifier: MoveClassifier.new,
       summary_builder: SummaryBuilder.new,
-      text_renderer: TextAnalysisRenderer.new
+      text_renderer: TextAnalysisRenderer.new,
+      markdown_renderer: MarkdownAnalysisRenderer.new
     )
       @parser = parser
       @resolver = resolver
@@ -31,6 +33,7 @@ module Chess
       @classifier = classifier
       @summary_builder = summary_builder
       @text_renderer = text_renderer
+      @markdown_renderer = markdown_renderer
     end
 
     def build(pgn)
@@ -73,6 +76,7 @@ module Chess
         metadata: parsed[:metadata],
         summary: "",
         text_analysis: "",
+        markdown_analysis: "",
         positions: positions,
         moves: moves,
         analyzer: {
@@ -82,6 +86,7 @@ module Chess
       }
       payload[:summary] = @summary_builder.build(payload)
       payload[:text_analysis] = @text_renderer.render(payload)
+      payload[:markdown_analysis] = @markdown_renderer.render(payload)
       payload
     end
 

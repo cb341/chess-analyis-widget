@@ -34,7 +34,8 @@ checks = {
   "metadata parsed" => payload[:metadata]["White"] == "CuddlyBunion341",
   "castling detected" => payload[:moves].any? { |move| move[:san] == "O-O" && move[:flags]["castling"] },
   "checkmate detected" => payload[:moves].any? { |move| move[:san] == "Rd8#" && move[:flags]["checkmate"] },
-  "text analysis rendered" => payload[:text_analysis].include?("♖d8#")
+  "text analysis rendered" => payload[:text_analysis].include?("♖d8#"),
+  "markdown analysis rendered" => payload[:markdown_analysis].include?("**♖d8#**")
 }
 
 failed = checks.select { |_name, passed| !passed }
