@@ -641,13 +641,16 @@
               squareName + ", " + pieceName(piece),
             );
             pieceNode.appendChild(this.renderPieceImage(piece));
+            board.appendChild(pieceNode);
             if (squareName === lastMove.to && annotation.kind && annotation.kind !== "good") {
               var badge = document.createElement("span");
               badge.className = "cw-piece-badge " + annotationClass(annotation.kind);
+              badge.style.setProperty("--cw-transform", toTransform);
+              badge.style.transform = "var(--cw-transform)";
               badge.textContent = annotationMark(annotation.kind);
-              pieceNode.appendChild(badge);
+              badge.setAttribute("aria-hidden", "true");
+              board.appendChild(badge);
             }
-            board.appendChild(pieceNode);
           }
         }
       }

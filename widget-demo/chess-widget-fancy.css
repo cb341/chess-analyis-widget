@@ -414,17 +414,22 @@ chess-widget .cw-error {
 
 chess-widget .cw-piece-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 2%;
+  right: 2%;
   z-index: 10;
-  font-size: 11px;
+  font-size: clamp(9px, 1.4vw, 13px);
   font-weight: 900;
   line-height: 1;
-  padding: 2px 4px;
+  padding: 2px 3px;
   border-radius: 3px;
   pointer-events: none;
   background: rgba(255, 255, 255, 0.92);
   color: var(--cw-ink);
+  width: 12.5%;
+  height: 12.5%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
 }
 
 chess-widget .cw-piece-badge.cw-annotation-blunder {
@@ -440,10 +445,6 @@ chess-widget .cw-piece-badge.cw-annotation-mistake {
 chess-widget .cw-piece-badge.cw-annotation-brilliant {
   background: var(--cw-brilliant);
   color: #fff;
-}
-
-chess-widget piece.cw-piece {
-  position: relative;
 }
 
 chess-widget .cw-moves-toggle {
