@@ -85,6 +85,28 @@
         max-width: 420px;
       }
 
+      .customized-widget {
+        --cw-paper: #fbfbfb;
+        --cw-paper-deep: #ededed;
+        --cw-ink: #202020;
+        --cw-muted: #626262;
+        --cw-line: #9d9d9d;
+        --cw-light-square: #f8f8f8;
+        --cw-dark-hatch: #8ab17d;
+        --cw-highlight: #ffe066;
+        --cw-good: #2f855a;
+        --cw-main-columns: minmax(280px, 440px) minmax(240px, 1fr);
+        --cw-main-gap: 28px;
+        --cw-board-max-width: 440px;
+        --cw-shell-padding: 18px;
+        --cw-shell-border: 2px solid #202020;
+        --cw-control-border: 2px solid #202020;
+        --cw-control-font-size: 13px;
+        --cw-piece-padding: 9%;
+        --cw-piece-arrive-animation: 500ms cubic-bezier(0.16, 1, 0.3, 1);
+        --cw-move-list-max-height: 180px;
+      }
+
       @media (max-width: 860px) {
         .board-pair,
         .feature-list {
@@ -125,6 +147,25 @@
 2. Nf3! { [%eval 0.18] Development with tempo. } Nc6
 3. Bb5 { [%eval 0.24] The Ruy Lopez starts asking questions. } a6
 1-0</code></pre>
+
+      <h2>Custom Styling</h2>
+      <p>
+        Styling is intentionally open through CSS variables. Scope overrides to
+        one widget class when a page needs several different treatments.
+      </p>
+
+      <pre class="pgn-sample"><code>chess-widget.customized-widget {
+  --cw-board-max-width: 440px;
+  --cw-main-gap: 28px;
+  --cw-shell-border: 2px solid #202020;
+  --cw-control-border: 2px solid #202020;
+  --cw-piece-arrive-animation: 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  --cw-move-list-max-height: 180px;
+}</code></pre>
+
+      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+      </chess-widget>
 
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="0" end="51" eval-chart clocks>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
