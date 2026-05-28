@@ -284,7 +284,8 @@ chess-widget .cw-eval-text {
 }
 
 chess-widget .cw-button,
-chess-widget .cw-move {
+chess-widget .cw-move,
+chess-widget .cw-bookmark {
   border: 1px solid var(--cw-ink);
   background: #fffaf0;
   color: var(--cw-ink);
@@ -292,12 +293,14 @@ chess-widget .cw-move {
 }
 
 chess-widget .cw-button:hover:not(:disabled),
-chess-widget .cw-move:hover {
+chess-widget .cw-move:hover,
+chess-widget .cw-bookmark:hover {
   background: var(--cw-paper-deep);
 }
 
 chess-widget .cw-button:focus-visible,
-chess-widget .cw-move:focus-visible {
+chess-widget .cw-move:focus-visible,
+chess-widget .cw-bookmark:focus-visible {
   outline: 3px solid rgba(22, 161, 217, 0.45);
   outline-offset: 2px;
 }
@@ -317,7 +320,8 @@ chess-widget .cw-move-number {
 chess-widget .cw-current,
 chess-widget .cw-chart,
 chess-widget .cw-summary,
-chess-widget .cw-moves {
+chess-widget .cw-moves,
+chess-widget .cw-bookmarks {
   border-top: 1px solid #d3c5b0;
   padding-top: 12px;
 }
@@ -325,7 +329,8 @@ chess-widget .cw-moves {
 chess-widget .cw-current h2,
 chess-widget .cw-chart h2,
 chess-widget .cw-summary h2,
-chess-widget .cw-moves h2 {
+chess-widget .cw-moves h2,
+chess-widget .cw-bookmarks h2 {
   margin: 0 0 8px;
   font-size: 16px;
   line-height: 1.2;
@@ -378,7 +383,19 @@ chess-widget .cw-move {
   text-align: left;
 }
 
-chess-widget .cw-active-move {
+chess-widget .cw-bookmark {
+  padding: 5px 8px;
+  text-align: left;
+}
+
+chess-widget .cw-bookmarks p {
+  margin: 0;
+  color: var(--cw-muted);
+  font-size: 14px;
+}
+
+chess-widget .cw-active-move,
+chess-widget .cw-active-bookmark {
   background: var(--cw-highlight);
 }
 

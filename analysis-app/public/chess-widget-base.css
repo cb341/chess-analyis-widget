@@ -19,6 +19,7 @@ chess-widget .cw-controls,
 chess-widget .cw-current,
 chess-widget .cw-summary,
 chess-widget .cw-moves,
+chess-widget .cw-bookmarks,
 chess-widget .cw-move-list,
 chess-widget .cw-move-row {
   display: grid;
@@ -195,6 +196,28 @@ chess-widget .cw-move {
 
 chess-widget .cw-mark {
   flex: 0 0 auto;
+}
+
+chess-widget .cw-bookmarks {
+  gap: 8px;
+}
+
+chess-widget .cw-bookmarks ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+chess-widget .cw-bookmark {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
+  cursor: pointer;
 }
 
 chess-widget .cw-move-empty {

@@ -431,6 +431,7 @@
       boardPanel.className = "cw-board-panel";
       boardPanel.appendChild(this.renderBoard(position));
       boardPanel.appendChild(this.renderAnnotation(annotation));
+      boardPanel.appendChild(this.renderBookmarks(game));
       main.appendChild(boardPanel);
 
       main.appendChild(
@@ -947,6 +948,78 @@
       mark.textContent = annotationMark(kind);
 
       button.appendChild(san);
+      button.appendChild(mark);
+      return button;
+    }
+
+    renderBookmarks(game) {
+      var section = document.createElement("section");
+      section.className = "cw-bookmarks";
+
+      var title = document.createElement("h2");
+      title.textContent = "Bookmarks";
+      section.appendChild(title);
+
+      var moves = this.bookmarkMoves(game);
+      if (moves.length === 0) {
+        var empty = document.createElement("p");
+        empty.textContent = "No blunders or standout moves.";
+        section.appendChild(empty);
+        return section;
+      }
+
+      var list = document.createElement("ol");
+      for (var i = 0; i < moves.length; i += 1) {
+        var item = document.createElement("li");
+        item.appendChild(this.renderBookmarkButton(moves[i]));
+        list.appendChild(item);
+      }
+
+      section.appendChild(list);
+      return section;
+    }
+
+    bookmarkMoves(game) {
+      var important = {
+        blunder: true,
+        brilliant: true,
+        great: true,
+        great_move: true,
+        greatmove: true,
+        mistake: true,
+        inaccuracy: true,
+        checkmate: true,
+      };
+      var moves = Array.isArray(game && game.moves) ? game.moves : [];
+      return moves.filter(function (move) {
+        var kind = String(move.annotation || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9_-]/g, "");
+        return important[kind];
+      });
+    }
+
+    renderBookmarkButton(move) {
+      var button = document.createElement("button");
+      var kind = move.annotation || "good";
+      button.type = "button";
+      button.className =
+        "cw-bookmark " +
+        annotationClass(kind) +
+        (move.ply === this.currentPly ? " cw-active-bookmark" : "");
+      button.addEventListener("click", () => this.goTo(move.ply));
+
+      var label = document.createElement("span");
+      label.textContent =
+        escapeText(move.move_number || "") +
+        (move.color === "black" ? "... " : ". ") +
+        escapeText(move.san || "");
+
+      var mark = document.createElement("span");
+      mark.className = "cw-mark " + annotationClass(kind);
+      mark.textContent = annotationMark(kind);
+
+      button.appendChild(label);
       button.appendChild(mark);
       return button;
     }
