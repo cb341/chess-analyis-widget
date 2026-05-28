@@ -22,6 +22,8 @@ Feature: Static chess widget
     When the widget has focus
     Then ArrowRight advances one ply
     And ArrowLeft goes back one ply
+    And ArrowDown advances one ply
+    And ArrowUp goes back one ply
     And Home jumps to the start
     And End jumps to the final position
 

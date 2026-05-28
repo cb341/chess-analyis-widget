@@ -71,6 +71,19 @@
     return color + " " + (names[piece.toLowerCase()] || "piece");
   }
 
+  function pieceClass(piece) {
+    var color = piece === piece.toUpperCase() ? "white" : "black";
+    var names = {
+      k: "king",
+      q: "queen",
+      r: "rook",
+      b: "bishop",
+      n: "knight",
+      p: "pawn",
+    };
+    return color + " " + (names[piece.toLowerCase()] || "piece");
+  }
+
   function annotationClass(kind) {
     if (!kind) return "";
     return (
@@ -331,7 +344,9 @@
     }
 
     renderBoard(position) {
-      var board = document.createElement("div");
+      var wrap = document.createElement("div");
+      var container = document.createElement("cg-container");
+      var board = document.createElement("cg-board");
       var orientation =
         this.getAttribute("orientation") === "black" ? "black" : "white";
       var ranks = orientation === "black" ? RANKS_BLACK : RANKS_WHITE;
@@ -342,80 +357,94 @@
           : {};
       var lastMove = position && position.last_move ? position.last_move : {};
 
+      wrap.className =
+        "cg-wrap cgv1 orientation-" + orientation + " manipulable";
       board.className = "cw-board";
       board.setAttribute("role", "grid");
       board.setAttribute("aria-label", "Chess board");
+      container.style.width = "100%";
+      container.style.height = "100%";
+
+      if (lastMove.from) {
+        board.appendChild(this.renderBoardSquare(lastMove.from, "last-move"));
+      }
+      if (lastMove.to) {
+        board.appendChild(this.renderBoardSquare(lastMove.to, "last-move"));
+      }
+      if (position && position.flags && position.flags.check && lastMove.to) {
+        board.appendChild(this.renderBoardSquare(lastMove.to, "check"));
+      }
 
       for (var r = 0; r < ranks.length; r += 1) {
         for (var f = 0; f < files.length; f += 1) {
           var squareName = files[f] + ranks[r];
-          var square = document.createElement("div");
-          var fileIndex = FILES.indexOf(files[f]);
-          var rankNumber = Number(ranks[r]);
-          var light = (fileIndex + rankNumber) % 2 === 1;
           var piece = boardData[squareName];
-
-          square.className =
-            "cw-square " +
-            (light ? "cw-light" : "cw-dark") +
-            " cw-file-" +
-            files[f] +
-            " cw-rank-" +
-            ranks[r];
-          if (lastMove.from === squareName || lastMove.to === squareName) {
-            square.className += " cw-last-move";
-          }
-          if (lastMove.to === squareName) {
-            square.className += " cw-destination";
-          }
-          square.setAttribute("role", "gridcell");
-          square.setAttribute(
-            "aria-label",
-            piece
-              ? squareName + ", " + pieceName(piece)
-              : squareName + ", empty",
-          );
-
-          if (this.shouldShowRankCoordinate(files[f], orientation)) {
-            var rankCoord = document.createElement("span");
-            rankCoord.className = "cw-coordinate cw-rank-coordinate";
-            rankCoord.textContent = ranks[r];
-            square.appendChild(rankCoord);
-          }
-
-          if (this.shouldShowFileCoordinate(ranks[r], orientation)) {
-            var fileCoord = document.createElement("span");
-            fileCoord.className = "cw-coordinate cw-file-coordinate";
-            fileCoord.textContent = files[f];
-            square.appendChild(fileCoord);
-          }
 
           if (PIECES[piece]) {
             var marker = this.renderBoardMarker(position, squareName);
-            if (marker) square.appendChild(marker);
+            if (marker) board.appendChild(marker);
 
-            var pieceNode = document.createElement("span");
+            var pieceNode = document.createElement("piece");
             pieceNode.className =
-              "cw-piece" +
+              pieceClass(piece) +
+              " cw-piece" +
               (lastMove.to === squareName ? " cw-piece-arrived" : "");
-            pieceNode.setAttribute("aria-hidden", "true");
+            pieceNode.style.setProperty(
+              "--cw-transform",
+              this.squareTransform(squareName),
+            );
+            pieceNode.style.transform = "var(--cw-transform)";
+            pieceNode.setAttribute(
+              "aria-label",
+              squareName + ", " + pieceName(piece),
+            );
             pieceNode.textContent = PIECES[piece];
-            square.appendChild(pieceNode);
+            board.appendChild(pieceNode);
           }
-
-          board.appendChild(square);
         }
       }
 
-      return board;
+      container.appendChild(board);
+      container.appendChild(this.renderCoordinates("ranks", ranks));
+      container.appendChild(this.renderCoordinates("files", files));
+      wrap.appendChild(container);
+      return wrap;
     }
 
-    shouldShowRankCoordinate(file, orientation) {
-      return orientation === "black" ? file === "h" : file === "a";
+    renderBoardSquare(squareName, className) {
+      var square = document.createElement("square");
+      square.className = className;
+      square.style.transform = this.squareTransform(squareName);
+      square.setAttribute("aria-hidden", "true");
+      return square;
     }
 
-    shouldShowFileCoordinate(rank, orientation) {
-      return orientation === "black" ? rank === "8" : rank === "1";
+    squareTransform(squareName) {
+      var orientation =
+        this.getAttribute("orientation") === "black" ? "black" : "white";
+      var file = squareName.slice(0, 1);
+      var rank = squareName.slice(1);
+      var files = orientation === "black" ? FILES.slice().reverse() : FILES;
+      var ranks = orientation === "black" ? RANKS_BLACK : RANKS_WHITE;
+      var fileIndex = files.indexOf(file);
+      var rankIndex = ranks.indexOf(rank);
+
+      return "translate(" + fileIndex * 100 + "%, " + rankIndex * 100 + "%)";
+    }
+
+    renderCoordinates(kind, values) {
+      var coords = document.createElement("coords");
+      coords.className = kind;
+      coords.setAttribute("aria-hidden", "true");
+
+      for (var i = 0; i < values.length; i += 1) {
+        var coord = document.createElement("coord");
+        coord.className = i % 2 === 0 ? "coord-dark" : "coord-light";
+        coord.textContent = values[i];
+        coords.appendChild(coord);
+      }
+
+      return coords;
     }
 
     renderBoardMarker(position, squareName) {
@@ -427,8 +456,14 @@
 
       if (lastMove.to !== squareName || !mark) return null;
 
-      var marker = document.createElement("span");
+      var marker = document.createElement("move-marker");
       marker.className = "cw-board-marker " + annotationClass(kind);
+      marker.style.setProperty(
+        "--cw-transform",
+        this.squareTransform(squareName),
+      );
+      marker.style.transform = "var(--cw-transform)";
+      marker.setAttribute("data-mark", mark);
       marker.textContent = mark;
       marker.setAttribute("aria-hidden", "true");
       return marker;

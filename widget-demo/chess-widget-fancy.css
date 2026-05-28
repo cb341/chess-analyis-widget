@@ -72,7 +72,6 @@ body {
 }
 
 .cw-players,
-.cw-coordinate,
 .cw-eval-text,
 .cw-button,
 .cw-counter,
@@ -104,55 +103,59 @@ body {
 
 .cw-board {
   border: 2px solid var(--cw-line);
-  background: var(--cw-line);
+  background:
+    linear-gradient(var(--cw-line), var(--cw-line)) 0 0 / 100% 2px no-repeat,
+    linear-gradient(var(--cw-line), var(--cw-line)) 0 100% / 100% 2px no-repeat,
+    linear-gradient(90deg, var(--cw-line), var(--cw-line)) 0 0 / 2px 100%
+      no-repeat,
+    linear-gradient(90deg, var(--cw-line), var(--cw-line)) 100% 0 / 2px 100%
+      no-repeat,
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(12.5% - 1px),
+      var(--cw-line) calc(12.5% - 1px) 12.5%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 calc(12.5% - 1px),
+      var(--cw-line) calc(12.5% - 1px) 12.5%
+    ),
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 10px,
+      var(--cw-dark-hatch) 10px 14px,
+      transparent 14px 24px
+    ),
+    conic-gradient(
+        from 90deg,
+        rgba(255, 255, 255, 0.95) 25%,
+        transparent 0 50%,
+        rgba(255, 255, 255, 0.95) 0 75%,
+        transparent 0
+      )
+      0 0 / 25% 25%,
+    var(--cw-light-square);
   box-shadow: 0 10px 24px rgba(23, 21, 18, 0.12);
 }
 
-.cw-square {
-  border: 1px solid var(--cw-line);
-  transition:
-    box-shadow 180ms ease,
-    filter 180ms ease;
+square.last-move {
+  background: linear-gradient(
+    rgba(225, 242, 118, 0.76),
+    rgba(225, 242, 118, 0.76)
+  );
+  box-shadow: inset 0 0 0 4px rgba(173, 205, 31, 0.48);
 }
 
-.cw-light {
-  background: var(--cw-light-square);
+square.check {
+  background: radial-gradient(
+    circle,
+    rgba(196, 60, 53, 0.68) 0,
+    rgba(196, 60, 53, 0.44) 36%,
+    rgba(196, 60, 53, 0) 72%
+  );
 }
 
-.cw-dark {
-  background:
-    repeating-linear-gradient(
-      135deg,
-      transparent 0 10px,
-      var(--cw-dark-hatch) 10px 14px,
-      transparent 14px 24px
-    ),
-    var(--cw-light-square);
-}
-
-.cw-last-move {
-  background:
-    linear-gradient(rgba(225, 242, 118, 0.76), rgba(225, 242, 118, 0.76)),
-    var(--cw-light-square);
-}
-
-.cw-dark.cw-last-move {
-  background:
-    linear-gradient(rgba(225, 242, 118, 0.72), rgba(225, 242, 118, 0.72)),
-    repeating-linear-gradient(
-      135deg,
-      transparent 0 10px,
-      var(--cw-dark-hatch) 10px 14px,
-      transparent 14px 24px
-    ),
-    var(--cw-light-square);
-}
-
-.cw-destination {
-  box-shadow: inset 0 0 0 4px rgba(173, 205, 31, 0.5);
-}
-
-.cw-piece {
+piece.cw-piece {
   color: var(--cw-ink);
   font-size: clamp(38px, 8.3vw, 82px);
   transform-origin: 50% 72%;
@@ -163,18 +166,12 @@ body {
     drop-shadow(0 5px 4px rgba(23, 21, 18, 0.18));
 }
 
-.cw-piece-arrived {
+piece.cw-piece-arrived {
   animation: cw-piece-arrive 360ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
-.cw-board-marker {
-  top: 8%;
-  right: 8%;
-  min-width: 1.9em;
-  border: 2px solid currentColor;
-  border-radius: 999px;
-  background: #fffaf0;
-  padding: 0.08em 0.35em 0.12em;
+move-marker.cw-board-marker {
+  padding: 8% 8% 0 0;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -185,21 +182,54 @@ body {
   font-size: clamp(12px, 2.2vw, 20px);
   font-weight: 900;
   line-height: 1.1;
-  text-align: center;
-  box-shadow: 0 5px 10px rgba(23, 21, 18, 0.22);
   transform-origin: 50% 100%;
   animation: cw-marker-drop 360ms cubic-bezier(0.2, 1.2, 0.2, 1);
 }
 
-.cw-coordinate {
+move-marker.cw-board-marker::before {
+  min-width: 1.9em;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  background: #fffaf0;
+  padding: 0.08em 0.35em 0.12em;
+  box-shadow: 0 5px 10px rgba(23, 21, 18, 0.22);
+  text-align: center;
+}
+
+move-marker.cw-board-marker {
+  font-size: 0;
+}
+
+move-marker.cw-board-marker::before {
+  font-size: clamp(12px, 2.2vw, 20px);
+  content: attr(data-mark);
+}
+
+coords {
   color: rgba(23, 21, 18, 0.52);
+  display: flex;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
 }
 
-.cw-dark .cw-coordinate {
-  color: rgba(23, 21, 18, 0.48);
+coords.ranks {
+  top: 0;
+  bottom: 0;
+  left: 5px;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+coords.files {
+  right: 5px;
+  bottom: 3px;
+  left: 5px;
+  justify-content: space-around;
+}
+
+.coord-light {
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .cw-annotation {
@@ -359,32 +389,32 @@ body {
 
 @keyframes cw-piece-arrive {
   0% {
-    transform: translateY(-18%) rotate(-9deg) scale(0.76);
+    transform: var(--cw-transform) translateY(-18%) rotate(-9deg) scale(0.76);
   }
 
   58% {
-    transform: translateY(2%) rotate(5deg) scale(1.15);
+    transform: var(--cw-transform) translateY(2%) rotate(5deg) scale(1.15);
   }
 
   100% {
-    transform: translateY(0) rotate(0deg) scale(1);
+    transform: var(--cw-transform) translateY(0) rotate(0deg) scale(1);
   }
 }
 
 @keyframes cw-marker-drop {
   0% {
     opacity: 0;
-    transform: translateY(-20px) rotate(-10deg) scale(0.72);
+    transform: var(--cw-transform) translateY(-20px) rotate(-10deg) scale(0.72);
   }
 
   70% {
     opacity: 1;
-    transform: translateY(2px) rotate(4deg) scale(1.08);
+    transform: var(--cw-transform) translateY(2px) rotate(4deg) scale(1.08);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0) rotate(0deg) scale(1);
+    transform: var(--cw-transform) translateY(0) rotate(0deg) scale(1);
   }
 }
 
@@ -412,11 +442,11 @@ body {
     font-size: clamp(28px, 11vw, 48px);
   }
 
-  .cw-coordinate {
+  coords {
     font-size: 9px;
   }
 
-  .cw-board-marker {
+  move-marker.cw-board-marker::before {
     top: 4%;
     right: 4%;
     font-size: 11px;

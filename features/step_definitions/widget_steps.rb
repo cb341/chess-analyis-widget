@@ -36,7 +36,9 @@ Then("the widget advances to the next board position") do
 end
 
 Then("it highlights the last move") do
-  raise "missing last move highlight" unless @widget_js.include?("cw-last-move")
+  has_last_move_square = @widget_js.include?('"last-move"') && @widget_js.include?("renderBoardSquare")
+
+  raise "missing last move highlight" unless has_last_move_square
 end
 
 Then("it updates the annotation overlay") do
@@ -57,6 +59,14 @@ end
 
 Then("ArrowLeft goes back one ply") do
   raise "missing ArrowLeft" unless @keyboard_supported && @widget_js.include?("ArrowLeft")
+end
+
+Then("ArrowDown advances one ply") do
+  raise "missing ArrowDown" unless @keyboard_supported && @widget_js.include?("ArrowDown")
+end
+
+Then("ArrowUp goes back one ply") do
+  raise "missing ArrowUp" unless @keyboard_supported && @widget_js.include?("ArrowUp")
 end
 
 Then("Home jumps to the start") do
