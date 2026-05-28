@@ -147,7 +147,7 @@
       this.navigationDirection = "forward";
       this._keyboardBound = false;
       this._focusBound = false;
-      this._sounds = {};
+      this._soundSources = {};
     }
 
     connectedCallback() {
@@ -275,16 +275,19 @@
     playSound(name) {
       var source = SOUNDS[name];
       if (!source || typeof window.Audio !== "function") return;
-      if (!this._sounds[name]) {
-        this._sounds[name] = new window.Audio(assetUrl(source));
-        this._sounds[name].preload = "auto";
-      }
+      if (!this._soundSources[name])
+        this._soundSources[name] = assetUrl(source);
 
-      var audio = this._sounds[name];
-      audio.currentTime = 0;
-      audio.play().catch(function () {
-        // Browsers may block audio until the first trusted user gesture.
-      });
+      var audio = new window.Audio(this._soundSources[name]);
+      audio.preload = "auto";
+      audio.volume = 1;
+
+      var attempt = audio.play();
+      if (attempt && typeof attempt.catch === "function") {
+        attempt.catch((error) => {
+          this.setAttribute("data-sound-error", error.name || "blocked");
+        });
+      }
     }
 
     next() {
