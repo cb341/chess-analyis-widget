@@ -246,13 +246,19 @@
       var soundName = "move";
       var flags = position.flags || {};
       var lastMove = position.last_move || {};
+      var isCapture = Boolean(
+        flags.capture ||
+        lastMove.capture ||
+        lastMove.captured ||
+        (lastMove.flags && lastMove.flags.capture),
+      );
 
       if (flags.checkmate) {
         soundName = "checkmate";
+      } else if (isCapture) {
+        soundName = "capture";
       } else if (flags.check) {
         soundName = "check";
-      } else if (lastMove.capture || flags.capture) {
-        soundName = "capture";
       }
 
       this.playSound(soundName);
