@@ -99,11 +99,12 @@ Concrete value objects live under `app/models/chess/`:
 
 ## Rails Wiring Later
 
-The intended Rails routes are in `config/routes.rb`:
+The route table is declared in `config/route_set.rb` and used by the WEBrick
+runner. `config/routes.rb` maps the same routes when Rails is installed:
 
 ```ruby
 root "analyses#new"
-resources :analyses, only: [:new, :create, :show]
+resources :analyses, only: [:new, :create]
 ```
 
 The current controller renders inline through ERB and does not persist analyses.

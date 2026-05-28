@@ -40,10 +40,11 @@ The server should also be able to render the analysis as standalone text using U
 ```ruby
 root "analyses#new"
 
-resources :analyses, only: [:new, :create, :show]
+resources :analyses, only: [:new, :create]
 ```
 
-For the POC, `create` may either persist the analysis and redirect to `show`, or analyze inline and render `show`. Persistence is preferred because Stockfish analysis is expensive.
+For the POC, `create` analyzes inline and renders the result page. Persistence
+and `show` can be added when storing Stockfish results becomes necessary.
 
 ## Data Model
 

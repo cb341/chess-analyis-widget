@@ -4,6 +4,7 @@
 require "webrick"
 require "uri"
 require_relative "../app/controllers/analyses_controller"
+require_relative "../config/route_set"
 
 root = File.expand_path("..", __dir__)
 public_root = File.join(root, "public")
@@ -17,11 +18,16 @@ server = WEBrick::HTTPServer.new(
 )
 
 server.mount_proc("/") do |request, response|
-  case [request.request_method, request.path]
-  when ["GET", "/"], ["GET", "/analyses/new"], ["HEAD", "/"], ["HEAD", "/analyses/new"]
+  route = ANALYSIS_ROUTES.find do |candidate|
+    candidate[:path] == request.path &&
+      (candidate[:verb] == request.request_method || (request.request_method == "HEAD" && candidate[:verb] == "GET"))
+  end
+
+  case route && [route[:controller], route[:action]]
+  when ["analyses", "new"]
     response["Content-Type"] = "text/html; charset=utf-8"
     response.body = (request.request_method == "HEAD") ? "" : controller.new
-  when ["POST", "/analyses"]
+  when ["analyses", "create"]
     response["Content-Type"] = "text/html; charset=utf-8"
     params = URI.decode_www_form(request.body.to_s).to_h
     response.body = controller.create(params)
