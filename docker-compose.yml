@@ -1,0 +1,16 @@
+services:
+  analysis-app:
+    build:
+      context: ./analysis-app
+    platform: linux/amd64
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      STOCKFISH_PATH: /usr/local/bin/stockfish
+      STOCKFISH_DEPTH: 10
+      STOCKFISH_TIMEOUT: 2.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./analysis-app:/app
+    command: ruby bin/server
