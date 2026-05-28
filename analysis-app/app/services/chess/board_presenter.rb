@@ -22,7 +22,7 @@ module Chess
         if ch == "/"
           rank -= 1
           file = 0
-        elsif ch =~ /[1-8]/
+        elsif /[1-8]/.match?(ch)
           file += ch.to_i
         else
           board["#{FILES[file]}#{rank}"] = ch

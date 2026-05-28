@@ -148,7 +148,7 @@ module Chess
         eval_before: clean_eval(move[:eval_before]),
         eval_after: clean_eval(move[:eval_after]),
         eval_loss: move[:eval_loss],
-        flags: move[:flags],
+        flags: move[:flags]
       }
     end
 

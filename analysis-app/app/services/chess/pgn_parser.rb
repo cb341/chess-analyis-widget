@@ -44,12 +44,12 @@ module Chess
       until scanner.eos?
         if scanner.scan(/\{([^}]*)\}/m)
           pending_comment = scanner[1].strip
-        elsif scanner.scan(/\(/)
+        elsif scanner.scan("(")
           depth = 1
           until depth == 0 || scanner.eos?
-            if scanner.scan(/\(/)
+            if scanner.scan("(")
               depth += 1
-            elsif scanner.scan(/\)/)
+            elsif scanner.scan(")")
               depth -= 1
             else
               scanner.getch
