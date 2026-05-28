@@ -42,6 +42,11 @@
         <summary>Analysis JSON</summary>
         <textarea class="copy-text" readonly rows="14"><%= h(@payload_json) %></textarea>
       </details>
+      <details class="collapsible">
+        <summary>Analysis JSON Minified</summary>
+        <button class="copy-button" type="button" data-copy-target="analysis-json-minified">Copy</button>
+        <pre id="analysis-json-minified"><%= h(@payload_json_minified) %></pre>
+      </details>
       <h2>Embed This Analysis</h2>
       <p class="summary">Use these snippets to render this analyzed game on another page. The widget makes no API calls.</p>
       <details class="collapsible">
