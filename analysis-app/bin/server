@@ -32,6 +32,8 @@ def content_type_for(file)
   case File.extname(file)
   when ".css" then "text/css; charset=utf-8"
   when ".js" then "application/javascript; charset=utf-8"
+  when ".svg" then "image/svg+xml"
+  when ".mp3" then "audio/mpeg"
   when ".html" then "text/html; charset=utf-8"
   else "application/octet-stream"
   end
@@ -65,12 +67,19 @@ server.mount_proc("/") do |request, response|
     response["Content-Type"] = "text/html; charset=utf-8"
     response.body = (request.request_method == "HEAD") ? "" : controller.new
   when ["analyses", "create"]
-    response["Content-Type"] = "text/html; charset=utf-8"
     params = URI.decode_www_form(request.body.to_s).to_h
-    response.chunked = true
-    response.body = proc do |output|
-      controller.create_stream(params, ProgressStream.new(output))
+    result = controller.create(params)
+    if result.is_a?(Hash)
+      response.status = result.fetch(:status)
+      result.fetch(:headers).each { |key, value| response[key] = value }
+      response.body = result.fetch(:body)
+    else
+      response["Content-Type"] = "text/html; charset=utf-8"
+      response.body = result
     end
+  when ["analyses", "show"]
+    response["Content-Type"] = "text/html; charset=utf-8"
+    response.body = (request.request_method == "HEAD") ? "" : controller.show(route_params)
   when ["admin/analyses", "index"]
     response["Content-Type"] = "text/html; charset=utf-8"
     response.body = (request.request_method == "HEAD") ? "" : admin_controller.index

@@ -14,7 +14,7 @@ module Chess
       return "mistake" if loss >= 51
 
       gain = eval_gain(move[:color], eval_before, eval_after)
-      return "brilliant" if gain >= 150 && (move[:flags]["capture"] || move[:flags]["check"])
+      return "brilliant" if stockfish?(eval_before, eval_after) && gain >= 150 && (move[:flags]["capture"] || move[:flags]["check"])
 
       "good"
     end
@@ -41,6 +41,10 @@ module Chess
 
       mate = evaluation[:value].to_i
       mate.positive? ? 10_000 : -10_000
+    end
+
+    def stockfish?(*evaluations)
+      evaluations.all? { |evaluation| evaluation && evaluation[:source].to_s == "stockfish" }
     end
   end
 end

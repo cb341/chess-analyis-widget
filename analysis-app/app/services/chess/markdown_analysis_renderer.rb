@@ -6,6 +6,8 @@ module Chess
   class MarkdownAnalysisRenderer
     PIECES = TextAnalysisRenderer::PIECES
     MARKS = TextAnalysisRenderer::MARKS
+    FILES = %w[a b c d e f g h].freeze
+    RANKS = [8, 7, 6, 5, 4, 3, 2, 1].freeze
 
     def render(payload)
       metadata = payload.fetch(:metadata)
@@ -16,15 +18,17 @@ module Chess
       lines << "- **Result:** #{metadata.fetch("Result", "*")}"
       lines << "- **Summary:** #{payload.fetch(:summary)}"
       lines << ""
-      lines << "| Move | White | Black | Eval |"
-      lines << "| ---: | --- | --- | --- |"
-
-      moves.each_slice(2) do |pair|
-        white = pair[0]
-        black = pair[1]
-        eval_source = black || white
-        black_move = black ? render_move(black) : nil
-        lines << "| #{white[:move_number]} | #{render_move(white)} | #{black_move} | `#{render_eval(eval_source[:eval_after])}` |"
+      moves.each do |move|
+        position = payload.fetch(:positions).fetch(move[:ply])
+        lines << "## #{move_label(move)}"
+        lines << ""
+        lines << "- **Rating:** #{rating(move)}"
+        lines << "- **Evaluation:** `#{eval_label(move[:eval_after])}`"
+        lines << ""
+        lines << '<pre class="analysis-board">'
+        lines << board_text(position.fetch(:board))
+        lines << "</pre>"
+        lines << ""
       end
 
       lines.join("\n")
@@ -32,8 +36,26 @@ module Chess
 
     private
 
+    def move_label(move)
+      prefix = (move[:color] == "black") ? "#{move[:move_number]}... " : "#{move[:move_number]}. "
+      "#{prefix}#{unicode_san(move)}"
+    end
+
+    def rating(move)
+      "#{MARKS.fetch(move[:annotation], "!")} #{move[:annotation].to_s.tr("_", " ")}"
+    end
+
     def render_move(move)
       "**#{unicode_san(move)}** #{MARKS.fetch(move[:annotation], "!")}"
+    end
+
+    def board_text(board)
+      rows = ["  a b c d e f g h"]
+      RANKS.each do |rank|
+        rows << "#{rank} #{FILES.map { |file| PIECES.fetch(board.fetch("#{file}#{rank}", ""), "·") }.join(" ")} #{rank}"
+      end
+      rows << "  a b c d e f g h"
+      rows.join("\n")
     end
 
     def unicode_san(move)

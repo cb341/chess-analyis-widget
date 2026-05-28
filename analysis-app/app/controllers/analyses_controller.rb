@@ -47,29 +47,27 @@ class AnalysesController
     payload = @builder.build(pgn)
     analysis = @repository.create(pgn: pgn, payload: payload)
     AnalysisApp.logger.info("analysis create saved id=#{analysis.id} moves=#{payload[:moves].length} positions=#{payload[:positions].length}")
-    render_show(pgn: pgn, payload: payload, analysis_id: analysis.id)
+    redirect_to("/analyses/#{analysis.id}")
   rescue => error
     AnalysisApp.logger.error("analysis create failed class=#{error.class} message=#{error.message}")
     render_template("new", pgn: pgn, error: error.message)
   end
 
-  def create_stream(params, stream)
-    pgn = params.fetch("pgn", "")
-    AnalysisApp.logger.info("analysis stream started pgn_bytes=#{pgn.bytesize}")
-    payload = @builder.build(pgn, progress: ->(message) { progress(stream, message) })
-    analysis = @repository.create(pgn: pgn, payload: payload)
-    AnalysisApp.logger.info("analysis stream saved id=#{analysis.id} moves=#{payload[:moves].length} positions=#{payload[:positions].length}")
-    stream.finish(render_show(pgn: pgn, payload: payload, analysis_id: analysis.id))
-  rescue => error
-    AnalysisApp.logger.error("analysis stream failed class=#{error.class} message=#{error.message}")
-    stream.finish(render_template("new", pgn: pgn, error: error.message))
+  def show(params)
+    analysis = @repository.find(params.fetch("id"))
+    return render_template("new", pgn: SAMPLE_PGN, error: "Analysis not found.") unless analysis
+
+    render_show(pgn: analysis.pgn, payload: symbolize(analysis.payload), analysis_id: analysis.id)
   end
 
   private
 
-  def progress(stream, message)
-    AnalysisApp.logger.debug("analysis progress #{message}")
-    stream.progress(message)
+  def redirect_to(location)
+    {
+      status: 303,
+      headers: {"Location" => location},
+      body: "See Other"
+    }
   end
 
   def render_show(pgn:, payload:, analysis_id:)
@@ -85,6 +83,19 @@ class AnalysesController
       embed_js: embed_js,
       error: nil
     )
+  end
+
+  def symbolize(value)
+    case value
+    when Hash
+      value.each_with_object({}) do |(key, item), result|
+        result[key.to_sym] = symbolize(item)
+      end
+    when Array
+      value.map { |item| symbolize(item) }
+    else
+      value
+    end
   end
 
   def render_template(name, locals)

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "digest"
 require "json"
-require "securerandom"
 require "time"
 require_relative "analysis_record"
 require_relative "../../config/application"
@@ -16,7 +16,7 @@ class AnalysisRepository
   def create(pgn:, payload:)
     FileUtils.mkdir_p(@root)
     record = AnalysisRecord.new(
-      id: SecureRandom.hex(8),
+      id: self.class.id_for(pgn),
       pgn: pgn,
       payload: stringify(payload),
       created_at: Time.now.utc.iso8601
@@ -37,6 +37,10 @@ class AnalysisRepository
     return nil unless File.file?(path)
 
     AnalysisRecord.from_h(JSON.parse(File.read(path)))
+  end
+
+  def self.id_for(input)
+    Digest::SHA256.hexdigest(input.to_s)[0, 16]
   end
 
   private

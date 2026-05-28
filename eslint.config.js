@@ -17,6 +17,7 @@ module.exports = [
         Number: "readonly",
         RegExp: "readonly",
         String: "readonly",
+        URL: "readonly",
         window: "readonly",
       },
     },

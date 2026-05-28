@@ -90,7 +90,7 @@ module Chess
         moves: moves,
         analyzer: {
           stockfish_available: @analyzer.available?,
-          note: @analyzer.available? ? "Stockfish interface stubbed in first pass" : "Using fallback material evaluator"
+          note: @analyzer.available? ? "Using Stockfish UCI evaluation" : "Using fallback material evaluator; annotations are approximate"
         }
       }
       payload[:summary] = @summary_builder.build(payload)
@@ -160,6 +160,11 @@ module Chess
         board: board.snapshot,
         last_move: move ? {from: move[:from], to: move[:to]} : nil,
         annotation: move && move[:annotation],
+        annotation_detail: move ? {
+          kind: move[:annotation],
+          label: annotation_label(move[:annotation]),
+          text: annotation_text(move)
+        } : nil,
         eval: clean_eval(evaluation),
         eval_bar: eval_bar(evaluation),
         flags: move ? move[:flags] : empty_flags
@@ -182,6 +187,25 @@ module Chess
 
     def eval_bar(evaluation)
       EvalBar.from_evaluation(Evaluation.from_hash(evaluation)).to_h
+    end
+
+    def annotation_label(kind)
+      {
+        "blunder" => "Blunder",
+        "mistake" => "Mistake",
+        "brilliant" => "Brilliant",
+        "checkmate" => "Checkmate",
+        "good" => "Good move"
+      }.fetch(kind, "Good move")
+    end
+
+    def annotation_text(move)
+      return "The game ends by checkmate." if move[:flags]["checkmate"]
+      return "Large evaluation loss after this move." if move[:annotation] == "blunder"
+      return "The move gives up part of the position." if move[:annotation] == "mistake"
+      return "Stockfish sees a major tactical improvement." if move[:annotation] == "brilliant"
+
+      "The move keeps the position playable."
     end
   end
 end

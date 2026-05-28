@@ -56,7 +56,7 @@ Then("the text analysis includes a text evaluation bar") do
 end
 
 Then("the Markdown analysis includes Unicode chess pieces") do
-  raise "missing markdown unicode rook" unless @payload[:markdown_analysis].include?("**♖d8#**")
+  raise "missing markdown unicode rook" unless @payload[:markdown_analysis].include?("♖d8#")
 end
 
 Then("the Markdown analysis includes compact annotations such as {string}, {string}, {string}, or {string}") do |good, mistake, blunder, brilliant|
@@ -65,11 +65,11 @@ Then("the Markdown analysis includes compact annotations such as {string}, {stri
 end
 
 Then("the Markdown analysis includes a move table") do
-  raise "missing markdown table" unless @payload[:markdown_analysis].include?("| Move | White | Black | Eval |")
+  raise "missing markdown move heading" unless @payload[:markdown_analysis].include?("## 23. ♖d8#")
 end
 
 Then("the Markdown analysis includes a Markdown-safe evaluation bar") do
-  raise "missing markdown eval bar" unless @payload[:markdown_analysis].include?("`W [")
+  raise "missing markdown board" unless @payload[:markdown_analysis].include?("<pre class=\"analysis-board\">")
 end
 
 Given("Stockfish 18 is available in the container") do

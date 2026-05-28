@@ -9,14 +9,35 @@
   </head>
   <body>
     <main class="page wide">
-      <nav><a href="/">Analyze another PGN</a> · <a href="/admin">Admin</a></nav>
+      <nav><a href="/">Analyze another PGN</a> · <a href="/admin/">Admin</a></nav>
       <h1>Analysis Result</h1>
       <% if @analysis_id %>
-        <p class="summary">Saved as <a href="/admin/analyses/<%= h(@analysis_id) %>"><%= h(@analysis_id) %></a>.</p>
+        <p class="summary">Analysis ID <code><%= h(@analysis_id) %></code> · <a href="/admin/analyses/<%= h(@analysis_id) %>">Admin detail</a></p>
+      <% end %>
+      <dl class="metadata">
+        <% @payload[:metadata].each do |key, value| %>
+          <div>
+            <dt><%= h(key) %></dt>
+            <dd>
+              <% if value.to_s.start_with?("http://", "https://") %>
+                <a href="<%= h(value) %>"><%= h(value) %></a>
+              <% else %>
+                <%= h(value) %>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+      <% unless @payload.dig(:analyzer, :stockfish_available) %>
+        <p class="error">Stockfish was not available for this run. Move ratings use the fallback material evaluator and are approximate.</p>
       <% end %>
       <p class="summary"><%= h(@payload[:summary]) %></p>
       <script type="application/json" id="game-data"><%= json_script(@payload_json) %></script>
       <chess-widget data-source="game-data"></chess-widget>
+      <h2>Verbose Markdown Analysis</h2>
+      <pre class="markdown-analysis"><%= h(@payload[:markdown_analysis]) %></pre>
+      <h2>Analysis JSON</h2>
+      <textarea readonly rows="14"><%= h(@payload_json) %></textarea>
       <h2>Embed This Analysis</h2>
       <p class="summary">Use these snippets to render this analyzed game on another page. The widget makes no API calls.</p>
       <h3>CSS</h3>
@@ -27,10 +48,6 @@
       <pre><%= h(@embed_js) %></pre>
       <h2>Text Analysis</h2>
       <pre><%= h(@payload[:text_analysis]) %></pre>
-      <h2>Markdown Analysis</h2>
-      <pre><%= h(@payload[:markdown_analysis]) %></pre>
-      <h2>Payload JSON</h2>
-      <pre><%= h(@payload_json) %></pre>
     </main>
     <script src="/chess-widget.js"></script>
   </body>

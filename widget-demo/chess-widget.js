@@ -40,6 +40,11 @@
     check: "./assets/sounds/check.mp3",
     checkmate: "./assets/sounds/checkmate.mp3",
   };
+  var SCRIPT_URL =
+    document.currentScript && document.currentScript.src
+      ? document.currentScript.src
+      : document.baseURI;
+  var ASSET_BASE_URL = new URL(".", SCRIPT_URL);
 
   function clampPercent(value, fallback) {
     var number = Number(value);
@@ -99,6 +104,23 @@
     return MARKS[kind] || "·";
   }
 
+  function annotationFor(position) {
+    if (!position) return {};
+    if (position.annotation_detail) return position.annotation_detail;
+    if (position.annotation && typeof position.annotation === "object") {
+      return position.annotation;
+    }
+    if (typeof position.annotation === "string") {
+      return {
+        kind: position.annotation,
+        label: position.annotation,
+        text: "",
+      };
+    }
+
+    return {};
+  }
+
   function moveLabel(game, ply) {
     if (!game || !Array.isArray(game.moves) || ply < 1)
       return "Starting position";
@@ -108,11 +130,16 @@
     return move.move_number + prefix + move.san;
   }
 
+  function assetUrl(path) {
+    return new URL(path, ASSET_BASE_URL).toString();
+  }
+
   class ChessWidget extends HTMLElement {
     constructor() {
       super();
       this.game = null;
       this.currentPly = 0;
+      this.previousPly = 0;
       this._keyboardBound = false;
       this._focusBound = false;
       this._sounds = {};
@@ -198,6 +225,7 @@
         Math.min(this.game.positions.length - 1, Number(ply) || 0),
       );
       if (target === this.currentPly) return;
+      this.previousPly = this.currentPly;
       this.currentPly = target;
       this.render();
       this.playSoundForPosition(this.game.positions[target]);
@@ -224,7 +252,7 @@
       var source = SOUNDS[name];
       if (!source || typeof window.Audio !== "function") return;
       if (!this._sounds[name]) {
-        this._sounds[name] = new window.Audio(source);
+        this._sounds[name] = new window.Audio(assetUrl(source));
         this._sounds[name].preload = "auto";
       }
 
@@ -267,7 +295,7 @@
         : [];
       var position = positions[this.currentPly] || {};
       var metadata = game.metadata || {};
-      var annotation = position.annotation || {};
+      var annotation = annotationFor(position);
       var whiteEval = clampPercent(
         position.eval_bar && position.eval_bar.white,
         50,
@@ -366,14 +394,34 @@
       container.style.width = "100%";
       container.style.height = "100%";
 
+      for (var sr = 0; sr < ranks.length; sr += 1) {
+        for (var sf = 0; sf < files.length; sf += 1) {
+          var baseSquareName = files[sf] + ranks[sr];
+          var fileIndex = FILES.indexOf(files[sf]);
+          var rankNumber = Number(ranks[sr]);
+          var light = (fileIndex + rankNumber) % 2 === 1;
+          board.appendChild(
+            this.renderBoardSquare(
+              baseSquareName,
+              "cg-square " + (light ? "light" : "dark"),
+            ),
+          );
+        }
+      }
+
       if (lastMove.from) {
         board.appendChild(this.renderBoardSquare(lastMove.from, "last-move"));
       }
       if (lastMove.to) {
         board.appendChild(this.renderBoardSquare(lastMove.to, "last-move"));
       }
-      if (position && position.flags && position.flags.check && lastMove.to) {
-        board.appendChild(this.renderBoardSquare(lastMove.to, "check"));
+      if (position && position.flags && position.flags.check) {
+        board.appendChild(
+          this.renderBoardSquare(
+            this.checkedKingSquare(position, boardData) || lastMove.to,
+            "check",
+          ),
+        );
       }
 
       for (var r = 0; r < ranks.length; r += 1) {
@@ -394,6 +442,10 @@
               "--cw-transform",
               this.squareTransform(squareName),
             );
+            pieceNode.style.setProperty(
+              "--cw-from-transform",
+              this.arrivalFromTransform(squareName, lastMove),
+            );
             pieceNode.style.transform = "var(--cw-transform)";
             pieceNode.setAttribute(
               "aria-label",
@@ -413,11 +465,40 @@
     }
 
     renderBoardSquare(squareName, className) {
+      if (!squareName) return document.createElement("square");
+
       var square = document.createElement("square");
       square.className = className;
       square.style.transform = this.squareTransform(squareName);
       square.setAttribute("aria-hidden", "true");
       return square;
+    }
+
+    arrivalFromTransform(squareName, lastMove) {
+      if (
+        this.previousPly !== this.currentPly &&
+        lastMove &&
+        lastMove.to === squareName &&
+        lastMove.from
+      ) {
+        return this.squareTransform(lastMove.from);
+      }
+
+      return this.squareTransform(squareName);
+    }
+
+    checkedKingSquare(position, boardData) {
+      var moves = Array.isArray(this.game && this.game.moves)
+        ? this.game.moves
+        : [];
+      var move = moves[(position.ply || 0) - 1] || {};
+      var king = move.color === "white" ? "k" : "K";
+
+      for (var squareName in boardData) {
+        if (boardData[squareName] === king) return squareName;
+      }
+
+      return null;
     }
 
     squareTransform(squareName) {
@@ -450,8 +531,7 @@
 
     renderBoardMarker(position, squareName) {
       var lastMove = position && position.last_move ? position.last_move : {};
-      var annotation =
-        position && position.annotation ? position.annotation : {};
+      var annotation = annotationFor(position);
       var kind = annotation.kind || "good";
       var mark = BOARD_MARKERS[kind];
 
@@ -472,7 +552,7 @@
 
     renderPieceImage(piece) {
       var image = document.createElement("img");
-      image.src = PIECE_IMAGE_PATH + PIECE_IMAGES[piece];
+      image.src = assetUrl(PIECE_IMAGE_PATH + PIECE_IMAGES[piece]);
       image.alt = "";
       image.draggable = false;
       image.setAttribute("aria-hidden", "true");
@@ -511,9 +591,10 @@
           <div class="cw-eval-text">White ${whiteShare}%</div>
         </div>
         <div data-slot="controls"></div>
+        <div data-slot="chart"></div>
         <section class="cw-current">
           <h2>${escapeHtml(moveLabel(game, this.currentPly))}</h2>
-          <p>${escapeHtml((position.annotation && position.annotation.text) || "Starting position.")}</p>
+          <p>${escapeHtml(annotationFor(position).text || "Starting position.")}</p>
         </section>
         <section class="cw-summary">
           <h2>Summary</h2>
@@ -525,6 +606,9 @@
       side
         .querySelector('[data-slot="controls"]')
         .replaceWith(this.renderControls(game));
+      side
+        .querySelector('[data-slot="chart"]')
+        .replaceWith(this.renderEvalChart(game));
       side
         .querySelector('[data-slot="moves"]')
         .replaceWith(this.renderMoveList(game));
@@ -560,6 +644,40 @@
       controls.appendChild(counter);
       controls.appendChild(next);
       return controls;
+    }
+
+    renderEvalChart(game) {
+      var section = document.createElement("section");
+      var positions = Array.isArray(game.positions) ? game.positions : [];
+      var width = 320;
+      var height = 86;
+      var points = positions.map(function (position, index) {
+        var white = clampPercent(
+          position.eval_bar && position.eval_bar.white,
+          50,
+        );
+        var x =
+          positions.length <= 1 ? 0 : (index / (positions.length - 1)) * width;
+        var y = height - (white / 100) * height;
+        return x + "," + y;
+      });
+
+      section.className = "cw-chart";
+      section.innerHTML = `
+        <h2>Eval over time</h2>
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Evaluation over time">
+          <rect class="cw-chart-white" x="0" y="0" width="${width}" height="${height / 2}"></rect>
+          <rect class="cw-chart-black" x="0" y="${height / 2}" width="${width}" height="${height / 2}"></rect>
+          <line class="cw-chart-zero" x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}"></line>
+          <polyline class="cw-chart-line" points="${points.join(" ")}"></polyline>
+          <line class="cw-chart-current" x1="${this.chartX(width, positions.length)}" y1="0" x2="${this.chartX(width, positions.length)}" y2="${height}"></line>
+        </svg>
+      `;
+      return section;
+    }
+
+    chartX(width, count) {
+      return count <= 1 ? 0 : (this.currentPly / (count - 1)) * width;
     }
 
     renderMoveList(game) {

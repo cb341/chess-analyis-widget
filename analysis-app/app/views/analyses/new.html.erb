@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="/app.css">
   </head>
   <body>
-    <main class="page">
+    <main class="page analysis-form-page">
       <h1>Chess Analysis</h1>
       <% if @error %>
         <p class="error"><%= h(@error) %></p>
       <% end %>
-      <form action="/analyses" method="post">
+      <form class="analysis-form" action="/analyses" method="post">
         <label for="pgn">PGN</label>
         <textarea id="pgn" name="pgn" rows="18"><%= h(@pgn) %></textarea>
         <button type="submit">Analyze</button>

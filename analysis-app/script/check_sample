@@ -45,7 +45,7 @@ checks = {
   "castling detected" => payload[:moves].any? { |move| move[:san] == "O-O" && move[:flags]["castling"] },
   "checkmate detected" => payload[:moves].any? { |move| move[:san] == "Rd8#" && move[:flags]["checkmate"] },
   "text analysis rendered" => payload[:text_analysis].include?("♖d8#"),
-  "markdown analysis rendered" => payload[:markdown_analysis].include?("**♖d8#**"),
+  "markdown analysis rendered" => payload[:markdown_analysis].include?("♖d8#") && payload[:markdown_analysis].include?("<pre class=\"analysis-board\">"),
   "evaluation schema exposed" => payload[:moves].all? { |move| move[:eval_after].keys.sort == %i[source type value] },
   "positions match moves" => payload[:positions].length == payload[:moves].length + 1,
   "fen resource serializes start" => starting_fen == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
