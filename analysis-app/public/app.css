@@ -89,6 +89,30 @@ pre {
   padding: 16px;
 }
 
+.collapsible {
+  margin: 0 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.collapsible summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.collapsible pre,
+.collapsible textarea {
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0 0 8px 8px;
+  margin: 0;
+  background: #fffdf8;
+}
+
 button,
 a {
   color: var(--ink);

@@ -34,20 +34,32 @@
       <p class="summary"><%= h(@payload[:summary]) %></p>
       <script type="application/json" id="game-data"><%= raw json_escape(@payload_json) %></script>
       <chess-widget data-source="game-data"></chess-widget>
-      <h2>Verbose Markdown Analysis</h2>
-      <pre class="markdown-analysis"><%= h(@payload[:markdown_analysis]) %></pre>
-      <h2>Analysis JSON</h2>
-      <textarea class="copy-text" readonly rows="14"><%= h(@payload_json) %></textarea>
+      <details class="collapsible">
+        <summary>Verbose Markdown Analysis</summary>
+        <pre class="markdown-analysis"><%= h(@payload[:markdown_analysis]) %></pre>
+      </details>
+      <details class="collapsible">
+        <summary>Analysis JSON</summary>
+        <textarea class="copy-text" readonly rows="14"><%= h(@payload_json) %></textarea>
+      </details>
       <h2>Embed This Analysis</h2>
       <p class="summary">Use these snippets to render this analyzed game on another page. The widget makes no API calls.</p>
-      <h3>CSS</h3>
-      <pre><%= h(@embed_css) %></pre>
-      <h3>HTML</h3>
-      <pre><%= h(@embed_html) %></pre>
-      <h3>JavaScript</h3>
-      <pre><%= h(@embed_js) %></pre>
-      <h2>Text Analysis</h2>
-      <pre><%= h(@payload[:text_analysis]) %></pre>
+      <details class="collapsible">
+        <summary>CSS</summary>
+        <pre><%= h(@embed_css) %></pre>
+      </details>
+      <details class="collapsible">
+        <summary>HTML</summary>
+        <pre><%= h(@embed_html) %></pre>
+      </details>
+      <details class="collapsible">
+        <summary>JavaScript</summary>
+        <pre><%= h(@embed_js) %></pre>
+      </details>
+      <details class="collapsible">
+        <summary>Text Analysis</summary>
+        <pre><%= h(@payload[:text_analysis]) %></pre>
+      </details>
     </main>
     <script src="/chess-widget.js"></script>
   </body>
