@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chess Widget Physics Capture Demo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      :root {
+        --paper: #f4efe4;
+        --ink: #151516;
+        --muted: #6c6f75;
+        --line: #282a2d;
+        --light: #e9e5d9;
+        --dark: #79836f;
+        --accent: #e14d3f;
+        --gold: #f1c453;
+        --panel: #fffaf0;
+        --shadow: 0 18px 50px rgba(15, 17, 20, 0.22);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(140deg, rgba(225, 77, 63, 0.14), transparent 34%),
+          linear-gradient(320deg, rgba(121, 131, 111, 0.32), transparent 44%),
+          #d8d3c6;
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 0 auto;
+        padding: 24px 0 36px;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: minmax(310px, 680px) minmax(280px, 1fr);
+        gap: 22px;
+        align-items: start;
+      }
+
+      .board-area {
+        display: grid;
+        gap: 12px;
+      }
+
+      .board-wrap {
+        position: relative;
+        width: min(100%, 680px);
+        aspect-ratio: 1 / 1;
+        overflow: visible;
+      }
+
+      .board {
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+        border: 3px solid var(--line);
+        background: var(--light);
+        box-shadow: var(--shadow);
+      }
+
+      .square,
+      .piece {
+        position: absolute;
+        width: 12.5%;
+        height: 12.5%;
+        top: 0;
+        left: 0;
+      }
+
+      .square {
+        pointer-events: none;
+      }
+
+      .square.dark {
+        background:
+          linear-gradient(135deg, rgba(0, 0, 0, 0.08), transparent),
+          var(--dark);
+      }
+
+      .square.light {
+        background: var(--light);
+      }
+
+      .square.from,
+      .square.to {
+        box-shadow: inset 0 0 0 999px rgba(241, 196, 83, 0.42);
+      }
+
+      .piece {
+        display: grid;
+        place-items: center;
+        z-index: 3;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(32px, 8vw, 72px);
+        line-height: 1;
+        user-select: none;
+        will-change: transform;
+        filter:
+          drop-shadow(0 3px 0 rgba(255, 255, 255, 0.35))
+          drop-shadow(0 9px 7px rgba(15, 17, 20, 0.23));
+        transition: transform 360ms cubic-bezier(0.18, 0.9, 0.22, 1);
+      }
+
+      .piece.white {
+        color: #fffdf7;
+        text-shadow:
+          0 0 0 #111,
+          0 1px 0 #111,
+          1px 0 0 #111,
+          0 -1px 0 #111,
+          -1px 0 0 #111;
+      }
+
+      .piece.black {
+        color: #141414;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.34);
+      }
+
+      .piece.arriving {
+        animation: arrive 420ms cubic-bezier(0.18, 1.12, 0.24, 1);
+      }
+
+      .piece.captured {
+        z-index: 9;
+        transition: none;
+        pointer-events: none;
+        animation: throw-piece var(--flight-ms, 1200ms) cubic-bezier(0.16, 0.75, 0.22, 1) both;
+        animation-delay: var(--flight-delay, 0ms);
+      }
+
+      .piece.restored {
+        z-index: 8;
+        transition: none;
+        pointer-events: none;
+        animation: restore-piece var(--restore-ms, 360ms) cubic-bezier(0.17, 0.82, 0.23, 1) both;
+        animation-delay: var(--restore-delay, 0ms);
+      }
+
+      .coords {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+        color: rgba(21, 21, 22, 0.56);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .coord {
+        position: absolute;
+        padding: 6px;
+      }
+
+      .coord.file {
+        bottom: 0;
+      }
+
+      .coord.rank {
+        right: 0;
+      }
+
+      .panel {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid rgba(40, 42, 45, 0.22);
+        background: rgba(255, 250, 240, 0.9);
+        box-shadow: var(--shadow);
+      }
+
+      h1 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(28px, 4vw, 46px);
+        line-height: 1.02;
+      }
+
+      .lede,
+      .status,
+      .hint {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .status {
+        min-height: 44px;
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      button {
+        min-height: 42px;
+        border: 1px solid var(--line);
+        background: var(--ink);
+        color: white;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: var(--panel);
+        color: var(--ink);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .meter {
+        display: grid;
+        gap: 7px;
+      }
+
+      .meter-track {
+        height: 14px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: #d4d0c5;
+      }
+
+      .meter-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--accent));
+        transition: width 260ms ease;
+      }
+
+      .move-list {
+        display: grid;
+        gap: 6px;
+        max-height: 310px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .move-button {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+        min-height: 38px;
+        padding: 7px 9px;
+        border: 1px solid rgba(40, 42, 45, 0.2);
+        background: rgba(255, 255, 255, 0.48);
+        color: var(--ink);
+        text-align: left;
+      }
+
+      .move-button.active {
+        background: rgba(241, 196, 83, 0.5);
+        border-color: var(--line);
+      }
+
+      .tag {
+        color: var(--accent);
+        font-weight: 900;
+      }
+
+      @keyframes arrive {
+        0% {
+          transform: var(--from-transform) scale(0.94) rotate(-4deg);
+        }
+
+        68% {
+          transform: var(--to-transform) scale(1.08) rotate(3deg);
+        }
+
+        100% {
+          transform: var(--to-transform) scale(1) rotate(0deg);
+        }
+      }
+
+      @keyframes throw-piece {
+        0% {
+          opacity: 1;
+          transform: var(--start-transform) translate(0, 0) rotate(0deg) scale(1);
+        }
+
+        56% {
+          opacity: 1;
+          transform:
+            var(--start-transform)
+            translate(calc(var(--throw-x) * 0.72), calc(var(--throw-y) * 0.72 - var(--arc)))
+            rotate(calc(var(--spin) * 0.56))
+            scale(1.04);
+        }
+
+        100% {
+          opacity: 0;
+          transform:
+            var(--start-transform)
+            translate(var(--throw-x), var(--throw-y))
+            rotate(var(--spin))
+            scale(0.82);
+        }
+      }
+
+      @keyframes restore-piece {
+        0% {
+          opacity: 0;
+          transform:
+            var(--start-transform)
+            translate(var(--throw-x), var(--throw-y))
+            rotate(var(--spin))
+            scale(0.82);
+        }
+
+        36% {
+          opacity: 1;
+        }
+
+        72% {
+          opacity: 1;
+          transform:
+            var(--start-transform)
+            translate(calc(var(--throw-x) * 0.22), calc(var(--throw-y) * 0.22 - var(--arc) * 0.34))
+            rotate(calc(var(--spin) * 0.18))
+            scale(1.06);
+        }
+
+        100% {
+          opacity: 1;
+          transform: var(--start-transform) translate(0, 0) rotate(0deg) scale(1);
+        }
+      }
+
+      @media (max-width: 860px) {
+        main {
+          width: min(100vw - 18px, 680px);
+          padding-top: 10px;
+        }
+
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        .panel {
+          padding: 14px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .piece,
+        .piece.captured,
+        .meter-fill {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="shell">
+        <section class="board-area" aria-label="Physics chess board">
+          <div class="board-wrap">
+            <div class="board" id="board"></div>
+          </div>
+        </section>
+
+        <aside class="panel">
+          <h1>Physics Captures</h1>
+          <p class="lede">Captured pieces keep their square for one frame, then get shoved off the board. Longer captures hit harder.</p>
+          <p class="status" id="status"></p>
+          <div class="controls">
+            <button type="button" id="prev">Previous</button>
+            <button type="button" id="next">Next</button>
+            <button type="button" class="secondary" id="replay">Replay</button>
+            <button type="button" class="secondary" id="reset">Reset</button>
+          </div>
+          <div class="meter" aria-label="Capture force">
+            <strong>Capture force</strong>
+            <div class="meter-track"><div class="meter-fill" id="force"></div></div>
+          </div>
+          <div class="move-list" id="moves"></div>
+          <p class="hint">Arrow keys step through the line. The rook captures are intentionally dramatic so the physics effect is obvious.</p>
+        </aside>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
+        var RANKS = ["8", "7", "6", "5", "4", "3", "2", "1"];
+        var PIECES = {
+          K: "&#9812;",
+          Q: "&#9813;",
+          R: "&#9814;",
+          B: "&#9815;",
+          N: "&#9816;",
+          P: "&#9817;",
+          k: "&#9818;",
+          q: "&#9819;",
+          r: "&#9820;",
+          b: "&#9821;",
+          n: "&#9822;",
+          p: "&#9823;",
+        };
+        var initialBoard = {
+          a1: "R",
+          e1: "K",
+          h1: "R",
+          c2: "B",
+          e2: "Q",
+          f2: "N",
+          a7: "n",
+          e8: "k",
+          h7: "r",
+          h5: "q",
+          c4: "p",
+          d3: "p",
+          f5: "p",
+        };
+        var moves = [
+          { san: "Rxa7", from: "a1", to: "a7", note: "The rook travels six squares and launches the knight vertically." },
+          { san: "Qxh5", from: "e2", to: "h5", note: "The queen hits along a shorter diagonal, so the shove is smaller." },
+          { san: "Bxd3", from: "c2", to: "d3", note: "The bishop clips a nearby pawn with a modest bump." },
+          { san: "Bxf5", from: "d3", to: "f5", note: "A longer bishop capture adds a higher arc." },
+          { san: "Rxh7", from: "a7", to: "h7", note: "A full-rank rook swipe sends the captured rook flying sideways." },
+          { san: "Nxc4", from: "f2", to: "c4", note: "The knight jump is short, so the captured pawn tumbles less violently." },
+        ];
+
+        var boardEl = document.getElementById("board");
+        var statusEl = document.getElementById("status");
+        var forceEl = document.getElementById("force");
+        var movesEl = document.getElementById("moves");
+        var currentPly = 0;
+        var previousBoard = cloneBoard(initialBoard);
+        var currentBoard = cloneBoard(initialBoard);
+        var lastMove = null;
+        var navigationDirection = "forward";
+        var restoringCapture = null;
+        var pieceTravelMs = 70;
+
+        function cloneBoard(board) {
+          return Object.assign({}, board);
+        }
+
+        function squarePoint(square) {
+          return {
+            file: FILES.indexOf(square.charAt(0)),
+            rank: RANKS.indexOf(square.charAt(1)),
+          };
+        }
+
+        function squareTransform(square) {
+          var point = squarePoint(square);
+          return "translate(" + point.file * 100 + "%, " + point.rank * 100 + "%)";
+        }
+
+        function distance(from, to) {
+          var a = squarePoint(from);
+          var b = squarePoint(to);
+          var dx = b.file - a.file;
+          var dy = b.rank - a.rank;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function boardAt(ply) {
+          var board = cloneBoard(initialBoard);
+          for (var i = 0; i < ply; i += 1) {
+            applyMove(board, moves[i]);
+          }
+          return board;
+        }
+
+        function applyMove(board, move) {
+          var piece = board[move.from];
+          if (!piece) return;
+          delete board[move.from];
+          board[move.to] = piece;
+        }
+
+        function render() {
+          boardEl.innerHTML = "";
+          renderSquares();
+          renderCoordinates();
+
+          Object.keys(currentBoard).forEach(function (square) {
+            if (restoringCapture && restoringCapture.square === square) return;
+            renderPiece(square, currentBoard[square]);
+          });
+
+          renderMoveList();
+          updateStatus();
+          document.getElementById("prev").disabled = currentPly === 0;
+          document.getElementById("next").disabled = currentPly === moves.length;
+        }
+
+        function renderSquares() {
+          for (var r = 0; r < RANKS.length; r += 1) {
+            for (var f = 0; f < FILES.length; f += 1) {
+              var square = FILES[f] + RANKS[r];
+              var node = document.createElement("div");
+              var light = (f + Number(RANKS[r])) % 2 === 1;
+              node.className = "square " + (light ? "light" : "dark");
+              if (lastMove && square === lastMove.from) node.className += " from";
+              if (lastMove && square === lastMove.to) node.className += " to";
+              node.style.transform = squareTransform(square);
+              boardEl.appendChild(node);
+            }
+          }
+        }
+
+        function renderCoordinates() {
+          var coords = document.createElement("div");
+          coords.className = "coords";
+          FILES.forEach(function (file, index) {
+            var node = document.createElement("span");
+            node.className = "coord file";
+            node.style.left = index * 12.5 + "%";
+            node.textContent = file;
+            coords.appendChild(node);
+          });
+          RANKS.forEach(function (rank, index) {
+            var node = document.createElement("span");
+            node.className = "coord rank";
+            node.style.top = index * 12.5 + "%";
+            node.textContent = rank;
+            coords.appendChild(node);
+          });
+          boardEl.appendChild(coords);
+        }
+
+        function renderPiece(square, piece) {
+          var node = document.createElement("div");
+          var cameFrom = square;
+          if (lastMove && navigationDirection === "forward" && lastMove.to === square) {
+            cameFrom = lastMove.from;
+          } else if (lastMove && navigationDirection === "backward" && lastMove.from === square) {
+            cameFrom = lastMove.to;
+          }
+          node.className = "piece " + (piece === piece.toUpperCase() ? "white" : "black");
+          if (cameFrom !== square) node.className += " arriving";
+          node.style.setProperty("--from-transform", squareTransform(cameFrom));
+          node.style.setProperty("--to-transform", squareTransform(square));
+          node.style.transform = squareTransform(square);
+          node.dataset.square = square;
+          node.innerHTML = PIECES[piece];
+          boardEl.appendChild(node);
+        }
+
+        function renderMoveList() {
+          movesEl.innerHTML = "";
+          moves.forEach(function (move, index) {
+            var button = document.createElement("button");
+            var force = Math.round((distance(move.from, move.to) / 7) * 100);
+            button.type = "button";
+            button.className = "move-button" + (currentPly === index + 1 ? " active" : "");
+            button.innerHTML =
+              "<span>" + (index + 1) + ".</span><span>" +
+              move.san +
+              "</span><span class=\"tag\">" +
+              force +
+              "%</span>";
+            button.addEventListener("click", function () {
+              goTo(index + 1);
+            });
+            movesEl.appendChild(button);
+          });
+        }
+
+        function updateStatus() {
+          var move = moves[currentPly - 1];
+          if (!move) {
+            statusEl.textContent = "Ready. Start the line to see the first captured piece get thrown.";
+            forceEl.style.width = "0%";
+            return;
+          }
+
+          var force = Math.min(100, Math.round((distance(move.from, move.to) / 7) * 100));
+          statusEl.textContent = move.san + ": " + move.note;
+          forceEl.style.width = force + "%";
+        }
+
+        function goTo(ply, replay) {
+          var target = Math.max(0, Math.min(moves.length, ply));
+          var oldPly = currentPly;
+          var movingBackward = target < oldPly;
+          var move = movingBackward ? moves[oldPly - 1] : moves[target - 1] || null;
+          var before = boardAt(Math.max(0, target - 1));
+          var after = boardAt(target);
+          previousBoard = before;
+          currentBoard = after;
+          lastMove = move;
+          navigationDirection = movingBackward ? "backward" : "forward";
+          restoringCapture = movingBackward && move && after[move.to]
+            ? { square: move.to, piece: after[move.to] }
+            : null;
+          currentPly = target;
+          render();
+
+          if (move && (target > oldPly || replay)) {
+            throwCapturedPiece(move, before);
+          } else if (restoringCapture) {
+            restoreCapturedPiece(move, restoringCapture.piece);
+          }
+        }
+
+        function throwVector(move) {
+          var force = distance(move.from, move.to);
+          var from = squarePoint(move.from);
+          var to = squarePoint(move.to);
+          var dx = to.file - from.file || 0.25;
+          var dy = to.rank - from.rank || -0.25;
+          var length = Math.sqrt(dx * dx + dy * dy) || 1;
+          var boardWidth = boardEl.getBoundingClientRect().width;
+
+          return {
+            force: force,
+            x: (dx / length) * boardWidth * (0.38 + force * 0.18),
+            y: (dy / length) * boardWidth * (0.38 + force * 0.18),
+            arc: boardWidth * (0.16 + force * 0.035),
+            spin: (move.from < move.to ? 1 : -1) * (360 + force * 150),
+          };
+        }
+
+        function throwCapturedPiece(move, before) {
+          var captured = before[move.to];
+          if (!captured) return;
+
+          var capturedNode = document.createElement("div");
+          var vector = throwVector(move);
+
+          capturedNode.className = "piece captured " + (captured === captured.toUpperCase() ? "white" : "black");
+          capturedNode.style.setProperty("--start-transform", squareTransform(move.to));
+          capturedNode.style.setProperty("--throw-x", vector.x + "px");
+          capturedNode.style.setProperty("--throw-y", vector.y + "px");
+          capturedNode.style.setProperty("--arc", vector.arc + "px");
+          capturedNode.style.setProperty("--spin", vector.spin + "deg");
+          capturedNode.style.setProperty("--flight-ms", Math.max(700, 1450 - vector.force * 90) + "ms");
+          capturedNode.style.setProperty("--flight-delay", pieceTravelMs + "ms");
+          capturedNode.innerHTML = PIECES[captured];
+          boardEl.appendChild(capturedNode);
+
+          capturedNode.addEventListener("animationend", function () {
+            capturedNode.remove();
+          });
+        }
+
+        function restoreCapturedPiece(move, piece) {
+          var restoredNode = document.createElement("div");
+          var vector = throwVector(move);
+
+          restoredNode.className = "piece restored " + (piece === piece.toUpperCase() ? "white" : "black");
+          restoredNode.style.setProperty("--start-transform", squareTransform(move.to));
+          restoredNode.style.setProperty("--throw-x", vector.x + "px");
+          restoredNode.style.setProperty("--throw-y", vector.y + "px");
+          restoredNode.style.setProperty("--arc", vector.arc + "px");
+          restoredNode.style.setProperty("--spin", vector.spin + "deg");
+          restoredNode.style.setProperty("--restore-ms", Math.max(240, 520 - vector.force * 32) + "ms");
+          restoredNode.style.setProperty("--restore-delay", pieceTravelMs + "ms");
+          restoredNode.innerHTML = PIECES[piece];
+          boardEl.appendChild(restoredNode);
+
+          restoredNode.addEventListener("animationend", function () {
+            restoringCapture = null;
+            navigationDirection = "settled";
+            render();
+          });
+        }
+
+        function next() {
+          goTo(currentPly + 1);
+        }
+
+        function previous() {
+          goTo(currentPly - 1);
+        }
+
+        document.getElementById("next").addEventListener("click", next);
+        document.getElementById("prev").addEventListener("click", previous);
+        document.getElementById("reset").addEventListener("click", function () {
+          currentPly = 0;
+          previousBoard = cloneBoard(initialBoard);
+          currentBoard = cloneBoard(initialBoard);
+          lastMove = null;
+          navigationDirection = "forward";
+          restoringCapture = null;
+          render();
+        });
+        document.getElementById("replay").addEventListener("click", function () {
+          goTo(currentPly || 1, true);
+        });
+        window.addEventListener("keydown", function (event) {
+          if (event.key === "ArrowRight") {
+            event.preventDefault();
+            next();
+          } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            previous();
+          }
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
