@@ -237,6 +237,34 @@ async function testBoardOnlyModeKeepsOnlyBoard() {
   assert.equal(panel.children[0].children.length, 1);
 }
 
+async function testFalseFeatureAttributesHideFeatures() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    header: "false",
+    controls: "false",
+    comments: "false",
+    moves: "false",
+    "eval-bar": "false",
+    "eval-chart": "false",
+  });
+  let rendered = null;
+  widget.render = ChessWidget.prototype.render.bind(widget);
+  widget.appendChild = function (node) {
+    rendered = node;
+  };
+  widget.innerHTML = "";
+  widget.render();
+  assert.equal(rendered.children.length, 2);
+  const main = rendered.children[0];
+  const live = rendered.children[1];
+  const panel = main.children[0];
+  assert.equal(main.className, "cw-main");
+  assert.equal(main.children.length, 1);
+  assert.equal(panel.children.length, 1);
+  assert.equal(panel.children[0].className, "cw-board-with-eval");
+  assert.equal(panel.children[0].children.length, 1);
+  assert.equal(live.className, "cw-live");
+}
+
 async function run() {
   await testSamplePgn();
   await testCommentAttachmentAndGlyphs();
@@ -246,6 +274,7 @@ async function run() {
   await testMoveListGroupsByMoveNumber();
   await testMinimalModeIsControlsOnly();
   await testBoardOnlyModeKeepsOnlyBoard();
+  await testFalseFeatureAttributesHideFeatures();
   console.log("tests.js ok");
 }
 

@@ -572,7 +572,22 @@
     return move.move_number + (move.color === "black" ? "... " : ". ") + move.san;
   }
 
-  var OBSERVED_ATTRS = ["orientation", "start", "end", "ply", "sound", "eval-chart", "clocks", "minimal", "board-only"];
+  var OBSERVED_ATTRS = [
+    "orientation",
+    "start",
+    "end",
+    "ply",
+    "sound",
+    "eval-chart",
+    "eval-bar",
+    "clocks",
+    "controls",
+    "comments",
+    "header",
+    "moves",
+    "minimal",
+    "board-only",
+  ];
 
   class ChessWidget extends HTMLElement {
     static get observedAttributes() {
@@ -724,7 +739,7 @@
       var boardOnly = hasBooleanAttr(this, "board-only", false);
       var minimal = boardOnly || hasBooleanAttr(this, "minimal", false);
       if (minimal) shell.className += " cw-shell-minimal";
-      if (!minimal) shell.appendChild(this.renderHeader(game.metadata));
+      if (this.featureEnabled("header", true)) shell.appendChild(this.renderHeader(game.metadata));
       var main = document.createElement("div");
       main.className = "cw-main";
       if (minimal) main.className += " cw-main-minimal";
@@ -733,12 +748,12 @@
       var boardWithEval = document.createElement("div");
       boardWithEval.className = "cw-board-with-eval";
       boardWithEval.appendChild(this.renderBoard(position));
-      if (!minimal) boardWithEval.appendChild(this.renderEvalBar(whiteShare, blackShare, position.eval));
+      if (this.featureEnabled("eval-bar", true)) boardWithEval.appendChild(this.renderEvalBar(whiteShare, blackShare, position.eval));
       boardPanel.appendChild(boardWithEval);
-      if (!boardOnly) boardPanel.appendChild(this.renderControls(game));
-      if (!minimal) boardPanel.appendChild(this.renderAnnotation(position));
+      if (this.featureEnabled("controls", true)) boardPanel.appendChild(this.renderControls(game));
+      if (this.featureEnabled("comments", true)) boardPanel.appendChild(this.renderAnnotation(position));
       main.appendChild(boardPanel);
-      if (!minimal) main.appendChild(this.renderSidePanel(game, position));
+      if (this.featureEnabled("moves", true) || this.featureEnabled("eval-chart", false)) main.appendChild(this.renderSidePanel(game, position));
       shell.appendChild(main);
       var live = document.createElement("div");
       live.className = "cw-live";
@@ -746,6 +761,14 @@
       live.textContent = moveLabel(game, this.currentPly);
       shell.appendChild(live);
       this.appendChild(shell);
+    }
+
+    featureEnabled(name, normalDefault) {
+      if (hasBooleanAttr(this, "board-only", false)) return false;
+      if (hasBooleanAttr(this, "minimal", false)) {
+        return name === "controls" ? hasBooleanAttr(this, name, true) : hasBooleanAttr(this, name, false);
+      }
+      return hasBooleanAttr(this, name, normalDefault);
     }
 
     renderHeader(metadata) {
@@ -904,10 +927,10 @@
     renderSidePanel(game, position) {
       var side = document.createElement("aside");
       side.className = "cw-side";
-      if (hasBooleanAttr(this, "eval-chart", false) && game.moves.some(function (move) { return move.eval; })) {
+      if (this.featureEnabled("eval-chart", false) && game.moves.some(function (move) { return move.eval; })) {
         side.appendChild(this.renderPanel("Eval over time", this.renderEvalChart(game)));
       }
-      side.appendChild(this.renderPanel("Moves", this.renderMoveList(game)));
+      if (this.featureEnabled("moves", true)) side.appendChild(this.renderPanel("Moves", this.renderMoveList(game)));
       return side;
     }
 

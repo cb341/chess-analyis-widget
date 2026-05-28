@@ -32,8 +32,15 @@ Inline PGN also works:
 - `move` and `side`: optional move lookup, for example `move="16" side="white"`.
 - `orientation`: `white` or `black`. Default is `white`.
 - `eval-chart`: show an evaluation chart when the PGN has `[%eval]`.
+- `eval-bar`: show the vertical evaluation bar. Set `eval-bar="false"` to hide it.
 - `clocks`: show per-side remaining time from `[%clk]`.
 - `sound`: play move sounds. Default is off.
+- `header`: set `header="false"` to hide the title and player row.
+- `controls`: set `controls="false"` to hide previous and next controls.
+- `comments`: set `comments="false"` to hide the current move annotation.
+- `moves`: set `moves="false"` to hide the move list.
+- `minimal`: shortcut for board plus controls only.
+- `board-only`: shortcut for board only. Arrow keys still work when focused.
 
 The widget supports previous, next, move-list seeking, and arrow-key navigation when focused. Multiple widgets on one page are independent.
 
