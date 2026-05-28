@@ -1,80 +1,82 @@
-* {
+chess-widget,
+chess-widget * {
   box-sizing: border-box;
 }
 
-.cw-widget {
+chess-widget.cw-widget {
+  container-type: inline-size;
   display: block;
   outline: none;
 }
 
-.cw-shell,
-.cw-header,
-.cw-main,
-.cw-board-panel,
-.cw-side,
-.cw-eval-wrap,
-.cw-controls,
-.cw-current,
-.cw-summary,
-.cw-moves,
-.cw-move-list,
-.cw-move-row {
+chess-widget .cw-shell,
+chess-widget .cw-header,
+chess-widget .cw-main,
+chess-widget .cw-board-panel,
+chess-widget .cw-side,
+chess-widget .cw-eval-wrap,
+chess-widget .cw-controls,
+chess-widget .cw-current,
+chess-widget .cw-summary,
+chess-widget .cw-moves,
+chess-widget .cw-move-list,
+chess-widget .cw-move-row {
   display: grid;
 }
 
-.cw-shell {
+chess-widget .cw-shell {
   gap: 18px;
 }
 
-.cw-header {
+chess-widget .cw-header {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
 }
 
-.cw-players {
+chess-widget .cw-players {
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
-.cw-main {
+chess-widget .cw-main {
   grid-template-columns: minmax(300px, 640px) minmax(300px, 1fr);
   gap: 20px;
   align-items: start;
 }
 
-.cw-board-panel {
+chess-widget .cw-board-panel {
   position: relative;
   gap: 12px;
 }
 
-.cg-wrap {
+chess-widget .cg-wrap {
   width: min(100%, 640px);
   aspect-ratio: 1 / 1;
   margin: 0 0 22px 22px;
 }
 
-.cg-wrap,
-cg-container,
-cg-board {
+chess-widget .cg-wrap,
+chess-widget cg-container,
+chess-widget cg-board {
   position: relative;
   display: block;
 }
 
-cg-container,
-cg-board {
+chess-widget cg-container,
+chess-widget cg-board {
   width: 100%;
   height: 100%;
 }
 
-cg-board {
+chess-widget cg-board {
   overflow: hidden;
 }
 
-square,
-piece,
-move-marker {
+chess-widget square,
+chess-widget piece,
+chess-widget move-marker {
   position: absolute;
   top: 0;
   left: 0;
@@ -84,18 +86,18 @@ move-marker {
   min-height: 0;
 }
 
-square {
+chess-widget square {
   pointer-events: none;
 }
 
-piece {
+chess-widget piece {
   z-index: 2;
   display: grid;
   place-items: center;
   user-select: none;
 }
 
-piece img {
+chess-widget piece img {
   display: block;
   width: 100%;
   height: 100%;
@@ -103,7 +105,7 @@ piece img {
   user-select: none;
 }
 
-move-marker {
+chess-widget move-marker {
   display: grid;
   place-items: start end;
   position: absolute;
@@ -111,31 +113,31 @@ move-marker {
   pointer-events: none;
 }
 
-coords {
+chess-widget coords {
   position: absolute;
   z-index: 4;
   pointer-events: none;
 }
 
-.cw-annotation {
+chess-widget .cw-annotation {
   position: static;
   z-index: 4;
   display: grid;
   gap: 4px;
 }
 
-.cw-side {
+chess-widget .cw-side {
   grid-template-columns: 44px 1fr;
   gap: 14px;
   align-items: start;
 }
 
-.cw-eval-wrap {
+chess-widget .cw-eval-wrap {
   gap: 8px;
   justify-items: center;
 }
 
-.cw-eval {
+chess-widget .cw-eval {
   display: flex;
   flex-direction: column;
   justify-content: stretch;
@@ -145,45 +147,45 @@ coords {
   overflow: hidden;
 }
 
-.cw-controls,
-.cw-chart,
-.cw-current,
-.cw-summary,
-.cw-moves {
+chess-widget .cw-controls,
+chess-widget .cw-chart,
+chess-widget .cw-current,
+chess-widget .cw-summary,
+chess-widget .cw-moves {
   grid-column: 2;
 }
 
-.cw-controls {
+chess-widget .cw-controls {
   grid-template-columns: 1fr auto 1fr;
   gap: 8px;
   align-items: center;
 }
 
-.cw-button,
-.cw-move {
+chess-widget .cw-button,
+chess-widget .cw-move {
   min-height: 36px;
   cursor: pointer;
 }
 
-.cw-counter {
+chess-widget .cw-counter {
   min-width: 70px;
   text-align: center;
 }
 
-.cw-move-list {
+chess-widget .cw-move-list {
   gap: 4px;
   max-height: 270px;
   overflow: auto;
   padding-right: 4px;
 }
 
-.cw-move-row {
+chess-widget .cw-move-row {
   grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr);
   gap: 4px;
   align-items: center;
 }
 
-.cw-move {
+chess-widget .cw-move {
   display: flex;
   justify-content: space-between;
   gap: 6px;
@@ -191,15 +193,15 @@ coords {
   min-width: 0;
 }
 
-.cw-mark {
+chess-widget .cw-mark {
   flex: 0 0 auto;
 }
 
-.cw-move-empty {
+chess-widget .cw-move-empty {
   min-height: 1px;
 }
 
-.cw-live {
+chess-widget .cw-live {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -209,32 +211,71 @@ coords {
 }
 
 @media (max-width: 860px) {
-  .cw-header,
-  .cw-main {
+  chess-widget .cw-header,
+  chess-widget .cw-main {
     grid-template-columns: 1fr;
   }
 
-  .cw-side {
+  chess-widget .cw-side {
     grid-template-columns: 34px 1fr;
   }
 
-  .cw-eval {
+  chess-widget .cw-eval {
     height: 340px;
     min-height: 240px;
   }
 
-  .cw-players {
+  chess-widget .cw-players {
     flex-wrap: wrap;
   }
 }
 
 @media (max-width: 520px) {
-  .cw-controls {
+  chess-widget .cw-controls {
     grid-template-columns: 1fr 1fr;
   }
 
-  .cw-counter {
+  chess-widget .cw-counter {
     grid-column: 1 / -1;
     grid-row: 2;
+  }
+}
+
+@container (max-width: 760px) {
+  chess-widget .cw-header,
+  chess-widget .cw-main {
+    grid-template-columns: 1fr;
+  }
+
+  chess-widget .cw-board-panel {
+    width: 100%;
+  }
+
+  chess-widget .cg-wrap {
+    width: calc(100% - 22px);
+    max-width: none;
+  }
+
+  chess-widget .cw-side {
+    grid-template-columns: 1fr;
+  }
+
+  chess-widget .cw-controls,
+  chess-widget .cw-chart,
+  chess-widget .cw-current,
+  chess-widget .cw-summary,
+  chess-widget .cw-moves {
+    grid-column: 1;
+  }
+
+  chess-widget .cw-eval-wrap {
+    justify-items: stretch;
+  }
+
+  chess-widget .cw-eval {
+    flex-direction: row;
+    width: 100%;
+    height: 24px;
+    min-height: 24px;
   }
 }

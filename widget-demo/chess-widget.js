@@ -799,8 +799,8 @@
             class="cw-eval"
             aria-label="Evaluation: White ${whiteShare} percent, Black ${blackShare} percent"
           >
-            <div class="cw-eval-black" style="height: ${blackShare}%"></div>
-            <div class="cw-eval-white" style="height: ${whiteShare}%"></div>
+            <div class="cw-eval-black" style="height: ${blackShare}%; width: ${blackShare}%"></div>
+            <div class="cw-eval-white" style="height: ${whiteShare}%; width: ${whiteShare}%"></div>
           </div>
           <div class="cw-eval-text">White ${whiteShare}%</div>
         </div>
