@@ -467,6 +467,11 @@
       var whiteShare = total > 0 ? Math.round((whiteEval / total) * 100) : 50;
       var blackShare = 100 - whiteShare;
 
+      this._openPanelState = {};
+      this.querySelectorAll("[data-panel]").forEach(function (el) {
+        if (el.open) this._openPanelState[el.getAttribute("data-panel")] = true;
+      }, this);
+
       this.innerHTML = "";
 
       var shell = document.createElement("div");
@@ -926,6 +931,7 @@
       if (collapsedPanels[name]) return false;
       if (this.hasAttribute(name + "-open")) return true;
       if (this.hasAttribute(name + "-collapsed")) return false;
+      if (this._openPanelState && name in this._openPanelState) return this._openPanelState[name];
       return defaultOpen;
     }
 

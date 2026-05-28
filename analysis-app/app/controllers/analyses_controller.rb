@@ -73,10 +73,12 @@ class AnalysesController < ApplicationController
     @widget_payload_gz = gzip_base64(@widget_payload_json)
     widget_css_url = "#{request.base_url}/chess-widget.css"
     widget_js_url = "#{request.base_url}/chess-widget.js"
+    white = @payload.dig(:metadata, :White) || @payload.dig(:metadata, "White") || "White"
+    black = @payload.dig(:metadata, :Black) || @payload.dig(:metadata, "Black") || "Black"
     @embed_widget = <<~HTML
       <link rel="stylesheet" href="#{widget_css_url}">
       <script type="application/x-gzip-json" id="game-data">#{@widget_payload_gz}</script>
-      <chess-widget data-source="game-data" widget-title="Live Chess"></chess-widget>
+      <chess-widget data-source="game-data"></chess-widget>
       <script src="#{widget_js_url}"></script>
     HTML
   end

@@ -197,6 +197,7 @@
 
         form.addEventListener("change", applyCustomization);
         form.addEventListener("input", applyCustomization);
+        applyCustomization();
 
         document.addEventListener("click", async function (event) {
           var button = event.target.closest("[data-copy-target]");
