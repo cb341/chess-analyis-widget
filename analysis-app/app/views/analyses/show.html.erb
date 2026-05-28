@@ -9,10 +9,10 @@
   </head>
   <body>
     <main class="page wide">
-      <nav><a href="/">Analyze another PGN</a> · <a href="/admin/">Admin</a></nav>
+      <nav><a href="/">Analyze another PGN</a> · <%= link_to "All analyses", analyses_path %></nav>
       <h1>Analysis Result</h1>
       <% if @analysis_id %>
-        <p class="summary">Analysis ID <code><%= h(@analysis_id) %></code> · <a href="/admin/analyses/<%= h(@analysis_id) %>">Admin detail</a></p>
+        <p class="summary">Analysis ID <code><%= h(@analysis_id) %></code></p>
       <% end %>
       <dl class="metadata">
         <% @payload[:metadata].each do |key, value| %>

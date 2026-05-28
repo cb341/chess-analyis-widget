@@ -33,9 +33,9 @@ Feature: Server-side chess analysis
     Then it asks Stockfish for a UCI evaluation
     And it falls back to material evaluation if Stockfish fails or times out
 
-  Scenario: Review saved analyses in admin
+  Scenario: Review saved analyses
     Given at least one game has been analyzed
-    When I open the admin analyses page
+    When I open the analyses index
     Then I see the saved games
     And I can open a saved game
     And I can inspect its metadata, moves, evaluations, and board snapshots

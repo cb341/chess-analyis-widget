@@ -95,7 +95,7 @@ Given("at least one game has been analyzed") do
     def moves = payload.fetch("moves", [])
     def positions = payload.fetch("positions", [])
   end
-  @admin_record = record.new(
+  @analysis_record = record.new(
     Analysis.id_for(AnalysesController::SAMPLE_PGN),
     AnalysesController::SAMPLE_PGN,
     JSON.parse(JSON.generate(payload)),
@@ -103,22 +103,22 @@ Given("at least one game has been analyzed") do
   )
 end
 
-When("I open the admin analyses page") do
-  @admin_index = [@admin_record]
+When("I open the analyses index") do
+  @analysis_index = [@analysis_record]
 end
 
 Then("I see the saved games") do
-  raise "missing admin record" unless @admin_index.any? { |record| record.id == @admin_record.id }
+  raise "missing analysis record" unless @analysis_index.any? { |record| record.id == @analysis_record.id }
 end
 
 Then("I can open a saved game") do
-  @admin_show = @admin_index.find { |record| record.id == @admin_record.id }
-  raise "missing admin show record" unless @admin_show
+  @analysis_show = @analysis_index.find { |record| record.id == @analysis_record.id }
+  raise "missing analysis show record" unless @analysis_show
 end
 
 Then("I can inspect its metadata, moves, evaluations, and board snapshots") do
-  raise "missing metadata" if @admin_show.metadata.empty?
-  raise "missing moves" if @admin_show.moves.empty?
-  raise "missing boards" if @admin_show.positions.empty?
-  raise "missing eval" unless @admin_show.moves.first.key?("eval_after")
+  raise "missing metadata" if @analysis_show.metadata.empty?
+  raise "missing moves" if @analysis_show.moves.empty?
+  raise "missing boards" if @analysis_show.positions.empty?
+  raise "missing eval" unless @analysis_show.moves.first.key?("eval_after")
 end

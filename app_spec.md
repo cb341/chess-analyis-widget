@@ -40,22 +40,11 @@ The server should also be able to render the analysis as standalone text using U
 ```ruby
 root "analyses#new"
 
-resources :analyses, only: [:new, :create, :show]
+resources :analyses, only: [:index, :new, :create, :show]
 ```
 
 For the POC, `create` analyzes inline, upserts the deterministic analysis
 record, and redirects to `show`.
-
-Admin routes:
-
-```ruby
-get "/admin/", to: "admin/analyses#index"
-
-namespace :admin do
-  root "analyses#index"
-  resources :analyses, only: [:index, :show]
-end
-```
 
 ## Data Model
 

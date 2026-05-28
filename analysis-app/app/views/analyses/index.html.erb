@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin · Analyses</title>
+    <title>Analyses</title>
     <link rel="stylesheet" href="/app.css">
   </head>
   <body>
     <main class="page wide">
       <nav><a href="/">New analysis</a></nav>
-      <h1>Admin · Game Analyses</h1>
+      <h1>Game Analyses</h1>
       <% if @analyses.empty? %>
         <p class="summary">No analyses have been saved yet.</p>
       <% else %>
-        <table class="admin-table">
+        <table class="analysis-table">
           <thead>
             <tr>
               <th>Created</th>
@@ -27,7 +27,7 @@
             <% @analyses.each do |analysis| %>
               <tr>
                 <td><%= h(analysis.created_at) %></td>
-                <td><a href="/admin/analyses/<%= h(analysis.id) %>"><%= h(title_for(analysis)) %></a></td>
+                <td><%= link_to title_for(analysis), analysis_path(analysis) %></td>
                 <td><%= h(analysis.metadata["Result"] || "*") %></td>
                 <td><%= h(analysis.moves.length) %></td>
                 <td><%= h(analysis.positions.length) %></td>

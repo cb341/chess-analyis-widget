@@ -251,30 +251,24 @@ button {
   color: var(--muted);
 }
 
-.admin-table {
+.analysis-table {
   width: 100%;
   border-collapse: collapse;
   margin: 0 0 22px;
   background: #fffaf0;
 }
 
-.admin-table th,
-.admin-table td {
+.analysis-table th,
+.analysis-table td {
   border: 1px solid var(--line);
   padding: 8px 10px;
   text-align: left;
   vertical-align: top;
 }
 
-.admin-table th {
+.analysis-table th {
   color: var(--muted);
   font-weight: 650;
-}
-
-.admin-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
 }
 
 .board-list {
@@ -308,9 +302,5 @@ button {
 
   button {
     width: max-content;
-  }
-
-  .admin-grid {
-    grid-template-columns: 1fr;
   }
 }

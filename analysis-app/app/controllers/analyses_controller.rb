@@ -9,6 +9,8 @@ require_relative "../models/analysis"
 class AnalysesController < ApplicationController
   include ActionController::Live
 
+  helper_method :title_for
+
   SAMPLE_PGN = <<~PGN
     [Event "Live Chess"]
     [Site "Chess.com"]
@@ -34,6 +36,11 @@ class AnalysesController < ApplicationController
   def new
     Rails.logger.debug("render analyses#new")
     @pgn = SAMPLE_PGN
+  end
+
+  def index
+    @analyses = Analysis.order(created_at: :desc)
+    Rails.logger.debug("analyses#index count=#{@analyses.length}")
   end
 
   def create
@@ -78,6 +85,11 @@ class AnalysesController < ApplicationController
     else
       value
     end
+  end
+
+  def title_for(analysis)
+    metadata = analysis.metadata
+    "#{metadata.fetch("White", "White")} vs #{metadata.fetch("Black", "Black")}"
   end
 
   def stream_analysis(pgn)
