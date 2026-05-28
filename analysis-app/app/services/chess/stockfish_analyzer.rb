@@ -32,6 +32,17 @@ module Chess
       @available
     end
 
+    def version
+      return nil unless available?
+
+      @version ||= begin
+        out = IO.popen([@path, "--version"], err: File::NULL, &:read).strip
+        out.empty? ? detect_version_from_uci : out
+      rescue
+        detect_version_from_uci
+      end
+    end
+
     def evaluate_fen(fen, board: nil)
       unless available?
         AnalysisApp.logger.debug("stockfish unavailable; using fallback fen=#{fen}")
@@ -48,6 +59,23 @@ module Chess
     private
 
     attr_reader :path, :depth, :timeout
+
+    def detect_version_from_uci
+      Timeout.timeout(2) do
+        Open3.popen3(path) do |stdin, stdout, stderr, _|
+          stderr.close
+          stdin.puts "uci"
+          stdout.each_line do |line|
+            return line.strip.sub(/^id name /, "") if line.start_with?("id name")
+            break if line.strip == "uciok"
+          end
+          stdin.puts "quit"
+        end
+      end
+      nil
+    rescue
+      nil
+    end
 
     def validate(evaluation, context)
       EvaluationSchema.validate!(evaluation, context: context)

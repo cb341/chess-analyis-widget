@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
+require_relative "board_presenter"
+
 module Chess
   # Produces copyable Markdown analysis with Unicode pieces, compact annotation
   # marks, and an evaluation bar column.
   class MarkdownAnalysisRenderer
     PIECES = TextAnalysisRenderer::PIECES
     MARKS = TextAnalysisRenderer::MARKS
-    FILES = %w[a b c d e f g h].freeze
-    RANKS = [8, 7, 6, 5, 4, 3, 2, 1].freeze
 
     def render(payload)
       metadata = payload.fetch(:metadata)
@@ -26,7 +26,7 @@ module Chess
         lines << "- **Evaluation:** `#{eval_label(move[:eval_after])}`"
         lines << ""
         lines << '<pre class="analysis-board">'
-        lines << board_text(position.fetch(:board))
+        lines << BoardPresenter.board_text(position.fetch(:fen))
         lines << "</pre>"
         lines << ""
       end
@@ -47,15 +47,6 @@ module Chess
 
     def render_move(move)
       "**#{unicode_san(move)}** #{MARKS.fetch(move[:annotation], "!")}"
-    end
-
-    def board_text(board)
-      rows = ["  a b c d e f g h"]
-      RANKS.each do |rank|
-        rows << "#{rank} #{FILES.map { |file| PIECES.fetch(board.fetch("#{file}#{rank}", ""), "·") }.join(" ")} #{rank}"
-      end
-      rows << "  a b c d e f g h"
-      rows.join("\n")
     end
 
     def unicode_san(move)

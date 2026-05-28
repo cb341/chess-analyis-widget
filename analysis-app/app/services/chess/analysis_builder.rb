@@ -52,6 +52,7 @@ module Chess
       positions << position_payload(board, ply, 0, nil, nil, nil, current_eval)
 
       report(progress, "Replaying #{parsed[:moves].length} moves")
+      move_comments = parsed[:move_comments] || []
       parsed[:moves].each_with_index do |san, index|
         move_number = (index / 2) + 1
         color = board.current_color
@@ -71,6 +72,7 @@ module Chess
         applied[:eval_loss] = @classifier.eval_loss(color, eval_before, current_eval)
         applied[:annotation] = @classifier.classify(applied, eval_before, current_eval)
         applied[:fen_after] = @fen_builder.build(board)
+        applied[:pgn_comment] = move_comments[index]
 
         ply += 1
         moves << move_payload(applied)
@@ -142,6 +144,7 @@ module Chess
         captured: move[:captured],
         promotion: move[:promotion],
         annotation: move[:annotation],
+        pgn_comment: move[:pgn_comment],
         eval_before: clean_eval(move[:eval_before]),
         eval_after: clean_eval(move[:eval_after]),
         eval_loss: move[:eval_loss],
@@ -157,7 +160,7 @@ module Chess
         move_number: move_number,
         color: color,
         san: san,
-        board: board.snapshot,
+        fen: @fen_builder.build(board),
         last_move: move ? {from: move[:from], to: move[:to]} : nil,
         annotation: move && move[:annotation],
         annotation_detail: move ? {
@@ -165,6 +168,7 @@ module Chess
           label: annotation_label(move[:annotation]),
           text: annotation_text(move)
         } : nil,
+        pgn_comment: move && move[:pgn_comment],
         eval: clean_eval(evaluation),
         eval_bar: eval_bar(evaluation),
         flags: move ? move[:flags] : empty_flags

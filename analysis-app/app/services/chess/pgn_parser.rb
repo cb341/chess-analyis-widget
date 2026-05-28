@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "strscan"
+
 module Chess
   # Extracts PGN tag-pair metadata and ordered SAN move tokens.
   #
@@ -25,23 +27,51 @@ module Chess
       moves = extract_moves(body_lines.join(" "))
       raise ArgumentError, "PGN does not contain any moves" if moves.empty?
 
-      {metadata: metadata, moves: moves}
+      {metadata: metadata, moves: moves.map { |m| m[:san] }, move_comments: moves.map { |m| m[:comment] }}
     end
 
     private
 
     def extract_moves(text)
-      cleaned = text.dup
-      cleaned.gsub!(/\{[^}]*\}/m, " ")
-      cleaned.gsub!(/;[^\n\r]*/, " ")
-      cleaned.gsub!(/\([^()]*\)/, " ") while cleaned =~ /\([^()]*\)/
-      cleaned.gsub!(/\$\d+/, " ")
-      cleaned.gsub!(/\d+\.(\.\.)?/, " ")
-      cleaned.gsub!(/\s+/, " ")
+      tokens = []
+      pending_comment = nil
 
-      cleaned.split(" ").reject do |token|
-        RESULT_MARKERS.include?(token) || token.strip.empty?
+      # Strip line comments
+      cleaned = text.gsub(/;[^\n\r]*/, " ")
+
+      # Tokenize: extract {comments}, skip variations, collect move tokens
+      scanner = StringScanner.new(cleaned)
+      until scanner.eos?
+        if scanner.scan(/\{([^}]*)\}/m)
+          pending_comment = scanner[1].strip
+        elsif scanner.scan(/\(/)
+          depth = 1
+          until depth == 0 || scanner.eos?
+            if scanner.scan(/\(/)
+              depth += 1
+            elsif scanner.scan(/\)/)
+              depth -= 1
+            else
+              scanner.getch
+            end
+          end
+        elsif scanner.scan(/\$\d+/)
+          # NAG, skip
+        elsif scanner.scan(/\d+\.\.\./)
+          # black move number, skip
+        elsif scanner.scan(/\d+\./)
+          # move number, skip
+        elsif scanner.scan(/\s+/)
+          # whitespace, skip
+        elsif scanner.scan(/(\S+)/)
+          token = scanner[1]
+          next if RESULT_MARKERS.include?(token)
+          tokens << {san: token, comment: pending_comment}
+          pending_comment = nil
+        end
       end
+
+      tokens
     end
   end
 end

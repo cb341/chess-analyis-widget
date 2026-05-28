@@ -3,6 +3,7 @@
 require "json"
 require "erb"
 require_relative "../services/chess/analysis_builder"
+require_relative "../services/chess/board_presenter"
 require_relative "../models/analysis"
 
 # Handles the Rails analysis resource: new form, create, and show.
@@ -36,6 +37,9 @@ class AnalysesController < ApplicationController
   def new
     Rails.logger.debug("render analyses#new")
     @pgn = SAMPLE_PGN
+    analyzer = Chess::StockfishAnalyzer.new
+    @stockfish_available = analyzer.available?
+    @stockfish_version = analyzer.version
   end
 
   def index
@@ -62,12 +66,14 @@ class AnalysesController < ApplicationController
     @payload = symbolize(analysis.payload)
     @payload_json = JSON.pretty_generate(@payload)
     @payload_json_minified = JSON.generate(@payload)
+    widget_payload = @payload.reject { |k, _| %i[text_analysis markdown_analysis summary].include?(k) }
+    @widget_payload_json = JSON.generate(widget_payload)
     widget_css_url = "#{request.base_url}/chess-widget.css"
     widget_js_url = "#{request.base_url}/chess-widget.js"
     @embed_widget = <<~HTML
       <link rel="stylesheet" href="#{widget_css_url}">
       <script type="application/json" id="game-data">
-      #{@payload_json_minified}
+      #{@widget_payload_json}
       </script>
       <chess-widget data-source="game-data" widget-title="Live Chess"></chess-widget>
       <script src="#{widget_js_url}"></script>
@@ -91,6 +97,13 @@ class AnalysesController < ApplicationController
     metadata = analysis.metadata
     "#{metadata.fetch("White", "White")} vs #{metadata.fetch("Black", "Black")}"
   end
+
+  def board_text(position)
+    fen = position[:fen].to_s
+    fallback = position[:board].is_a?(Hash) ? position[:board] : nil
+    Chess::BoardPresenter.board_text(fen, fallback_map: fallback)
+  end
+  helper_method :board_text
 
   def stream_analysis(pgn)
     response.headers["Content-Type"] = "text/html; charset=utf-8"

@@ -20,6 +20,33 @@
   var FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
   var RANKS_WHITE = ["8", "7", "6", "5", "4", "3", "2", "1"];
   var RANKS_BLACK = ["1", "2", "3", "4", "5", "6", "7", "8"];
+
+  function fenToBoard(fen) {
+    if (!fen || typeof fen !== "string") return {};
+    var placement = fen.split(" ")[0];
+    var board = {};
+    var rank = 8;
+    var file = 0;
+    for (var i = 0; i < placement.length; i++) {
+      var ch = placement[i];
+      if (ch === "/") {
+        rank -= 1;
+        file = 0;
+      } else if (ch >= "1" && ch <= "8") {
+        file += parseInt(ch, 10);
+      } else {
+        board[FILES[file] + rank] = ch;
+        file += 1;
+      }
+    }
+    return board;
+  }
+
+  function positionBoard(position) {
+    if (position && position.fen) return fenToBoard(position.fen);
+    if (position && position.board && typeof position.board === "object") return position.board;
+    return {};
+  }
   var MARKS = {
     book: "book",
     good: "!",
@@ -225,7 +252,9 @@
 
     load(gameData) {
       this.game = gameData && typeof gameData === "object" ? gameData : null;
-      this.currentPly = 0;
+      var maxPly = this.game && Array.isArray(this.game.positions) ? this.game.positions.length - 1 : 0;
+      var initialPly = Number(this.getAttribute("initial-ply") || 0);
+      this.currentPly = Math.min(Math.max(0, initialPly), maxPly);
 
       if (
         !this.game ||
@@ -513,19 +542,11 @@
         this.getAttribute("orientation") === "black" ? "black" : "white";
       var ranks = orientation === "black" ? RANKS_BLACK : RANKS_WHITE;
       var files = orientation === "black" ? FILES.slice().reverse() : FILES;
-      var boardData =
-        position && position.board && typeof position.board === "object"
-          ? position.board
-          : {};
+      var boardData = positionBoard(position);
       var annotation = annotationFor(position);
       var lastMoveClass =
         "last-move " + annotationClass(annotation.kind || "good");
-      var previousData =
-        this.previousPosition &&
-        this.previousPosition.board &&
-        typeof this.previousPosition.board === "object"
-          ? this.previousPosition.board
-          : {};
+      var previousData = positionBoard(this.previousPosition);
       var lastMove = position && position.last_move ? position.last_move : {};
       var usedOrigins = {};
 
@@ -826,66 +847,23 @@
         <div data-slot="moves"></div>
       `;
 
-      side
-        .querySelector('[data-slot="controls"]')
-        .replaceWith(
-          this.renderCollapsible(
-            "Controls",
-            "controls",
-            this.renderControls(game),
-            false,
-          ),
-        );
-      side
-        .querySelector('[data-slot="eval"]')
-        .replaceWith(
-          this.renderCollapsible(
-            "Evaluation",
-            "eval",
-            this.renderEvalBar(whiteShare, blackShare),
-            false,
-          ),
-        );
-      side
-        .querySelector('[data-slot="chart"]')
-        .replaceWith(
-          this.renderCollapsible(
-            "Eval over time",
-            "chart",
-            this.renderEvalChart(game),
-            false,
-          ),
-        );
-      side
-        .querySelector('[data-slot="current"]')
-        .replaceWith(
-          this.renderCollapsible(
-            moveLabel(game, this.currentPly),
-            "current",
-            this.renderCurrent(position),
-            false,
-          ),
-        );
-      side
-        .querySelector('[data-slot="summary"]')
-        .replaceWith(
-          this.renderCollapsible(
-            "Summary",
-            "summary",
-            this.renderSummary(game),
-            false,
-          ),
-        );
-      side
-        .querySelector('[data-slot="moves"]')
-        .replaceWith(
-          this.renderCollapsible(
-            "Moves",
-            "moves",
-            this.renderMoveList(game),
-            false,
-          ),
-        );
+      var panels = [
+        ["controls", "Controls", this.renderControls(game), false],
+        ["eval", "Evaluation", this.renderEvalBar(whiteShare, blackShare), false],
+        ["chart", "Eval over time", this.renderEvalChart(game), false],
+        ["current", moveLabel(game, this.currentPly), this.renderCurrent(position), false],
+        ["summary", "Summary", this.renderSummary(game), false],
+        ["moves", "Moves", this.renderMoveList(game), false],
+      ];
+      panels.forEach(function (panel) {
+        var name = panel[0], title = panel[1], content = panel[2], defaultOpen = panel[3];
+        var slot = side.querySelector('[data-slot="' + name + '"]');
+        if (this.panelHidden(name)) {
+          slot.remove();
+        } else {
+          slot.replaceWith(this.renderCollapsible(title, name, content, defaultOpen));
+        }
+      }, this);
       return side;
     }
 
@@ -900,6 +878,10 @@
       details.appendChild(summary);
       details.appendChild(content);
       return details;
+    }
+
+    panelHidden(name) {
+      return this.panelNamesFromAttribute("hidden-panels")[name] || false;
     }
 
     panelOpen(name, defaultOpen) {
@@ -942,7 +924,10 @@
     renderCurrent(position) {
       var section = document.createElement("div");
       section.className = "cw-current-body";
-      section.innerHTML = `<p>${escapeHtml(annotationFor(position).text || "Starting position.")}</p>`;
+      var text = position && position.pgn_comment
+        ? position.pgn_comment
+        : (annotationFor(position).text || "Starting position.");
+      section.innerHTML = `<p>${escapeHtml(text)}</p>`;
       return section;
     }
 

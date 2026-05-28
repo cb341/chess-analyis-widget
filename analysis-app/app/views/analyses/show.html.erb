@@ -32,8 +32,59 @@
         <p class="error">Stockfish was not available for this run. Move ratings use the fallback material evaluator and are approximate.</p>
       <% end %>
       <p class="summary"><%= h(@payload[:summary]) %></p>
-      <script type="application/json" id="game-data"><%= raw json_escape(@payload_json) %></script>
-      <chess-widget data-source="game-data"></chess-widget>
+
+      <script type="application/json" id="game-data"><%= raw json_escape(@widget_payload_json) %></script>
+      <div class="widget-preview-wrap">
+        <chess-widget id="the-widget" data-source="game-data"></chess-widget>
+      </div>
+
+      <section class="widget-customizer">
+        <h2>Customize Widget</h2>
+        <form id="widget-customizer-form">
+          <fieldset>
+            <legend>Panels</legend>
+            <% %w[bookmarks controls eval chart current summary moves].each do |panel| %>
+              <label class="panel-toggle-label">
+                <span class="panel-name"><%= panel %></span>
+                <select name="panel-<%= panel %>" data-panel="<%= panel %>" class="panel-state-select">
+                  <option value="default">default</option>
+                  <option value="open">open</option>
+                  <option value="closed">closed</option>
+                  <option value="hidden">hidden</option>
+                </select>
+              </label>
+            <% end %>
+          </fieldset>
+          <fieldset>
+            <legend>Options</legend>
+            <label><input type="checkbox" name="sound-off"> Disable sound</label>
+            <label>
+              Orientation:
+              <select name="orientation">
+                <option value="">White (default)</option>
+                <option value="black">Black</option>
+              </select>
+            </label>
+            <label>
+              Title: <input type="text" name="widget-title" placeholder="(from PGN)">
+            </label>
+            <label>
+              Start at ply: <input type="number" name="initial-ply" min="0" value="0" style="width:5em">
+            </label>
+          </fieldset>
+        </form>
+
+        <details class="collapsible" open>
+          <summary>&lt;widget&gt; snippet</summary>
+          <button class="copy-button" type="button" data-copy-target="embed-widget">Copy widget</button>
+          <pre id="embed-widget" class="wrap-pre"><%= h(@embed_widget) %></pre>
+        </details>
+        <details class="collapsible">
+          <summary>Widget JSON (minified)</summary>
+          <pre id="widget-json-minified"><%= h(@widget_payload_json) %></pre>
+        </details>
+      </section>
+
       <details class="collapsible">
         <summary>Verbose Markdown Analysis</summary>
         <pre class="markdown-analysis"><%= h(@payload[:markdown_analysis]) %></pre>
@@ -43,79 +94,118 @@
         <textarea class="copy-text" readonly rows="14"><%= h(@payload_json) %></textarea>
       </details>
       <details class="collapsible">
-        <summary>Analysis JSON Minified</summary>
-        <pre id="analysis-json-minified"><%= h(@payload_json_minified) %></pre>
-      </details>
-      <h2>Embed This Analysis</h2>
-      <p class="summary">Copy this widget block into another page. It includes the minified analysis JSON and makes no API calls.</p>
-      <details class="collapsible">
-        <summary>&lt;widget&gt;</summary>
-        <button class="copy-button" type="button" data-copy-target="embed-widget">Copy widget</button>
-        <pre id="embed-widget"><%= h(@embed_widget) %></pre>
-      </details>
-      <details class="collapsible">
-        <summary>Widget configuration</summary>
-        <dl class="config-list">
-          <div>
-            <dt><code>widget-title="Live Chess"</code></dt>
-            <dd>Sets the title shown in the widget header. If omitted, the widget uses the PGN event name.</dd>
-          </div>
-          <div>
-            <dt><code>hide-author</code></dt>
-            <dd>Hides the player/author line in the widget header. <code>hide-players</code> is also accepted.</dd>
-          </div>
-          <div>
-            <dt><code>open-panels="bookmarks summary moves"</code></dt>
-            <dd>Opens selected panels on load. Available panels: <code>bookmarks</code>, <code>controls</code>, <code>eval</code>, <code>chart</code>, <code>current</code>, <code>summary</code>, <code>moves</code>.</dd>
-          </div>
-          <div>
-            <dt><code>collapsed-panels="eval chart controls"</code></dt>
-            <dd>Forces selected panels closed on load. This overrides the default open state.</dd>
-          </div>
-          <div>
-            <dt><code>sound="off"</code></dt>
-            <dd>Disables move sounds.</dd>
-          </div>
-          <div>
-            <dt><code>orientation="black"</code></dt>
-            <dd>Renders the board from Black's perspective. The default is White.</dd>
-          </div>
-        </dl>
-      </details>
-      <details class="collapsible">
         <summary>Text Analysis</summary>
         <pre><%= h(@payload[:text_analysis]) %></pre>
       </details>
+
+      <h2>Board Positions</h2>
+      <div class="board-list">
+        <% @payload[:positions].each do |position| %>
+          <article class="board-card">
+            <h3>
+              Ply <%= h(position[:ply]) %>
+              <% if position[:san] %>
+                &nbsp;<%= h(position[:san]) %>
+                <% annotation = position.dig(:annotation_detail, :kind) || position[:annotation] %>
+                <% if annotation && annotation != "good" %>
+                  &nbsp;<span class="annotation-badge annotation-<%= h(annotation) %>"><%= h(annotation) %></span>
+                <% end %>
+              <% else %>
+                &nbsp;Start
+              <% end %>
+            </h3>
+            <pre><%= h(board_text(position)) %></pre>
+          </article>
+        <% end %>
+      </div>
     </main>
     <script src="/chess-widget.js"></script>
     <script>
-      document.addEventListener("click", async function (event) {
-        const button = event.target.closest("[data-copy-target]");
-        if (!button) return;
+      (function () {
+        var widget = document.getElementById("the-widget");
+        var form = document.getElementById("widget-customizer-form");
+        var embedPre = document.getElementById("embed-widget");
 
-        const target = document.getElementById(button.dataset.copyTarget);
-        const text = target && "value" in target ? target.value : target?.textContent;
-        if (!text) return;
+        function applyCustomization() {
+          var openPanels = [], collapsedPanels = [], hiddenPanels = [];
+          form.querySelectorAll("[data-panel]").forEach(function (sel) {
+            var panel = sel.dataset.panel;
+            if (sel.value === "open") openPanels.push(panel);
+            else if (sel.value === "closed") collapsedPanels.push(panel);
+            else if (sel.value === "hidden") hiddenPanels.push(panel);
+          });
+          var soundOff = form.querySelector('[name="sound-off"]').checked;
+          var orientation = form.querySelector('[name="orientation"]').value;
+          var title = form.querySelector('[name="widget-title"]').value.trim();
+          var initialPly = parseInt(form.querySelector('[name="initial-ply"]').value, 10) || 0;
 
-        try {
-          await navigator.clipboard.writeText(text);
-        } catch {
-          const scratch = document.createElement("textarea");
-          scratch.value = text;
-          scratch.setAttribute("readonly", "");
-          scratch.style.position = "fixed";
-          scratch.style.opacity = "0";
-          document.body.appendChild(scratch);
-          scratch.select();
-          document.execCommand("copy");
-          scratch.remove();
+          setAttr("open-panels", openPanels.join(" "));
+          setAttr("collapsed-panels", collapsedPanels.join(" "));
+          setAttr("hidden-panels", hiddenPanels.join(" "));
+          setAttr("sound", soundOff ? "off" : "");
+          setAttr("orientation", orientation);
+          setAttr("widget-title", title);
+          setAttr("initial-ply", initialPly > 0 ? String(initialPly) : "");
+
+          updateSnippet(openPanels, collapsedPanels, hiddenPanels, soundOff, orientation, title, initialPly);
         }
 
-        button.textContent = "Copied";
-        window.setTimeout(function () {
-          button.textContent = "Copy";
-        }, 1200);
-      });
+        function setAttr(name, value) {
+          if (value) widget.setAttribute(name, value);
+          else widget.removeAttribute(name);
+        }
+
+        function updateSnippet(openPanels, collapsedPanels, hiddenPanels, soundOff, orientation, title, initialPly) {
+          var widgetCssUrl = "<%= h(request.base_url) %>/chess-widget.css";
+          var widgetJsUrl = "<%= h(request.base_url) %>/chess-widget.js";
+          var attrs = "";
+          if (title) attrs += ' widget-title="' + escapeAttr(title) + '"';
+          if (openPanels.length) attrs += ' open-panels="' + escapeAttr(openPanels.join(" ")) + '"';
+          if (collapsedPanels.length) attrs += ' collapsed-panels="' + escapeAttr(collapsedPanels.join(" ")) + '"';
+          if (hiddenPanels.length) attrs += ' hidden-panels="' + escapeAttr(hiddenPanels.join(" ")) + '"';
+          if (soundOff) attrs += ' sound="off"';
+          if (orientation) attrs += ' orientation="' + escapeAttr(orientation) + '"';
+          if (initialPly > 0) attrs += ' initial-ply="' + initialPly + '"';
+          var minified = <%= raw json_escape(@widget_payload_json) %>;
+          embedPre.textContent =
+            '<link rel="stylesheet" href="' + widgetCssUrl + '">\n' +
+            '<script type="application/json" id="game-data">\n' +
+            minified + "\n" +
+            "<\/script>\n" +
+            '<chess-widget data-source="game-data"' + attrs + '><\/chess-widget>\n' +
+            '<script src="' + widgetJsUrl + '"><\/script>';
+        }
+
+        function escapeAttr(s) {
+          return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+        }
+
+        form.addEventListener("change", applyCustomization);
+        form.addEventListener("input", applyCustomization);
+
+        document.addEventListener("click", async function (event) {
+          var button = event.target.closest("[data-copy-target]");
+          if (!button) return;
+          var target = document.getElementById(button.dataset.copyTarget);
+          var text = target && "value" in target ? target.value : target && target.textContent;
+          if (!text) return;
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch (_) {
+            var scratch = document.createElement("textarea");
+            scratch.value = text;
+            scratch.setAttribute("readonly", "");
+            scratch.style.position = "fixed";
+            scratch.style.opacity = "0";
+            document.body.appendChild(scratch);
+            scratch.select();
+            document.execCommand("copy");
+            scratch.remove();
+          }
+          button.textContent = "Copied";
+          window.setTimeout(function () { button.textContent = "Copy"; }, 1200);
+        });
+      })();
     </script>
   </body>
 </html>

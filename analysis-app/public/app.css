@@ -1,9 +1,9 @@
 :root {
-  --paper: #f4f0e6;
-  --ink: #181614;
-  --muted: #676058;
-  --line: #d7cfbf;
-  --accent: #8f846f;
+  --paper: #ffffff;
+  --ink: #111111;
+  --muted: #6b6b6b;
+  --line: #e0e0e0;
+  --accent: #555555;
   --error: #bd3b3b;
 }
 
@@ -34,7 +34,136 @@ body {
 }
 
 .analysis-form-page {
-  width: min(980px, calc(100% - 32px));
+  margin-top: 64px;
+}
+
+.analysis-form-page .form-header,
+.analysis-form-page .analyses-link,
+.analysis-form-page .analysis-form-card,
+.analysis-form-page .error {
+  max-width: 720px;
+}
+
+.form-header {
+  margin-bottom: 12px;
+}
+
+.analyses-link {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.analyses-link:hover {
+  color: var(--ink);
+}
+
+.form-header h1 {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+.form-subtitle {
+  color: var(--muted);
+  margin: 0 0 14px;
+  font-size: 15px;
+}
+
+.form-meta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-meta li {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.meta-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--line);
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.meta-ok {
+  background: #e6f4ea;
+  color: #2a7a2a;
+}
+
+.meta-warn {
+  background: #fff3cd;
+  color: #7a5a00;
+}
+
+.analysis-form-card {
+  background: #f8f8f8;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.pgn-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.pgn-field textarea {
+  min-height: 280px;
+  border-radius: 8px;
+  border-color: var(--line);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.pgn-field textarea:focus {
+  outline: 2px solid #4a7fcb;
+  outline-offset: -1px;
+  border-color: transparent;
+}
+
+.form-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-analyze {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 0.15s;
+  width: auto;
+}
+
+.btn-analyze:hover {
+  background: #333;
 }
 
 h1,
@@ -68,7 +197,7 @@ pre {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: #f8f8f8;
   color: var(--ink);
   font:
     14px/1.45 ui-monospace,
@@ -93,7 +222,7 @@ pre {
   margin: 0 0 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: #f8f8f8;
 }
 
 .collapsible summary {
@@ -116,7 +245,7 @@ pre {
   border-left: 0;
   border-radius: 0 0 8px 8px;
   margin: 0;
-  background: #fffdf8;
+  background: #ffffff;
 }
 
 button,
@@ -142,7 +271,7 @@ button {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: #f8f8f8;
 }
 
 .metadata div {
@@ -212,13 +341,13 @@ button {
   border-left: 4px solid var(--error);
   margin: 0 0 16px;
   padding: 10px 12px;
-  background: #fff4f1;
+  background: #fff0ee;
 }
 
 .progress-shell {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: #f8f8f8;
   padding: 18px;
 }
 
@@ -227,7 +356,7 @@ button {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #e7decf;
+  background: #e8e8e8;
 }
 
 .progress-bar span {
@@ -255,7 +384,7 @@ button {
   width: 100%;
   border-collapse: collapse;
   margin: 0 0 22px;
-  background: #fffaf0;
+  background: #f8f8f8;
 }
 
 .analysis-table th,
@@ -280,7 +409,7 @@ button {
 .board-card {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: #f8f8f8;
   padding: 12px;
 }
 
@@ -292,7 +421,112 @@ button {
 .board-card pre {
   margin: 0;
   white-space: pre;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  line-height: 1.75;
 }
+
+.widget-preview-wrap {
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.widget-preview-wrap chess-widget {
+  --cw-widget-border-width: 0;
+  --cw-paper: #ffffff;
+  --cw-paper-deep: #f0f0f0;
+  --cw-ink: #111111;
+  --cw-muted: #6b6b6b;
+  --cw-line: #e0e0e0;
+}
+
+.wrap-pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.widget-customizer {
+  margin: 24px 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--background-alt, #f9f9f9);
+}
+
+.widget-customizer h2 {
+  margin: 0 0 14px;
+}
+
+.widget-customizer form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.widget-customizer fieldset {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+}
+
+.widget-customizer legend {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 650;
+  padding: 0 4px;
+}
+
+.widget-customizer label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.panel-toggle-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.panel-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.panel-state-select {
+  font-size: 13px;
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.annotation-badge {
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.annotation-blunder { background: #fde8e8; color: #c00; }
+.annotation-mistake { background: #fff3cd; color: #7a5a00; }
+.annotation-brilliant { background: #e8f5e9; color: #2a7a2a; }
+.annotation-checkmate { background: #333; color: #fff; }
 
 @media (max-width: 760px) {
   .analysis-form {
@@ -302,5 +536,9 @@ button {
 
   button {
     width: max-content;
+  }
+
+  .widget-customizer form {
+    flex-direction: column;
   }
 }
