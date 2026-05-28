@@ -265,6 +265,24 @@ async function testFalseFeatureAttributesHideFeatures() {
   assert.equal(live.className, "cw-live");
 }
 
+async function testMoveAnimationState() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  widget.previousPosition = widget.game.positions[0];
+  widget.previousPly = 0;
+  widget.currentPly = 1;
+  widget.navigationDirection = "forward";
+  const boardWrap = widget.renderBoard(widget.game.positions[1]);
+  const board = boardWrap.children[0].children[0];
+  const e4Pawn = board.children.find(function (node) {
+    return node.tagName === "piece" && node.attributes["aria-label"] === "e4, White pawn";
+  });
+  assert.ok(e4Pawn);
+  assert.ok(e4Pawn.className.includes("cw-piece-arrived"));
+  assert.equal(e4Pawn.style["--cw-from-transform"], "translate(400%, 600%)");
+  assert.equal(e4Pawn.style["--cw-transform"], "translate(400%, 400%)");
+  assert.equal(e4Pawn.style.transform, "var(--cw-transform)");
+}
+
 async function run() {
   await testSamplePgn();
   await testCommentAttachmentAndGlyphs();
@@ -275,6 +293,7 @@ async function run() {
   await testMinimalModeIsControlsOnly();
   await testBoardOnlyModeKeepsOnlyBoard();
   await testFalseFeatureAttributesHideFeatures();
+  await testMoveAnimationState();
   console.log("tests.js ok");
 }
 

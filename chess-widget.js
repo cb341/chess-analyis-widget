@@ -793,6 +793,8 @@
       var ranks = orientation === "black" ? RANKS_BLACK : RANKS_WHITE;
       var files = orientation === "black" ? FILES.slice().reverse() : FILES;
       var lastMove = position.last_move || {};
+      var previousData = (this.previousPosition && this.previousPosition.board) || {};
+      var usedOrigins = {};
       wrap.className = "cg-wrap cgv1 orientation-" + orientation + " manipulable";
       board.className = "cw-board";
       board.setAttribute("role", "grid");
@@ -811,8 +813,16 @@
       Object.keys(position.board || {}).forEach((square) => {
         var piece = position.board[square];
         var node = document.createElement("piece");
-        node.className = pieceClass(piece) + " cw-piece";
-        node.style.transform = this.squareTransform(square);
+        var animation = this.pieceAnimationState(square, piece, position, previousData, usedOrigins);
+        var toTransform = this.squareTransform(square);
+        node.className =
+          pieceClass(piece) +
+          " cw-piece" +
+          (animation.fromTransform !== toTransform ? " cw-piece-arrived" : "") +
+          (animation.spawned ? " cw-piece-spawned" : "");
+        node.style.setProperty("--cw-transform", toTransform);
+        node.style.setProperty("--cw-from-transform", animation.fromTransform);
+        node.style.transform = "var(--cw-transform)";
         node.setAttribute("aria-label", square + ", " + pieceName(piece));
         node.appendChild(this.renderPieceImage(piece));
         board.appendChild(node);
@@ -830,6 +840,82 @@
       square.style.transform = this.squareTransform(squareName);
       square.setAttribute("aria-hidden", "true");
       return square;
+    }
+
+    pieceAnimationState(squareName, piece, position, previousData, usedOrigins) {
+      var targetTransform = this.squareTransform(squareName);
+      if (!this.previousPosition || this.previousPly === this.currentPly) {
+        return { fromTransform: targetTransform, spawned: false };
+      }
+
+      var currentMove = position && position.last_move ? position.last_move : {};
+      var currentFlags = position && position.flags ? position.flags : {};
+      var revertedMove =
+        this.previousPosition && this.previousPosition.last_move
+          ? this.previousPosition.last_move
+          : {};
+      var revertedFlags =
+        this.previousPosition && this.previousPosition.flags
+          ? this.previousPosition.flags
+          : {};
+      var currentRookMove = this.castlingRookMove(currentMove, currentFlags);
+      var revertedRookMove = this.castlingRookMove(revertedMove, revertedFlags);
+
+      if (
+        this.navigationDirection === "forward" &&
+        currentMove.to === squareName &&
+        currentMove.from &&
+        previousData[currentMove.from] === piece
+      ) {
+        usedOrigins[currentMove.from] = true;
+        return { fromTransform: this.squareTransform(currentMove.from), spawned: false };
+      }
+
+      if (
+        this.navigationDirection === "forward" &&
+        currentRookMove &&
+        currentRookMove.to === squareName &&
+        previousData[currentRookMove.from] === piece
+      ) {
+        usedOrigins[currentRookMove.from] = true;
+        return { fromTransform: this.squareTransform(currentRookMove.from), spawned: false };
+      }
+
+      if (
+        this.navigationDirection === "backward" &&
+        revertedMove.from === squareName &&
+        revertedMove.to &&
+        previousData[revertedMove.to] === piece
+      ) {
+        usedOrigins[revertedMove.to] = true;
+        return { fromTransform: this.squareTransform(revertedMove.to), spawned: false };
+      }
+
+      if (
+        this.navigationDirection === "backward" &&
+        revertedRookMove &&
+        revertedRookMove.from === squareName &&
+        previousData[revertedRookMove.to] === piece
+      ) {
+        usedOrigins[revertedRookMove.to] = true;
+        return { fromTransform: this.squareTransform(revertedRookMove.to), spawned: false };
+      }
+
+      if (previousData[squareName] === piece && !usedOrigins[squareName]) {
+        usedOrigins[squareName] = true;
+        return { fromTransform: targetTransform, spawned: false };
+      }
+
+      return { fromTransform: targetTransform, spawned: true };
+    }
+
+    castlingRookMove(move, flags) {
+      if (!move || !flags || !flags.castling || !move.to) return null;
+
+      var rank = move.to.slice(1);
+      if (move.to.slice(0, 1) === "g") return { from: "h" + rank, to: "f" + rank };
+      if (move.to.slice(0, 1) === "c") return { from: "a" + rank, to: "d" + rank };
+      return null;
     }
 
     squareTransform(squareName) {
