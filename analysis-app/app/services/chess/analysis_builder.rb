@@ -57,13 +57,11 @@ module Chess
         move_number = (index / 2) + 1
         color = board.current_color
         report(progress, "Analyzing #{move_number}. #{san} for #{color}")
-        fen_before = @fen_builder.build(board)
         eval_before = current_eval
         resolved = @resolver.resolve(board, san)
         resolved[:color] = color
         resolved[:move_number] = move_number
         resolved[:ply] = ply + 1
-        resolved[:fen_before] = fen_before
 
         applied = board.apply_move(resolved)
         current_eval = evaluate(board)
@@ -71,7 +69,6 @@ module Chess
         applied[:eval_after] = current_eval
         applied[:eval_loss] = @classifier.eval_loss(color, eval_before, current_eval)
         applied[:annotation] = @classifier.classify(applied, eval_before, current_eval)
-        applied[:fen_after] = @fen_builder.build(board)
         applied[:pgn_comment] = move_comments[index]
 
         ply += 1
@@ -149,8 +146,6 @@ module Chess
         eval_after: clean_eval(move[:eval_after]),
         eval_loss: move[:eval_loss],
         flags: move[:flags],
-        fen_before: move[:fen_before],
-        fen_after: move[:fen_after]
       }
     end
 
