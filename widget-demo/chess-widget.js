@@ -38,6 +38,7 @@
   };
   var SOUNDS = {
     move: "./assets/sounds/move.mp3",
+    castle: "./assets/sounds/move.mp3",
     capture: "./assets/sounds/capture.mp3",
     check: "./assets/sounds/check.mp3",
     checkmate: "./assets/sounds/checkmate.mp3",
@@ -246,6 +247,11 @@
       var soundName = "move";
       var flags = position.flags || {};
       var lastMove = position.last_move || {};
+      var isCastling = Boolean(
+        flags.castling ||
+        lastMove.castling ||
+        (lastMove.flags && lastMove.flags.castling),
+      );
       var isCapture = Boolean(
         flags.capture ||
         lastMove.capture ||
@@ -259,6 +265,8 @@
         soundName = "capture";
       } else if (flags.check) {
         soundName = "check";
+      } else if (isCastling) {
+        soundName = "castle";
       }
 
       this.playSound(soundName);
