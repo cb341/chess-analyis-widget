@@ -55,14 +55,16 @@ class AnalysesController < ApplicationController
     @pgn = analysis.pgn
     @payload = symbolize(analysis.payload)
     @payload_json = JSON.pretty_generate(@payload)
-    @embed_css = "<link rel=\"stylesheet\" href=\"/chess-widget.css\">\n"
+    widget_css_url = "#{request.base_url}/chess-widget.css"
+    widget_js_url = "#{request.base_url}/chess-widget.js"
+    @embed_css = "<link rel=\"stylesheet\" href=\"#{widget_css_url}\">\n"
     @embed_html = <<~HTML
       <script type="application/json" id="game-data">
       #{@payload_json}
       </script>
       <chess-widget data-source="game-data"></chess-widget>
     HTML
-    @embed_js = "<script src=\"/chess-widget.js\"></script>\n"
+    @embed_js = "<script src=\"#{widget_js_url}\"></script>\n"
   end
 
   private

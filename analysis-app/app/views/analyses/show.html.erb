@@ -46,15 +46,18 @@
       <p class="summary">Use these snippets to render this analyzed game on another page. The widget makes no API calls.</p>
       <details class="collapsible">
         <summary>CSS</summary>
-        <pre><%= h(@embed_css) %></pre>
+        <button class="copy-button" type="button" data-copy-target="embed-css">Copy</button>
+        <pre id="embed-css"><%= h(@embed_css) %></pre>
       </details>
       <details class="collapsible">
         <summary>HTML</summary>
-        <pre><%= h(@embed_html) %></pre>
+        <button class="copy-button" type="button" data-copy-target="embed-html">Copy</button>
+        <pre id="embed-html"><%= h(@embed_html) %></pre>
       </details>
       <details class="collapsible">
         <summary>JavaScript</summary>
-        <pre><%= h(@embed_js) %></pre>
+        <button class="copy-button" type="button" data-copy-target="embed-js">Copy</button>
+        <pre id="embed-js"><%= h(@embed_js) %></pre>
       </details>
       <details class="collapsible">
         <summary>Text Analysis</summary>
@@ -62,5 +65,34 @@
       </details>
     </main>
     <script src="/chess-widget.js"></script>
+    <script>
+      document.addEventListener("click", async function (event) {
+        const button = event.target.closest("[data-copy-target]");
+        if (!button) return;
+
+        const target = document.getElementById(button.dataset.copyTarget);
+        const text = target && "value" in target ? target.value : target?.textContent;
+        if (!text) return;
+
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const scratch = document.createElement("textarea");
+          scratch.value = text;
+          scratch.setAttribute("readonly", "");
+          scratch.style.position = "fixed";
+          scratch.style.opacity = "0";
+          document.body.appendChild(scratch);
+          scratch.select();
+          document.execCommand("copy");
+          scratch.remove();
+        }
+
+        button.textContent = "Copied";
+        window.setTimeout(function () {
+          button.textContent = "Copy";
+        }, 1200);
+      });
+    </script>
   </body>
 </html>
