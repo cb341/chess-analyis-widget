@@ -1,8 +1,7 @@
 # Chess Analysis App
 
-This is a dependency-free Rails-style skeleton for the POC described in `../app_spec.md`.
-Rails and Rack are not installed in the current environment, so the app keeps the
-same broad layout while providing a small stdlib WEBrick runner.
+This is a dependency-light Ruby app for the POC described in `../app_spec.md`.
+It keeps Rails-like app boundaries while using a small stdlib WEBrick runner.
 
 ## Docker Setup
 
@@ -100,7 +99,7 @@ Concrete value objects live under `app/models/chess/`:
 ## Rails Wiring Later
 
 The route table is declared in `config/route_set.rb` and used by the WEBrick
-runner. `config/routes.rb` maps the same routes when Rails is installed:
+runner. `config/routes.rb` records the equivalent Rails routes:
 
 ```ruby
 root "analyses#new"
@@ -108,9 +107,9 @@ resources :analyses, only: [:new, :create]
 ```
 
 The current controller renders inline through ERB and does not persist analyses.
-In a real Rails app, replace the placeholder `Analysis` model with an
-ActiveRecord model using the schema in `../app_spec.md`, then have
-`AnalysesController#create` save the payload and redirect to `show`.
+In a full Rails app, replace the placeholder `Analysis` model with an ActiveRecord
+model using the schema in `../app_spec.md`, then have `AnalysesController#create`
+save the payload and redirect to `show`.
 
 ## Stockfish Status
 
