@@ -94,6 +94,12 @@ body {
   font: inherit;
 }
 
+chess-widget {
+  --cw-widget-border-width: 0;
+  --cw-paper: #ffffff;
+  --cw-paper-deep: #f0f0f0;
+}
+
 @media (max-width: 860px) {
   .demo-page {
     padding: 12px;

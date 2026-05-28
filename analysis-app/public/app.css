@@ -427,13 +427,16 @@ button {
 }
 
 .widget-preview-wrap {
-  border: 1px dashed var(--line);
-  border-radius: 6px;
-  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
 }
 
 .widget-preview-wrap chess-widget {
   --cw-widget-border-width: 0;
+  --cw-paper: #ffffff;
+  --cw-paper-deep: #f0f0f0;
   --cw-paper: #ffffff;
   --cw-paper-deep: #f0f0f0;
   --cw-ink: #111111;
