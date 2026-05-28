@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chess Analysis</title>
+    <%= csrf_meta_tags %>
     <link rel="stylesheet" href="/app.css">
   </head>
   <body>
@@ -12,11 +13,11 @@
       <% if @error %>
         <p class="error"><%= h(@error) %></p>
       <% end %>
-      <form class="analysis-form" action="/analyses" method="post">
-        <label for="pgn">PGN</label>
-        <textarea id="pgn" name="pgn" rows="18"><%= h(@pgn) %></textarea>
-        <button type="submit">Analyze</button>
-      </form>
+      <%= form_with url: analyses_path, method: :post, local: true, class: "analysis-form" do |form| %>
+        <%= form.label :pgn, "PGN" %>
+        <%= form.text_area :pgn, rows: 18, value: @pgn %>
+        <%= form.submit "Analyze" %>
+      <% end %>
     </main>
   </body>
 </html>
