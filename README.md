@@ -59,7 +59,7 @@ Per ply, it keeps the SAN, side, board position, comment text, eval value or mat
 
 ## CSS Variables
 
-The included styles define a complete default theme. Override variables on `chess-widget`:
+The included styles define a complete default theme. Override variables on `chess-widget` rather than editing the bundled CSS:
 
 ```css
 chess-widget {
@@ -69,7 +69,40 @@ chess-widget {
   --cw-light-square: #f0d9b5;
   --cw-dark-square: #b58863;
   --cw-board-max-width: 560px;
+  --cw-main-gap: 24px;
+  --cw-piece-arrive-animation: 420ms ease;
+  --cw-control-border: 1px solid #444;
 }
+```
+
+Common extension variables include:
+
+- `--cw-board-max-width`, `--cw-board-width-small`
+- `--cw-main-columns`, `--cw-main-gap`, `--cw-shell-gap`
+- `--cw-control-border`, `--cw-control-font-size`, `--cw-control-min-height`
+- `--cw-piece-padding`, `--cw-piece-arrive-animation`, `--cw-piece-spawn-animation`
+- `--cw-chart-height`, `--cw-eval-width`, `--cw-move-list-max-height`
+
+## Events
+
+The element dispatches bubbling custom events:
+
+- `chess-widget:load`: PGN parsed and game state is ready.
+- `chess-widget:error`: parsing or loading failed.
+- `chess-widget:beforemove`: cancelable. Call `event.preventDefault()` to block navigation.
+- `chess-widget:move`: navigation completed.
+- `chess-widget:render`: DOM was rendered for the current ply.
+
+```js
+document.querySelector("chess-widget").addEventListener("chess-widget:move", (event) => {
+  console.log(event.detail.from, event.detail.to, event.detail.move);
+});
+```
+
+For non-DOM integration, the parser is also exposed as:
+
+```js
+const game = customElements.get("chess-widget").parsePgn(pgn);
 ```
 
 See `demo.html` and `assets/games/blitz-checkmate.pgn` for a complete static page.

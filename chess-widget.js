@@ -594,6 +594,10 @@
       return OBSERVED_ATTRS;
     }
 
+    static parsePgn(pgn) {
+      return parsePgn(pgn);
+    }
+
     constructor() {
       super();
       this.game = null;
@@ -650,8 +654,14 @@
         }
         this.game = parsePgn(pgn);
         this.currentPly = this.resolveInitialPly();
+        this.emitWidgetEvent("load", {
+          game: this.game,
+          ply: this.currentPly,
+          source: this.hasAttribute("src") ? this.getAttribute("src") : "inline",
+        });
         this.render();
       } catch (error) {
+        this.emitWidgetEvent("error", { error: error });
         this.renderError(error.message || "Unable to parse PGN.");
       }
     }
@@ -692,13 +702,32 @@
       var target = this.clampPly(ply);
       if (target === this.currentPly) return;
       var distance = Math.abs(target - this.currentPly);
+      var fromPly = this.currentPly;
+      var fromPosition = this.game.positions[this.currentPly] || null;
+      var toPosition = this.game.positions[target] || null;
+      if (
+        !this.emitWidgetEvent("beforemove", {
+          from: fromPly,
+          to: target,
+          fromPosition: fromPosition,
+          toPosition: toPosition,
+        })
+      ) {
+        return;
+      }
       this.previousPly = this.currentPly;
-      this.previousPosition = this.game.positions[this.currentPly] || null;
+      this.previousPosition = fromPosition;
       this.navigationDirection =
         distance > 1 ? "seek" : target >= this.currentPly ? "forward" : "backward";
       this.currentPly = target;
       this.render();
-      this.playSoundForPosition(this.game.positions[target]);
+      this.emitWidgetEvent("move", {
+        from: fromPly,
+        to: target,
+        position: toPosition,
+        move: this.game.moves[target - 1] || null,
+      });
+      this.playSoundForPosition(toPosition);
     }
 
     previous() {
@@ -765,6 +794,21 @@
       live.textContent = moveLabel(game, this.currentPly);
       shell.appendChild(live);
       this.appendChild(shell);
+      this.emitWidgetEvent("render", {
+        ply: this.currentPly,
+        position: position,
+        move: game.moves[this.currentPly - 1] || null,
+      });
+    }
+
+    emitWidgetEvent(name, detail) {
+      if (typeof CustomEvent !== "function") return true;
+      var event = new CustomEvent("chess-widget:" + name, {
+        bubbles: true,
+        cancelable: name === "beforemove",
+        detail: detail,
+      });
+      return this.dispatchEvent(event);
     }
 
     featureEnabled(name, normalDefault) {

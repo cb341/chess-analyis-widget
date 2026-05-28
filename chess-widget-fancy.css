@@ -28,19 +28,19 @@ chess-widget.cw-widget:focus-visible {
 
 chess-widget .cw-shell {
   background: var(--cw-paper);
-  border: 1px solid var(--cw-line);
+  border: var(--cw-shell-border, 1px solid var(--cw-line));
   box-shadow: var(--cw-shell-shadow);
-  padding: 20px;
+  padding: var(--cw-shell-padding, 20px);
 }
 
 chess-widget .cw-header {
-  border-bottom: 1px solid var(--cw-line);
-  padding-bottom: 14px;
+  border-bottom: var(--cw-header-border, 1px solid var(--cw-line));
+  padding-bottom: var(--cw-header-padding-bottom, 14px);
 }
 
 chess-widget .cw-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--cw-title-font-size, 24px);
+  font-weight: var(--cw-title-font-weight, 700);
 }
 
 chess-widget .cw-players,
@@ -74,14 +74,14 @@ chess-widget .cw-players strong {
 }
 
 chess-widget .cw-board {
-  border: 1px solid var(--cw-line);
+  border: var(--cw-board-border, 1px solid var(--cw-line));
   background: var(--cw-light-square);
   box-shadow: var(--cw-board-shadow);
 }
 
 chess-widget square.cg-square {
   z-index: 0;
-  border: 1px solid var(--cw-line);
+  border: var(--cw-square-border, 1px solid var(--cw-line));
   background: var(--cw-light-square);
 }
 
@@ -116,23 +116,24 @@ chess-widget square.check {
 
 chess-widget piece.cw-piece {
   z-index: 2;
-  transform-origin: 50% 72%;
+  transform-origin: var(--cw-piece-transform-origin, 50% 72%);
   transition:
-    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter 260ms ease;
+    transform var(--cw-piece-transition, 260ms cubic-bezier(0.2, 0.8, 0.2, 1)),
+    filter var(--cw-piece-filter-transition, 260ms ease);
   filter: var(--cw-piece-shadow);
 }
 
 chess-widget piece.cw-piece img {
-  padding: 7%;
+  padding: var(--cw-piece-padding, 7%);
 }
 
 chess-widget piece.cw-piece-arrived {
-  animation: cw-piece-arrive 360ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  animation: cw-piece-arrive
+    var(--cw-piece-arrive-animation, 360ms cubic-bezier(0.2, 0.9, 0.2, 1));
 }
 
 chess-widget piece.cw-piece-spawned {
-  animation: cw-piece-spawn 220ms ease-out;
+  animation: cw-piece-spawn var(--cw-piece-spawn-animation, 220ms ease-out);
 }
 
 chess-widget move-marker.cw-board-marker {
@@ -156,7 +157,7 @@ chess-widget move-marker.cw-board-marker {
 chess-widget coords {
   color: rgba(23, 21, 18, 0.52);
   display: flex;
-  font-size: 11px;
+  font-size: var(--cw-coordinate-font-size, 11px);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -181,11 +182,11 @@ chess-widget .coord-light {
 }
 
 chess-widget .cw-annotation {
-  max-width: 430px;
-  min-height: 72px;
-  border-left: 6px solid var(--cw-good);
+  max-width: var(--cw-annotation-max-width, 430px);
+  min-height: var(--cw-annotation-min-height, 72px);
+  border-left: var(--cw-annotation-border-width, 6px) solid var(--cw-good);
   background: var(--cw-paper);
-  padding: 12px 14px;
+  padding: var(--cw-annotation-padding, 12px 14px);
   box-shadow: var(--cw-annotation-shadow);
   font-family:
     ui-sans-serif,
@@ -236,13 +237,13 @@ chess-widget .cw-annotation-inaccuracy {
 }
 
 chess-widget .cw-eval {
-  border: 2px solid var(--cw-ink);
+  border: var(--cw-eval-border, 2px solid var(--cw-ink));
   background: var(--cw-ink);
 }
 
 chess-widget .cw-eval-black,
 chess-widget .cw-eval-white {
-  transition: height 220ms ease;
+  transition: height var(--cw-eval-transition, 220ms ease);
   width: 100%;
 }
 
@@ -265,10 +266,10 @@ chess-widget .cw-eval-text {
 chess-widget .cw-button,
 chess-widget .cw-move,
 chess-widget .cw-bookmark {
-  border: 1px solid var(--cw-ink);
+  border: var(--cw-control-border, 1px solid var(--cw-ink));
   background: var(--cw-paper);
   color: var(--cw-ink);
-  font-size: 14px;
+  font-size: var(--cw-control-font-size, 14px);
 }
 
 chess-widget .cw-button:hover:not(:disabled),
@@ -280,8 +281,8 @@ chess-widget .cw-bookmark:hover {
 chess-widget .cw-button:focus-visible,
 chess-widget .cw-move:focus-visible,
 chess-widget .cw-bookmark:focus-visible {
-  outline: 3px solid rgba(22, 161, 217, 0.45);
-  outline-offset: 2px;
+  outline: var(--cw-control-focus-outline, 3px solid rgba(22, 161, 217, 0.45));
+  outline-offset: var(--cw-control-focus-outline-offset, 2px);
 }
 
 chess-widget .cw-button:disabled {
@@ -297,8 +298,8 @@ chess-widget .cw-move-number {
 }
 
 chess-widget .cw-panel {
-  border-top: 1px solid var(--cw-line);
-  padding-top: 12px;
+  border-top: var(--cw-panel-border, 1px solid var(--cw-line));
+  padding-top: var(--cw-panel-padding-top, 12px);
 }
 
 chess-widget .cw-panel summary {
@@ -318,9 +319,9 @@ chess-widget .cw-panel[open] summary {
 chess-widget .cw-chart svg {
   display: block;
   width: 100%;
-  height: 86px;
+  height: var(--cw-chart-height, 86px);
   overflow: visible;
-  border-radius: 8px;
+  border-radius: var(--cw-chart-radius, 8px);
   background: var(--cw-paper);
 }
 
@@ -358,7 +359,7 @@ chess-widget .cw-summary-body p {
 }
 
 chess-widget .cw-move {
-  padding: 5px 8px;
+  padding: var(--cw-move-padding, 5px 8px);
   text-align: left;
 }
 

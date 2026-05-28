@@ -50,8 +50,10 @@ global.customElements = {
 global.HTMLElement = class {
   constructor() {
     this.attrs = {};
+    this.children = [];
     this.textContent = "";
     this.classList = { add() {} };
+    this.listeners = {};
   }
 
   hasAttribute(name) {
@@ -66,7 +68,34 @@ global.HTMLElement = class {
     this.attrs[name] = String(value);
   }
 
-  addEventListener() {}
+  appendChild(child) {
+    this.children.push(child);
+    return child;
+  }
+
+  addEventListener(name, callback) {
+    this.listeners[name] ||= [];
+    this.listeners[name].push(callback);
+  }
+
+  dispatchEvent(event) {
+    (this.listeners[event.type] || []).forEach((callback) => callback(event));
+    return !event.defaultPrevented;
+  }
+};
+
+global.CustomEvent = class {
+  constructor(type, options = {}) {
+    this.type = type;
+    this.detail = options.detail || null;
+    this.bubbles = !!options.bubbles;
+    this.cancelable = !!options.cancelable;
+    this.defaultPrevented = false;
+  }
+
+  preventDefault() {
+    if (this.cancelable) this.defaultPrevented = true;
+  }
 };
 
 global.window = {};
@@ -316,6 +345,45 @@ async function testKeyboardTitlesAreDiscoverable() {
   assert.match(moveButton.title, /arrow keys/);
 }
 
+async function testCustomEventsAndParserExtensionPoint() {
+  const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  assert.equal(parsed.metadata.White, "Ada");
+
+  const widget = new ChessWidget();
+  const seen = [];
+  widget.textContent = fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8");
+  widget.addEventListener("chess-widget:load", function (event) {
+    seen.push(["load", event.detail.game.metadata.White]);
+  });
+  widget.addEventListener("chess-widget:render", function (event) {
+    seen.push(["render", event.detail.ply]);
+  });
+  widget.addEventListener("chess-widget:beforemove", function (event) {
+    seen.push(["beforemove", event.detail.from, event.detail.to]);
+    if (event.detail.to === 2) event.preventDefault();
+  });
+  widget.addEventListener("chess-widget:move", function (event) {
+    seen.push(["move", event.detail.from, event.detail.to]);
+  });
+  widget.renderError = function (message) {
+    throw new Error(message);
+  };
+  widget.connectedCallback();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.deepEqual(seen[0], ["load", "Ada"]);
+  assert.deepEqual(seen[1], ["render", 0]);
+  widget.goTo(2);
+  assert.equal(widget.currentPly, 0);
+  widget.goTo(1);
+  assert.equal(widget.currentPly, 1);
+  assert.deepEqual(seen.slice(-3), [
+    ["beforemove", 0, 1],
+    ["render", 1],
+    ["move", 0, 1],
+  ]);
+}
+
 async function run() {
   await testSamplePgn();
   await testCommentAttachmentAndGlyphs();
@@ -329,6 +397,7 @@ async function run() {
   await testMoveAnimationState();
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
+  await testCustomEventsAndParserExtensionPoint();
   console.log("tests.js ok");
 }
 
