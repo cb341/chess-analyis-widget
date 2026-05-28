@@ -6,25 +6,25 @@ module Chess
   # Resolves SAN notation into concrete source/destination board moves.
   class MoveResolver
     FILES = %w[a b c d e f g h].freeze
-    SAN_PATTERN = /\A(?<piece>[KQRBN])?(?<disambiguation>[a-h1-8]{0,2})(?<capture>x)?(?<to>[a-h][1-8])(?:=(?<promotion>[QRBN]))?(?<check>[+#])?\z/.freeze
+    SAN_PATTERN = /\A(?<piece>[KQRBN])?(?<disambiguation>[a-h1-8]{0,2})(?<capture>x)?(?<to>[a-h][1-8])(?:=(?<promotion>[QRBN]))?(?<check>[+#])?\z/
 
     def resolve(board, san)
       normalized = san.strip.gsub(/[!?]+$/, "")
-      return resolve_castling(board, normalized, san) if normalized =~ /\AO-O(-O)?[+#]?\z/
+      return resolve_castling(board, normalized, san) if /\AO-O(-O)?[+#]?\z/.match?(normalized)
 
       match = SAN_PATTERN.match(normalized)
       raise ArgumentError, "Cannot parse SAN #{san.inspect}" unless match
 
       piece_letter = match[:piece] || "P"
       color = board.current_color
-      piece = color == "white" ? piece_letter : piece_letter.downcase
+      piece = (color == "white") ? piece_letter : piece_letter.downcase
       to = match[:to]
       candidates = candidate_sources(board, piece, to, match[:disambiguation], !!match[:capture])
 
       if candidates.empty?
         raise ArgumentError, "Cannot resolve #{san.inspect} for #{color} to #{to}"
       elsif candidates.length > 1
-        raise ArgumentError, "Ambiguous SAN #{san.inspect}: #{candidates.join(', ')}"
+        raise ArgumentError, "Ambiguous SAN #{san.inspect}: #{candidates.join(", ")}"
       end
 
       from = candidates.first
@@ -48,12 +48,12 @@ module Chess
     def resolve_castling(board, normalized, original_san)
       color = board.current_color
       queenside = normalized.start_with?("O-O-O")
-      from = color == "white" ? "e1" : "e8"
+      from = (color == "white") ? "e1" : "e8"
       to = if color == "white"
-             queenside ? "c1" : "g1"
-           else
-             queenside ? "c8" : "g8"
-           end
+        queenside ? "c1" : "g1"
+      else
+        queenside ? "c8" : "g8"
+      end
       check = normalized.include?("+") || normalized.include?("#")
       {
         san: original_san,
@@ -115,8 +115,8 @@ module Chess
     end
 
     def pawn_move?(board, piece, from, to, df, dr, target, capture)
-      direction = piece == piece.upcase ? 1 : -1
-      start_rank = piece == piece.upcase ? 2 : 7
+      direction = (piece == piece.upcase) ? 1 : -1
+      start_rank = (piece == piece.upcase) ? 2 : 7
       if capture
         return false unless df.abs == 1 && dr == direction
 
@@ -141,7 +141,7 @@ module Chess
       return to if board.piece_at(to)
 
       if piece.upcase == "P" && board.en_passant == to
-        direction = piece == piece.upcase ? -1 : 1
+        direction = (piece == piece.upcase) ? -1 : 1
         return Chess::Board.square_name(file(to), rank(to) + direction)
       end
 

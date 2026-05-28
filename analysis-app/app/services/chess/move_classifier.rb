@@ -21,7 +21,7 @@ module Chess
     def eval_loss(color, before_eval, after_eval)
       before = centipawns(before_eval)
       after = centipawns(after_eval)
-      delta = color == "white" ? before - after : after - before
+      delta = (color == "white") ? before - after : after - before
       [delta, 0].max
     end
 
@@ -30,7 +30,7 @@ module Chess
     def eval_gain(color, before_eval, after_eval)
       before = centipawns(before_eval)
       after = centipawns(after_eval)
-      delta = color == "white" ? after - before : before - after
+      delta = (color == "white") ? after - before : before - after
       [delta, 0].max
     end
 

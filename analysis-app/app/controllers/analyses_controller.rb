@@ -41,7 +41,7 @@ class AnalysesController
     pgn = params.fetch("pgn", "")
     payload = @builder.build(pgn)
     render_template("show", pgn: pgn, payload: payload, payload_json: JSON.pretty_generate(payload), error: nil)
-  rescue StandardError => error
+  rescue => error
     render_template("new", pgn: pgn, error: error.message)
   end
 

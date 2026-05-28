@@ -20,7 +20,7 @@ server.mount_proc("/") do |request, response|
   case [request.request_method, request.path]
   when ["GET", "/"], ["GET", "/analyses/new"], ["HEAD", "/"], ["HEAD", "/analyses/new"]
     response["Content-Type"] = "text/html; charset=utf-8"
-    response.body = request.request_method == "HEAD" ? "" : controller.new
+    response.body = (request.request_method == "HEAD") ? "" : controller.new
   when ["POST", "/analyses"]
     response["Content-Type"] = "text/html; charset=utf-8"
     params = URI.decode_www_form(request.body.to_s).to_h

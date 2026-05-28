@@ -47,7 +47,7 @@ module Chess
     def color_of(piece)
       return nil unless piece
 
-      piece == piece.upcase ? "white" : "black"
+      (piece == piece.upcase) ? "white" : "black"
     end
 
     def current_color
@@ -55,7 +55,7 @@ module Chess
     end
 
     def enemy_color
-      @turn == "white" ? "black" : "white"
+      (@turn == "white") ? "black" : "white"
     end
 
     def apply_move(move)
@@ -135,7 +135,7 @@ module Chess
     def promotion_piece(piece, promotion)
       return piece unless promotion
 
-      color_of(piece) == "white" ? promotion : promotion.downcase
+      (color_of(piece) == "white") ? promotion : promotion.downcase
     end
 
     def update_castling_rights(piece, move)
@@ -164,7 +164,7 @@ module Chess
     end
 
     def update_clocks(piece, captured, move)
-      @halfmove_clock = piece.upcase == "P" || captured ? 0 : @halfmove_clock + 1
+      @halfmove_clock = (piece.upcase == "P" || captured) ? 0 : @halfmove_clock + 1
       @en_passant = en_passant_target(piece, move)
     end
 

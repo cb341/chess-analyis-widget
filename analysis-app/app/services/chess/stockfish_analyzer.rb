@@ -36,7 +36,7 @@ module Chess
       return fallback_evaluation(board, fen) unless available?
 
       stockfish_evaluation(fen)
-    rescue StandardError
+    rescue
       fallback_evaluation(board, fen)
     end
 
@@ -88,21 +88,21 @@ module Chess
     end
 
     def read_until(stdout, marker)
-      stdout.each_line { |line| return if line.strip == marker }
+      stdout.each_line.any? { |line| line.strip == marker }
     end
 
     def parse_score(line)
       case line
       when /\bscore cp (-?\d+)/
-        { type: "cp", value: Regexp.last_match(1).to_i, source: "stockfish" }
+        {type: "cp", value: Regexp.last_match(1).to_i, source: "stockfish"}
       when /\bscore mate (-?\d+)/
-        { type: "mate", value: Regexp.last_match(1).to_i, source: "stockfish" }
+        {type: "mate", value: Regexp.last_match(1).to_i, source: "stockfish"}
       end
     end
 
     def fallback_evaluation(board, fen)
       value = board ? material_score(board) : material_from_fen(fen)
-      { type: "cp", value: value, source: "fallback_material" }
+      {type: "cp", value: value, source: "fallback_material"}
     end
 
     def material_score(board)

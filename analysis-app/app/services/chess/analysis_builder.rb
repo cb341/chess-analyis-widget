@@ -64,7 +64,7 @@ module Chess
         ply += 1
         moves << move_payload(applied)
         positions << position_payload(board, ply, move_number, color, san, applied, current_eval)
-      rescue StandardError => error
+      rescue => error
         raise ArgumentError, "Move #{move_number} #{color} #{san}: #{error.message}"
       end
 
@@ -119,7 +119,7 @@ module Chess
         color: color,
         san: san,
         board: board.snapshot,
-        last_move: move ? { from: move[:from], to: move[:to] } : nil,
+        last_move: move ? {from: move[:from], to: move[:to]} : nil,
         annotation: move && move[:annotation],
         eval: clean_eval(evaluation),
         eval_bar: eval_bar(evaluation),
@@ -138,16 +138,16 @@ module Chess
     end
 
     def clean_eval(evaluation)
-      { type: evaluation[:type], value: evaluation[:value] }
+      {type: evaluation[:type], value: evaluation[:value]}
     end
 
     def eval_bar(evaluation)
       white = if evaluation[:type].to_s == "mate"
-                evaluation[:value].to_i.positive? ? 98 : 2
-              else
-                [[50 + evaluation[:value].to_i / 20, 2].max, 98].min
-              end
-      { white: white, black: 100 - white }
+        evaluation[:value].to_i.positive? ? 98 : 2
+      else
+        (50 + evaluation[:value].to_i / 20).clamp(2, 98)
+      end
+      {white: white, black: 100 - white}
     end
   end
 end

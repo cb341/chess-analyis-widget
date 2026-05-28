@@ -11,7 +11,7 @@ module Chess
     def build(board)
       [
         placement(board),
-        board.turn == "white" ? "w" : "b",
+        (board.turn == "white") ? "w" : "b",
         castling(board),
         board.en_passant,
         board.halfmove_clock,

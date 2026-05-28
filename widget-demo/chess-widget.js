@@ -13,7 +13,7 @@
     r: "♜",
     b: "♝",
     n: "♞",
-    p: "♟"
+    p: "♟",
   };
 
   var FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -23,7 +23,7 @@
     mistake: "?",
     blunder: "??",
     brilliant: "!!",
-    checkmate: "#"
+    checkmate: "#",
   };
 
   function clampPercent(value, fallback) {
@@ -44,14 +44,19 @@
       r: "rook",
       b: "bishop",
       n: "knight",
-      p: "pawn"
+      p: "pawn",
     };
     return color + " " + (names[piece.toLowerCase()] || "piece");
   }
 
   function annotationClass(kind) {
     if (!kind) return "";
-    return "cw-annotation-" + String(kind).toLowerCase().replace(/[^a-z0-9-]/g, "");
+    return (
+      "cw-annotation-" +
+      String(kind)
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "")
+    );
   }
 
   function annotationMark(kind) {
@@ -59,7 +64,8 @@
   }
 
   function moveLabel(game, ply) {
-    if (!game || !Array.isArray(game.moves) || ply < 1) return "Starting position";
+    if (!game || !Array.isArray(game.moves) || ply < 1)
+      return "Starting position";
     var move = game.moves[ply - 1];
     if (!move) return "Position " + ply;
     var prefix = move.color === "black" ? "... " : ". ";
@@ -112,7 +118,7 @@
 
       try {
         this.load(JSON.parse(source.textContent || ""));
-      } catch (error) {
+      } catch {
         this.renderError("Invalid chess data.");
       }
     }
@@ -121,7 +127,11 @@
       this.game = gameData && typeof gameData === "object" ? gameData : null;
       this.currentPly = 0;
 
-      if (!this.game || !Array.isArray(this.game.positions) || this.game.positions.length === 0) {
+      if (
+        !this.game ||
+        !Array.isArray(this.game.positions) ||
+        this.game.positions.length === 0
+      ) {
         this.renderError("No chess positions available.");
         return;
       }
@@ -131,7 +141,10 @@
 
     goTo(ply) {
       if (!this.game || !Array.isArray(this.game.positions)) return;
-      var target = Math.max(0, Math.min(this.game.positions.length - 1, Number(ply) || 0));
+      var target = Math.max(
+        0,
+        Math.min(this.game.positions.length - 1, Number(ply) || 0),
+      );
       this.currentPly = target;
       this.render();
     }
@@ -163,12 +176,20 @@
 
     render() {
       var game = this.game;
-      var positions = Array.isArray(game && game.positions) ? game.positions : [];
+      var positions = Array.isArray(game && game.positions)
+        ? game.positions
+        : [];
       var position = positions[this.currentPly] || {};
       var metadata = game.metadata || {};
       var annotation = position.annotation || {};
-      var whiteEval = clampPercent(position.eval_bar && position.eval_bar.white, 50);
-      var blackEval = clampPercent(position.eval_bar && position.eval_bar.black, 100 - whiteEval);
+      var whiteEval = clampPercent(
+        position.eval_bar && position.eval_bar.white,
+        50,
+      );
+      var blackEval = clampPercent(
+        position.eval_bar && position.eval_bar.black,
+        100 - whiteEval,
+      );
       var total = whiteEval + blackEval;
       var whiteShare = total > 0 ? Math.round((whiteEval / total) * 100) : 50;
       var blackShare = 100 - whiteShare;
@@ -189,7 +210,9 @@
       boardPanel.appendChild(this.renderAnnotation(annotation));
       main.appendChild(boardPanel);
 
-      main.appendChild(this.renderSidePanel(game, position, whiteShare, blackShare));
+      main.appendChild(
+        this.renderSidePanel(game, position, whiteShare, blackShare),
+      );
       shell.appendChild(main);
 
       var live = document.createElement("div");
@@ -213,11 +236,19 @@
       players.className = "cw-players";
 
       var white = document.createElement("span");
-      white.textContent = escapeText(metadata.White || "White") + " (" + escapeText(metadata.WhiteElo || "-") + ")";
+      white.textContent =
+        escapeText(metadata.White || "White") +
+        " (" +
+        escapeText(metadata.WhiteElo || "-") +
+        ")";
       var result = document.createElement("strong");
       result.textContent = escapeText(metadata.Result || "*");
       var black = document.createElement("span");
-      black.textContent = escapeText(metadata.Black || "Black") + " (" + escapeText(metadata.BlackElo || "-") + ")";
+      black.textContent =
+        escapeText(metadata.Black || "Black") +
+        " (" +
+        escapeText(metadata.BlackElo || "-") +
+        ")";
 
       players.appendChild(white);
       players.appendChild(result);
@@ -229,10 +260,14 @@
 
     renderBoard(position) {
       var board = document.createElement("div");
-      var orientation = this.getAttribute("orientation") === "black" ? "black" : "white";
+      var orientation =
+        this.getAttribute("orientation") === "black" ? "black" : "white";
       var ranks = orientation === "black" ? RANKS_BLACK : RANKS_WHITE;
       var files = orientation === "black" ? FILES.slice().reverse() : FILES;
-      var boardData = position && position.board && typeof position.board === "object" ? position.board : {};
+      var boardData =
+        position && position.board && typeof position.board === "object"
+          ? position.board
+          : {};
       var lastMove = position && position.last_move ? position.last_move : {};
 
       board.className = "cw-board";
@@ -256,7 +291,12 @@
             square.className += " cw-destination";
           }
           square.setAttribute("role", "gridcell");
-          square.setAttribute("aria-label", piece ? squareName + ", " + pieceName(piece) : squareName + ", empty");
+          square.setAttribute(
+            "aria-label",
+            piece
+              ? squareName + ", " + pieceName(piece)
+              : squareName + ", empty",
+          );
 
           var coord = document.createElement("span");
           coord.className = "cw-coordinate";
@@ -286,7 +326,9 @@
       var label = document.createElement("strong");
       label.textContent = escapeText(annotation.label || "Position");
       var text = document.createElement("span");
-      text.textContent = escapeText(annotation.text || "No annotation for this position.");
+      text.textContent = escapeText(
+        annotation.text || "No annotation for this position.",
+      );
 
       box.appendChild(label);
       box.appendChild(text);
@@ -302,7 +344,14 @@
 
       var evalBar = document.createElement("div");
       evalBar.className = "cw-eval";
-      evalBar.setAttribute("aria-label", "Evaluation: White " + whiteShare + " percent, Black " + blackShare + " percent");
+      evalBar.setAttribute(
+        "aria-label",
+        "Evaluation: White " +
+          whiteShare +
+          " percent, Black " +
+          blackShare +
+          " percent",
+      );
 
       var black = document.createElement("div");
       black.className = "cw-eval-black";
@@ -328,7 +377,10 @@
       var currentTitle = document.createElement("h2");
       currentTitle.textContent = moveLabel(game, this.currentPly);
       var currentText = document.createElement("p");
-      currentText.textContent = escapeText((position.annotation && position.annotation.text) || "Starting position.");
+      currentText.textContent = escapeText(
+        (position.annotation && position.annotation.text) ||
+          "Starting position.",
+      );
       current.appendChild(currentTitle);
       current.appendChild(currentText);
       side.appendChild(current);
@@ -360,7 +412,10 @@
 
       var counter = document.createElement("div");
       counter.className = "cw-counter";
-      counter.textContent = this.currentPly + " / " + Math.max(0, (game.positions || []).length - 1);
+      counter.textContent =
+        this.currentPly +
+        " / " +
+        Math.max(0, (game.positions || []).length - 1);
 
       var next = document.createElement("button");
       next.type = "button";
@@ -393,7 +448,8 @@
 
         var number = document.createElement("span");
         number.className = "cw-move-number";
-        number.textContent = escapeText(moves[i].move_number || Math.floor(i / 2) + 1) + ".";
+        number.textContent =
+          escapeText(moves[i].move_number || Math.floor(i / 2) + 1) + ".";
         row.appendChild(number);
 
         row.appendChild(this.renderMoveButton(moves[i]));
@@ -416,7 +472,8 @@
       var button = document.createElement("button");
       var kind = move.annotation || "good";
       button.type = "button";
-      button.className = "cw-move" + (move.ply === this.currentPly ? " cw-active-move" : "");
+      button.className =
+        "cw-move" + (move.ply === this.currentPly ? " cw-active-move" : "");
       button.addEventListener("click", () => this.goTo(move.ply));
 
       var san = document.createElement("span");

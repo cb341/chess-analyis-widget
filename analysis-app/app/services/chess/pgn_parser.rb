@@ -15,7 +15,7 @@ module Chess
 
       pgn.each_line do |line|
         if line =~ /^\s*\[([A-Za-z0-9_]+)\s+"(.*)"\]\s*$/
-          metadata[$1] = $2.gsub(/\\"/, '"')
+          metadata[$1] = $2.gsub('\"', '"')
         else
           body_lines << line
         end
@@ -24,7 +24,7 @@ module Chess
       moves = extract_moves(body_lines.join(" "))
       raise ArgumentError, "PGN does not contain any moves" if moves.empty?
 
-      { metadata: metadata, moves: moves }
+      {metadata: metadata, moves: moves}
     end
 
     private

@@ -15,7 +15,7 @@ The widget renders a precomputed analyzed chess game. It does not parse PGN, doe
   {}
 </script>
 
-<link rel="stylesheet" href="/chess-widget.css">
+<link rel="stylesheet" href="/chess-widget.css" />
 <script src="/chess-widget.js"></script>
 ```
 
@@ -81,19 +81,19 @@ Primary loading mode:
 The widget finds:
 
 ```js
-document.getElementById(this.dataset.source)
+document.getElementById(this.dataset.source);
 ```
 
 Then parses:
 
 ```js
-JSON.parse(source.textContent)
+JSON.parse(source.textContent);
 ```
 
 Optional JS API:
 
 ```js
-document.querySelector("chess-widget").load(gameData)
+document.querySelector("chess-widget").load(gameData);
 ```
 
 The JS API is useful for tests and local demos, but the Rails-rendered page should use embedded JSON.
@@ -216,14 +216,14 @@ const PIECES = {
   r: "♜",
   b: "♝",
   n: "♞",
-  p: "♟"
+  p: "♟",
 };
 ```
 
 Later option:
 
 ```html
-<img src="/pieces/white-king.svg" alt="">
+<img src="/pieces/white-king.svg" alt="" />
 ```
 
 Use `aria-label` on pieces or squares where practical.
@@ -411,12 +411,12 @@ Errors should render inside the element and should not throw uncaught exceptions
 ## Public Methods
 
 ```js
-load(gameData)
-goTo(ply)
-next()
-previous()
-start()
-end()
+load(gameData);
+goTo(ply);
+next();
+previous();
+start();
+end();
 ```
 
 These methods update the DOM immediately.
@@ -433,7 +433,7 @@ These methods update the DOM immediately.
 Current position:
 
 ```js
-this.game.positions[this.currentPly]
+this.game.positions[this.currentPly];
 ```
 
 ## Implementation Sketch

@@ -28,9 +28,9 @@ module Chess
       moves.each_slice(2) do |pair|
         white = pair[0]
         black = pair[1]
-        move_line = +"#{white[:move_number]}. #{render_move(white)}"
-        move_line << "      #{render_move(black)}" if black
-        lines << move_line
+        move_parts = ["#{white[:move_number]}. #{render_move(white)}"]
+        move_parts << render_move(black) if black
+        lines << move_parts.join("      ")
         eval_source = black || white
         lines << "   #{render_eval(eval_source[:eval_after])}"
         lines << ""
@@ -57,17 +57,17 @@ module Chess
     end
 
     def piece_symbol(color, piece)
-      key = color == "white" ? piece : piece.downcase
+      key = (color == "white") ? piece : piece.downcase
       PIECES.fetch(key)
     end
 
     def pawn_symbol(color)
-      color == "white" ? PIECES.fetch("P") : PIECES.fetch("p")
+      (color == "white") ? PIECES.fetch("P") : PIECES.fetch("p")
     end
 
     def render_eval(evaluation)
       percent = eval_percent(evaluation)
-      filled = [[(percent / 5.0).round, 0].max, 20].min
+      filled = (percent / 5.0).round.clamp(0, 20)
       bar = ("█" * filled) + ("░" * (20 - filled))
       "Eval: White [#{bar}] Black #{eval_label(evaluation)}"
     end
@@ -76,7 +76,7 @@ module Chess
       return 50 unless evaluation
       return evaluation[:value].positive? ? 98 : 2 if evaluation[:type].to_s == "mate"
 
-      [[50 + evaluation[:value].to_i / 20, 2].max, 98].min
+      (50 + evaluation[:value].to_i / 20).clamp(2, 98)
     end
 
     def eval_label(evaluation)
@@ -84,7 +84,7 @@ module Chess
       return "Mate" if evaluation[:type].to_s == "mate"
 
       value = evaluation[:value].to_i / 100.0
-      value >= 0 ? format("+%.1f", value) : format("%.1f", value)
+      (value >= 0) ? format("+%.1f", value) : format("%.1f", value)
     end
 
     def elo(value)
