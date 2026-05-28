@@ -1090,8 +1090,8 @@
       prev.textContent = this.controlLabel("previous");
       prev.title = "Previous move. Keyboard: ArrowLeft or ArrowUp.";
       prev.disabled = this.currentPly <= this.startPly();
-      prev.addEventListener("touchend", (event) => this.preventDoubleTapZoom(event));
-      prev.addEventListener("click", () => this.previous());
+      prev.addEventListener("touchend", (event) => this.activateControl(event, "previous"));
+      prev.addEventListener("click", (event) => this.activateControl(event, "previous"));
       var counter = document.createElement("div");
       counter.className = "cw-counter";
       counter.title = "Moves " + this.startPly() + "-" + this.endPly() + ". Keyboard: Home and End jump to the bounds.";
@@ -1103,20 +1103,28 @@
       next.textContent = this.controlLabel("next");
       next.title = "Next move. Keyboard: ArrowRight or ArrowDown.";
       next.disabled = this.currentPly >= this.endPly();
-      next.addEventListener("touchend", (event) => this.preventDoubleTapZoom(event));
-      next.addEventListener("click", () => this.next());
+      next.addEventListener("touchend", (event) => this.activateControl(event, "next"));
+      next.addEventListener("click", (event) => this.activateControl(event, "next"));
       controls.appendChild(prev);
       controls.appendChild(counter);
       controls.appendChild(next);
       return controls;
     }
 
-    preventDoubleTapZoom(event) {
-      var now = Date.now();
-      if (this._lastControlTouch && now - this._lastControlTouch < 350) {
+    activateControl(event, direction) {
+      if (event.type === "click" && this._suppressNextControlClick) {
         event.preventDefault();
+        this._suppressNextControlClick = false;
+        return;
       }
-      this._lastControlTouch = now;
+
+      if (event.type === "touchend") {
+        event.preventDefault();
+        this._suppressNextControlClick = true;
+      }
+
+      if (direction === "previous") this.previous();
+      else this.next();
     }
 
     controlLabel(kind) {

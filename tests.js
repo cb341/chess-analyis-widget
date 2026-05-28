@@ -364,14 +364,27 @@ async function testControlTouchHandlers() {
   assert.equal(controls.children[0].attributes["data-control"], "previous");
   assert.equal(controls.children[2].attributes["data-control"], "next");
   assert.equal(controls.children[0].listeners.touchend.length, 1);
-  let prevented = false;
-  widget._lastControlTouch = Date.now();
-  widget.preventDoubleTapZoom({
+  widget.currentPly = 0;
+  let touchPrevented = false;
+  widget.activateControl({
+    type: "touchend",
     preventDefault() {
-      prevented = true;
+      touchPrevented = true;
     },
-  });
-  assert.equal(prevented, true);
+  }, "next");
+  assert.equal(touchPrevented, true);
+  assert.equal(widget.currentPly, 1);
+  assert.equal(widget._suppressNextControlClick, true);
+
+  let clickPrevented = false;
+  widget.activateControl({
+    type: "click",
+    preventDefault() {
+      clickPrevented = true;
+    },
+  }, "next");
+  assert.equal(clickPrevented, true);
+  assert.equal(widget.currentPly, 1);
 }
 
 async function testCustomEventsAndParserExtensionPoint() {
