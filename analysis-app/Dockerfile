@@ -17,6 +17,9 @@ RUN set -eux; \
     rm -rf /tmp/stockfish-download /tmp/stockfish.tar; \
     stockfish bench 1
 
+COPY Gemfile /app/Gemfile
+RUN bundle install
+
 COPY . /app
 
 ENV HOST=0.0.0.0
