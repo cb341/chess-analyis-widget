@@ -363,8 +363,18 @@ async function testControlTouchHandlers() {
   const controls = widget.renderControls(widget.game);
   assert.equal(controls.children[0].attributes["data-control"], "previous");
   assert.equal(controls.children[2].attributes["data-control"], "next");
+  assert.equal(controls.children[0].listeners.touchstart.length, 1);
   assert.equal(controls.children[0].listeners.touchend.length, 1);
   widget.currentPly = 0;
+  let startPrevented = false;
+  widget.prepareControlTouch({
+    preventDefault() {
+      startPrevented = true;
+    },
+  });
+  assert.equal(startPrevented, true);
+  assert.equal(widget._controlTouchStarted, true);
+
   let touchPrevented = false;
   widget.activateControl({
     type: "touchend",

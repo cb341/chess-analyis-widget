@@ -1090,7 +1090,8 @@
       prev.textContent = this.controlLabel("previous");
       prev.title = "Previous move. Keyboard: ArrowLeft or ArrowUp.";
       prev.disabled = this.currentPly <= this.startPly();
-      prev.addEventListener("touchend", (event) => this.activateControl(event, "previous"));
+      prev.addEventListener("touchstart", (event) => this.prepareControlTouch(event), { passive: false });
+      prev.addEventListener("touchend", (event) => this.activateControl(event, "previous"), { passive: false });
       prev.addEventListener("click", (event) => this.activateControl(event, "previous"));
       var counter = document.createElement("div");
       counter.className = "cw-counter";
@@ -1103,12 +1104,18 @@
       next.textContent = this.controlLabel("next");
       next.title = "Next move. Keyboard: ArrowRight or ArrowDown.";
       next.disabled = this.currentPly >= this.endPly();
-      next.addEventListener("touchend", (event) => this.activateControl(event, "next"));
+      next.addEventListener("touchstart", (event) => this.prepareControlTouch(event), { passive: false });
+      next.addEventListener("touchend", (event) => this.activateControl(event, "next"), { passive: false });
       next.addEventListener("click", (event) => this.activateControl(event, "next"));
       controls.appendChild(prev);
       controls.appendChild(counter);
       controls.appendChild(next);
       return controls;
+    }
+
+    prepareControlTouch(event) {
+      event.preventDefault();
+      this._controlTouchStarted = true;
     }
 
     activateControl(event, direction) {
@@ -1121,6 +1128,8 @@
       if (event.type === "touchend") {
         event.preventDefault();
         this._suppressNextControlClick = true;
+        if (!this._controlTouchStarted) return;
+        this._controlTouchStarted = false;
       }
 
       if (direction === "previous") this.previous();
