@@ -38,8 +38,8 @@
   };
   var SOUNDS = {
     move: "./assets/sounds/move.mp3",
-    castle: "./assets/sounds/move.mp3",
-    capture: "./assets/sounds/capture.mp3",
+    castle: "./assets/sounds/castle.wav",
+    capture: "./assets/sounds/capture.wav",
     check: "./assets/sounds/check.mp3",
     checkmate: "./assets/sounds/checkmate.mp3",
   };
@@ -148,6 +148,7 @@
       this._keyboardBound = false;
       this._focusBound = false;
       this._soundSources = {};
+      this._activeSounds = [];
     }
 
     connectedCallback() {
@@ -247,29 +248,32 @@
       var soundName = "move";
       var flags = position.flags || {};
       var lastMove = position.last_move || {};
-      var isCastling = Boolean(
-        flags.castling ||
-        lastMove.castling ||
-        (lastMove.flags && lastMove.flags.castling),
-      );
-      var isCapture = Boolean(
-        flags.capture ||
-        lastMove.capture ||
-        lastMove.captured ||
-        (lastMove.flags && lastMove.flags.capture),
-      );
+      var isCastling =
+        this.flagEnabled(flags.castling) ||
+        this.flagEnabled(lastMove.castling) ||
+        this.flagEnabled(lastMove.flags && lastMove.flags.castling);
+      var isCapture =
+        this.flagEnabled(flags.capture) ||
+        this.flagEnabled(lastMove.capture) ||
+        this.flagEnabled(lastMove.captured) ||
+        this.flagEnabled(lastMove.flags && lastMove.flags.capture);
 
-      if (flags.checkmate) {
+      if (this.flagEnabled(flags.checkmate)) {
         soundName = "checkmate";
       } else if (isCapture) {
         soundName = "capture";
-      } else if (flags.check) {
+      } else if (this.flagEnabled(flags.check)) {
         soundName = "check";
       } else if (isCastling) {
         soundName = "castle";
       }
 
+      this.setAttribute("data-sound-current", soundName);
       this.playSound(soundName);
+    }
+
+    flagEnabled(value) {
+      return value === true || value === "true" || value === 1 || value === "1";
     }
 
     playSound(name) {
@@ -281,11 +285,24 @@
       var audio = new window.Audio(this._soundSources[name]);
       audio.preload = "auto";
       audio.volume = 1;
+      audio.addEventListener(
+        "ended",
+        () => {
+          this._activeSounds = this._activeSounds.filter(
+            (active) => active !== audio,
+          );
+        },
+        { once: true },
+      );
+      this._activeSounds.push(audio);
 
       var attempt = audio.play();
       if (attempt && typeof attempt.catch === "function") {
         attempt.catch((error) => {
           this.setAttribute("data-sound-error", error.name || "blocked");
+          this._activeSounds = this._activeSounds.filter(
+            (active) => active !== audio,
+          );
         });
       }
     }
