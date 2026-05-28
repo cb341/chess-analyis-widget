@@ -86,14 +86,17 @@ chess-widget square.cg-square {
 }
 
 chess-widget square.cg-square.dark {
-  background:
-    repeating-linear-gradient(
-      135deg,
-      transparent 0 10px,
-      var(--cw-dark-hatch) 10px 14px,
-      transparent 14px 24px
-    ),
-    var(--cw-light-square);
+  background-color: var(--cw-light-square);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 3px,
+    var(--cw-dark-hatch) 3px 4.5px,
+    transparent 4.5px 7.5px
+  );
+  background-size: calc(100% - 6px) calc(100% - 6px);
+  background-position: 3px 3px;
+  background-repeat: repeat;
+  background-origin: border-box;
 }
 
 chess-widget square.last-move {
