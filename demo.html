@@ -28,6 +28,17 @@
         margin: 0 0 12px;
       }
 
+      h1 a {
+        color: inherit;
+        text-decoration-color: #619b8a;
+        text-decoration-thickness: 3px;
+        text-underline-offset: 5px;
+      }
+
+      h1 a:hover {
+        color: #33658a;
+      }
+
       p {
         max-width: 760px;
       }
@@ -403,11 +414,10 @@
   </head>
   <body>
     <main>
-      <h1>A Static PGN Replay</h1>
+      <h1><a href="https://github.com/cb341/chess-analyis-widget">chess-widget</a></h1>
       <p>
-        This page is only HTML, CSS, JavaScript, assets, and a PGN file. The
-        widget reads SAN, comments, clocks, and lichess eval annotations in the
-        browser.
+        A static, client-only PGN replay widget for GitHub Pages. It reads SAN,
+        comments, clocks, and lichess eval annotations in the browser.
       </p>
 
       <h2>Supported PGN Features</h2>
