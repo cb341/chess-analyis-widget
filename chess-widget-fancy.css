@@ -75,23 +75,26 @@ chess-widget .cw-players strong {
 
 chess-widget .cw-board {
   border: var(--cw-board-border, 1px solid var(--cw-line));
-  background: var(--cw-light-square);
+  background: var(--cw-board-background, var(--cw-light-square));
   box-shadow: var(--cw-board-shadow);
 }
 
 chess-widget square.cg-square {
   z-index: 0;
   border: var(--cw-square-border, 1px solid var(--cw-line));
-  background: var(--cw-light-square);
+  background: var(--cw-light-square-background, var(--cw-light-square));
 }
 
 chess-widget square.cg-square.dark {
-  background-color: var(--cw-light-square);
-  background-image: repeating-linear-gradient(
-    135deg,
-    transparent 0 3px,
-    var(--cw-dark-hatch) 3px 4.5px,
-    transparent 4.5px 7.5px
+  background: var(
+    --cw-dark-square-background,
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 3px,
+      var(--cw-dark-hatch) 3px 4.5px,
+      transparent 4.5px 7.5px
+    ),
+    var(--cw-light-square)
   );
   background-size: 75% 75%;
   background-position: center center;

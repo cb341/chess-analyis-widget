@@ -59,6 +59,7 @@ The bundled defaults are the cburnett SVG set and selected Lichess standard soun
   src="/assets/games/blitz-checkmate.pgn"
   sound
   piece-path="/my-piece-set/"
+  piece-white-king="/my-piece-set/wk.svg"
   sound-move="/sounds/soft-move.mp3"
   sound-capture="/sounds/capture.wav">
 </chess-widget>
@@ -87,6 +88,15 @@ Or configure defaults before loading `chess-widget.js`:
 
 After load, the same defaults can be changed with `customElements.get("chess-widget").configureAssets(...)`. Built-in asset URLs are resolved relative to `chess-widget.js`; custom asset URLs are resolved relative to the page.
 
+Board backgrounds are CSS, so they can use colors, gradients, or image assets without changing JavaScript:
+
+```css
+chess-widget.photo-board {
+  --cw-light-square-background: linear-gradient(135deg, #fff, #edf6ff);
+  --cw-dark-square-background: url("/assets/boards/blue-fabric.svg"), #d8e8f8;
+}
+```
+
 ## PGN Support
 
 The parser handles tag pairs, `[SetUp "1"]` plus `[FEN "..."]`, SAN moves, captures, castling, promotion, disambiguation, checks, mates, en passant, comments, clocks, evals, and common NAG glyphs.
@@ -110,7 +120,8 @@ chess-widget {
   --cw-ink: #222;
   --cw-line: #c7c7c7;
   --cw-light-square: #f0d9b5;
-  --cw-dark-square: #b58863;
+  --cw-light-square-background: #f0d9b5;
+  --cw-dark-square-background: #b58863;
   --cw-board-max-width: 560px;
   --cw-main-gap: 24px;
   --cw-piece-arrive-animation: 420ms ease;
@@ -121,6 +132,7 @@ chess-widget {
 Common extension variables include:
 
 - `--cw-board-max-width`, `--cw-board-width-small`
+- `--cw-board-background`, `--cw-light-square-background`, `--cw-dark-square-background`
 - `--cw-main-columns`, `--cw-main-gap`, `--cw-shell-gap`
 - `--cw-control-border`, `--cw-control-font-size`, `--cw-control-min-height`
 - `--cw-piece-padding`, `--cw-piece-arrive-animation`, `--cw-piece-spawn-animation`
