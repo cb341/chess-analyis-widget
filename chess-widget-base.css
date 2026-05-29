@@ -91,6 +91,7 @@ chess-widget .cw-move-row {
 
 chess-widget .cw-shell {
   gap: var(--cw-shell-gap, 18px);
+  align-items: stretch;
 }
 
 chess-widget .cw-shell-minimal {
@@ -116,7 +117,7 @@ chess-widget .cw-main {
     minmax(300px, 640px) minmax(300px, 1fr)
   );
   gap: var(--cw-main-gap, 20px);
-  align-items: start;
+  align-items: stretch;
 }
 
 chess-widget .cw-main-minimal {
@@ -126,6 +127,7 @@ chess-widget .cw-main-minimal {
 chess-widget .cw-board-panel {
   position: relative;
   gap: var(--cw-board-panel-gap, 12px);
+  align-content: start;
 }
 
 chess-widget .cw-board-with-eval {
@@ -240,7 +242,9 @@ chess-widget .cw-annotation {
 chess-widget .cw-side {
   grid-template-columns: 1fr;
   gap: var(--cw-side-gap, 14px);
-  align-items: start;
+  align-items: stretch;
+  align-content: stretch;
+  min-height: 0;
 }
 
 chess-widget .cw-eval {
@@ -255,6 +259,16 @@ chess-widget .cw-eval {
 
 chess-widget .cw-panel {
   grid-column: 1;
+  min-height: 0;
+}
+
+chess-widget .cw-panel:has(.cw-moves) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+chess-widget .cw-moves {
+  min-height: 0;
 }
 
 chess-widget .cw-controls {
@@ -280,7 +294,7 @@ chess-widget .cw-counter {
 
 chess-widget .cw-move-list {
   gap: var(--cw-move-list-gap, 4px);
-  max-height: var(--cw-move-list-max-height, 270px);
+  max-height: var(--cw-move-list-max-height, none);
   overflow: auto;
   padding-right: var(--cw-move-list-scroll-space, 4px);
 }
@@ -411,5 +425,14 @@ chess-widget .cw-live {
 
   chess-widget .cw-panel {
     grid-column: 1;
+  }
+
+  chess-widget .cw-panel:has(.cw-moves) {
+    display: grid;
+    grid-template-rows: auto auto;
+  }
+
+  chess-widget .cw-move-list {
+    max-height: var(--cw-move-list-max-height-small, 270px);
   }
 }
