@@ -94,7 +94,7 @@ chess-widget .cw-shell {
 }
 
 chess-widget .cw-shell-minimal {
-  width: fit-content;
+  width: var(--cw-board-max-width, 640px);
   max-width: 100%;
 }
 
