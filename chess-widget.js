@@ -632,7 +632,6 @@
       if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
       if (!this.hasAttribute("title")) this.setAttribute("title", "Keyboard: Arrow keys step through moves. Home goes to the first shown move. End goes to the last shown move.");
       this.setAttribute("aria-keyshortcuts", "ArrowLeft ArrowRight ArrowUp ArrowDown Home End");
-      this.classList.add("cw-widget");
       this.bindKeyboard();
       this.loadFromAttributes();
     }
@@ -678,9 +677,11 @@
           ply: this.currentPly,
           source: this.hasAttribute("src") ? this.getAttribute("src") : "inline",
         });
+        this.classList.add("cw-widget");
         this.render();
       } catch (error) {
         this.emitWidgetEvent("error", { error: error });
+        this.classList.add("cw-widget");
         this.renderError(error.message || "Unable to parse PGN.");
       }
     }
