@@ -10,7 +10,7 @@ No server, Stockfish, database, build step, or precomputed JSON is required.
 <link rel="stylesheet" href="./chess-widget.css">
 
 <chess-widget src="/assets/games/blitz-checkmate.pgn" eval-chart clocks>
-  <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+  <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
 </chess-widget>
 
 <script src="./chess-widget.js"></script>
@@ -39,6 +39,8 @@ Inline PGN also works:
 - `controls`: set `controls="false"` to hide previous and next controls.
 - `comments`: set `comments="false"` to hide the current move annotation.
 - `moves`: set `moves="false"` to hide the move list.
+- `move-badges`: show `??`, `?`, and `!!` badges on the moved piece. Set `move-badges="false"` to hide them.
+- `badge-blunder`, `badge-mistake`, `badge-brilliant`: override badge labels.
 - `minimal`: shortcut for board plus controls only.
 - `board-only`: shortcut for board only. Arrow keys still work when focused.
 
@@ -81,6 +83,7 @@ Common extension variables include:
 - `--cw-main-columns`, `--cw-main-gap`, `--cw-shell-gap`
 - `--cw-control-border`, `--cw-control-font-size`, `--cw-control-min-height`
 - `--cw-piece-padding`, `--cw-piece-arrive-animation`, `--cw-piece-spawn-animation`
+- `--cw-piece-badge-size`, `--cw-piece-badge-blunder`, `--cw-piece-badge-mistake`, `--cw-piece-badge-brilliant`
 - `--cw-chart-height`, `--cw-eval-width`, `--cw-move-list-max-height`
 
 ## Events

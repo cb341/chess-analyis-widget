@@ -146,7 +146,7 @@
 1-0</code></pre>
 
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="0" end="51" eval-chart clocks>
-        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
 
       <h2>Custom Styling</h2>
@@ -171,6 +171,9 @@
   --cw-control-min-height: 42px;
   --cw-piece-padding: 5%;
   --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
+  --cw-piece-badge-mistake: #ef476f;
+  --cw-piece-badge-brilliant: #06d6a0;
+  --cw-piece-badge-blunder: #3a0ca3;
   --cw-move-list-max-height: 220px;
 }
 
@@ -263,6 +266,9 @@ chess-widget.customized-widget piece.cw-piece-arrived {
           --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
           --cw-piece-spawn-animation: 1100ms cubic-bezier(0.16, 1, 0.3, 1);
           --cw-piece-transform-origin: 50% 50%;
+          --cw-piece-badge-mistake: #ef476f;
+          --cw-piece-badge-brilliant: #06d6a0;
+          --cw-piece-badge-blunder: #3a0ca3;
           --cw-move-list-max-height: 220px;
           --cw-chart-height: 110px;
           --cw-chart-radius: 14px;
@@ -459,8 +465,8 @@ chess-widget.customized-widget piece.cw-piece-arrived {
         }
       </style>
 
-      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks control-style="arrows">
-        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="40" eval-chart clocks control-style="arrows">
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
 
       <h2 id="js-openness">JS Openness</h2>
@@ -550,7 +556,7 @@ chess-widget.customized-widget piece.cw-piece-arrived {
       </style>
 
       <chess-widget class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal data-capture-bubble-text="yum">
-        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
 
       <script>
@@ -593,21 +599,21 @@ chess-widget.customized-widget piece.cw-piece-arrived {
       </p>
 
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="5" clocks>
-        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
 
       <div class="board-pair">
         <chess-widget src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="1" minimal>
-          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
         </chess-widget>
         <chess-widget src="./assets/games/blitz-checkmate.pgn" start="30" end="40" ply="30" orientation="black" minimal>
-          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
         </chess-widget>
       </div>
 
       <figure class="interactive-figure">
         <chess-widget src="./assets/games/blitz-checkmate.pgn" start="16" end="24" ply="16" minimal>
-          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
         </chess-widget>
         <figcaption>
           Interactive figure: step through the central break without player
@@ -617,7 +623,7 @@ chess-widget.customized-widget piece.cw-piece-arrived {
 
       <figure class="interactive-figure board-only-example">
         <chess-widget src="./assets/games/blitz-checkmate.pgn" start="22" end="30" ply="22" board-only>
-          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
         </chess-widget>
         <figcaption>
           Board-only figure: focus the board and use the arrow keys to replay
@@ -632,7 +638,7 @@ chess-widget.customized-widget piece.cw-piece-arrived {
       </p>
 
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="30" end="44" ply="40" orientation="black" clocks>
-        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
 
       <p>
@@ -641,7 +647,7 @@ chess-widget.customized-widget piece.cw-piece-arrived {
       </p>
 
       <chess-widget src="./assets/games/blitz-checkmate.pgn" start="48" end="51" eval-chart>
-        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
     </main>
     <script src="./chess-widget.js"></script>

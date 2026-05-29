@@ -326,6 +326,37 @@ async function testCaptureAnnotationClass() {
   assert.ok(annotation.className.includes("cw-annotation-capture"));
 }
 
+async function testMoveBadgesForKeyGlyphs() {
+  const pgn = `
+[White "Badges"]
+[Black "Tester"]
+
+1. e4?? e5? 2. Nf3!!
+`;
+  const widget = await loadPgn(pgn, {
+    "badge-blunder": "B",
+    "badge-mistake": "M",
+    "badge-brilliant": "*",
+  });
+  const blunderBadge = widget.renderMoveBadge(widget.game.positions[1]);
+  assert.equal(blunderBadge.className, "cw-piece-badge cw-piece-badge-blunder");
+  assert.equal(blunderBadge.children[0].textContent, "B");
+  assert.equal(blunderBadge.attributes["data-badge"], "blunder");
+  assert.equal(blunderBadge.attributes["aria-label"], "Blunder");
+  assert.equal(blunderBadge.style["--cw-transform"], widget.squareTransform("e4"));
+
+  const mistakeBadge = widget.renderMoveBadge(widget.game.positions[2]);
+  assert.equal(mistakeBadge.className, "cw-piece-badge cw-piece-badge-mistake");
+  assert.equal(mistakeBadge.children[0].textContent, "M");
+
+  const brilliantBadge = widget.renderMoveBadge(widget.game.positions[3]);
+  assert.equal(brilliantBadge.className, "cw-piece-badge cw-piece-badge-brilliant");
+  assert.equal(brilliantBadge.children[0].textContent, "*");
+
+  widget.setAttribute("move-badges", "false");
+  assert.equal(widget.renderMoveBadge(widget.game.positions[1]), null);
+}
+
 async function testSeekAnimationMovesMatchedPieces() {
   const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
   widget.currentPly = 0;
@@ -458,6 +489,7 @@ async function run() {
   await testFalseFeatureAttributesHideFeatures();
   await testMoveAnimationState();
   await testCaptureAnnotationClass();
+  await testMoveBadgesForKeyGlyphs();
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
   await testArrowControlLabels();

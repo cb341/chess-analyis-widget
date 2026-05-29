@@ -353,6 +353,14 @@
     return { $1: "!", $2: "?", $3: "!!", $4: "??", $5: "!?", $6: "?!" }[raw] || "";
   }
 
+  function badgeForGlyph(glyph) {
+    return {
+      "??": { kind: "blunder", label: "??", title: "Blunder" },
+      "?": { kind: "mistake", label: "?", title: "Mistake" },
+      "!!": { kind: "brilliant", label: "!!", title: "Brilliant move" },
+    }[glyph || ""] || null;
+  }
+
   function parseComment(comment) {
     var evalValue = null;
     var clock = null;
@@ -879,11 +887,31 @@
         node.appendChild(this.renderPieceImage(piece));
         board.appendChild(node);
       });
+      var badge = this.renderMoveBadge(position);
+      if (badge) board.appendChild(badge);
       container.appendChild(board);
       container.appendChild(this.renderCoordinates("ranks", ranks));
       container.appendChild(this.renderCoordinates("files", files));
       wrap.appendChild(container);
       return wrap;
+    }
+
+    renderMoveBadge(position) {
+      if (!hasBooleanAttr(this, "move-badges", true)) return null;
+      var badge = badgeForGlyph(position && position.glyph);
+      var lastMove = (position && position.last_move) || {};
+      if (!badge || !lastMove.to) return null;
+
+      var node = document.createElement("move-marker");
+      node.className = "cw-piece-badge cw-piece-badge-" + badge.kind;
+      node.title = badge.title;
+      node.setAttribute("aria-label", badge.title);
+      node.setAttribute("data-badge", badge.kind);
+      node.style.setProperty("--cw-transform", this.squareTransform(lastMove.to));
+      var label = document.createElement("span");
+      label.textContent = this.getAttribute("badge-" + badge.kind) || badge.label;
+      node.appendChild(label);
+      return node;
     }
 
     renderBoardSquare(squareName, className) {

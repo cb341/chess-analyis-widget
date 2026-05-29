@@ -155,6 +155,10 @@ chess-widget move-marker {
   pointer-events: none;
 }
 
+chess-widget .cw-piece-badge {
+  transform: var(--cw-transform);
+}
+
 chess-widget coords {
   position: absolute;
   z-index: 4;
