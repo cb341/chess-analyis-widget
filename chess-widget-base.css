@@ -20,7 +20,8 @@ chess-widget:not(.cw-widget) {
 chess-widget:not(.cw-widget)::before {
   content: "";
   display: block;
-  width: min(100%, var(--cw-board-max-width, 640px));
+  width: var(--cw-board-max-width, 640px);
+  max-width: 100%;
   aspect-ratio: 1 / 1;
   border: var(--cw-board-border, 1px solid var(--cw-line, #c7c7c7));
   background:
@@ -32,7 +33,8 @@ chess-widget:not(.cw-widget)::before {
 }
 
 chess-widget:not(.cw-widget):not([minimal]):not([board-only])::before {
-  width: min(100%, var(--cw-placeholder-board-width, 520px));
+  width: var(--cw-placeholder-board-width, 520px);
+  max-width: 100%;
 }
 
 chess-widget:not(.cw-widget):not([minimal]):not([board-only]) {
@@ -57,7 +59,7 @@ chess-widget:not(.cw-widget):not([minimal]):not([board-only])::after {
 
 chess-widget:not(.cw-widget)[minimal],
 chess-widget:not(.cw-widget)[board-only] {
-  width: fit-content;
+  width: var(--cw-board-max-width, 640px);
   max-width: 100%;
 }
 
