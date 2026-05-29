@@ -88,7 +88,11 @@
       .board-only-example {
         max-width: 420px;
       }
+      }
+    </style>
 
+    <style>
+      @layer demo {
       .customized-widget {
         margin: 34px 0 48px;
         padding: 18px;
@@ -306,6 +310,34 @@
         animation-name: customized-piece-spin;
       }
 
+      @keyframes customized-piece-spin {
+        0% {
+          transform: var(--cw-from-transform) rotate(0deg) scale(0.92);
+        }
+
+        70% {
+          transform: var(--cw-transform) rotate(360deg) scale(1.08);
+        }
+
+        100% {
+          transform: var(--cw-transform) rotate(360deg) scale(1);
+        }
+      }
+
+      @keyframes customized-caption-capture {
+        0% {
+          transform: rotateY(0deg);
+        }
+
+        100% {
+          transform: rotateY(360deg);
+        }
+      }
+      }
+    </style>
+
+    <style>
+      @layer demo {
       .js-openness-widget {
         max-width: 760px;
         margin: 26px auto 42px;
@@ -346,30 +378,6 @@
         border-bottom: 2px solid #13293d;
         background: #f9c74f;
         transform: rotate(45deg);
-      }
-
-      @keyframes customized-piece-spin {
-        0% {
-          transform: var(--cw-from-transform) rotate(0deg) scale(0.92);
-        }
-
-        70% {
-          transform: var(--cw-transform) rotate(360deg) scale(1.08);
-        }
-
-        100% {
-          transform: var(--cw-transform) rotate(360deg) scale(1);
-        }
-      }
-
-      @keyframes customized-caption-capture {
-        0% {
-          transform: rotateY(0deg);
-        }
-
-        100% {
-          transform: rotateY(360deg);
-        }
       }
 
       @keyframes js-openness-capture-bubble {
