@@ -4,8 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chess Widget Demo</title>
-    <link rel="stylesheet" href="./chess-widget.css">
     <style>
+      @layer chess-widget, demo;
+
+      @import url("./chess-widget.css") layer(chess-widget);
+
+      @layer demo {
       body {
         margin: 0;
         color: #222;
@@ -163,73 +167,89 @@
       }
 
       .customized-widget .cw-move-list {
-        gap: 10px;
+        gap: 12px;
         max-height: 240px;
-        padding: 2px 4px 2px 0;
+        padding: 6px 8px 6px 0;
+        counter-reset: styled-move;
       }
 
       .customized-widget .cw-move-row {
-        grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr);
-        gap: 8px;
+        grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0;
         align-items: stretch;
+        position: relative;
       }
 
       .customized-widget .cw-move-number {
         display: grid;
         place-items: center;
-        border-right: 3px solid #fe7f2d;
-        color: #33658a;
-        font-weight: 800;
+        width: 26px;
+        height: 26px;
+        align-self: center;
+        border: 2px solid #13293d;
+        border-radius: 50%;
+        background: #fff7e6;
+        color: #13293d;
+        font-size: 11px;
+        font-weight: 900;
+        box-shadow: 3px 3px 0 #fe7f2d;
+      }
+
+      .customized-widget .cw-move-row::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 0;
+        left: 34px;
+        height: 3px;
+        background: #13293d;
+        transform: translateY(-50%);
       }
 
       .customized-widget .cw-move {
+        position: relative;
         min-height: 34px;
-        border: 0;
-        border-radius: 999px;
-        background: #fddf9a;
-        padding: 7px 12px;
+        margin-left: 8px;
+        border: 2px solid #13293d;
+        border-radius: 10px;
+        background: #fff7e6;
+        padding: 7px 14px;
         color: #13293d;
         font-weight: 700;
-        box-shadow: inset 0 0 0 1px rgba(19, 41, 61, 0.18);
+        clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
+        box-shadow: 4px 4px 0 rgba(19, 41, 61, 0.2);
       }
 
       .customized-widget .cw-move:hover {
-        background: #fecc7a;
+        background: #fddf9a;
+        transform: translateY(-1px);
       }
 
       .customized-widget .cw-active-move {
         background: #c9f299;
+        transform: translateY(-2px);
         box-shadow:
-          inset 0 0 0 2px #13293d,
-          0 4px 0 rgba(19, 41, 61, 0.24);
+          0 0 0 3px #fff7e6,
+          5px 5px 0 #fe7f2d;
       }
 
-      .customized-widget .cw-capture-bubble {
-        display: grid;
-        place-items: center;
-        width: auto;
-        height: auto;
-        min-width: 42px;
-        min-height: 28px;
-        padding: 4px 10px;
-        border: 2px solid #13293d;
-        border-radius: 999px 999px 999px 4px;
-        background: #c9f299;
-        color: #13293d;
-        font: 900 13px/1 Inter, ui-sans-serif, system-ui, sans-serif;
-        box-shadow: 0 5px 0 rgba(19, 41, 61, 0.24);
-        transform: var(--cw-transform) translate(54%, -26%);
-        animation: customized-capture-bubble 900ms cubic-bezier(0.2, 1.4, 0.2, 1);
+      .customized-widget .cw-eval {
+        background: #13293d;
+        border: 3px solid #13293d;
+      }
+
+      .customized-widget .cw-eval-black {
+        background: linear-gradient(180deg, #13293d 0%, #33658a 100%);
+      }
+
+      .customized-widget .cw-eval-white {
+        background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 100%);
+        border-top: 2px solid rgba(19, 41, 61, 0.42);
       }
 
       .customized-widget .cw-chart svg {
-        background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 50%, #233d4d 100%);
+        background: #fff7e6;
         border: 2px solid #13293d;
-      }
-
-      .customized-widget .cw-chart-white,
-      .customized-widget .cw-chart-black {
-        fill: transparent;
       }
 
       .customized-widget .cw-chart-zero {
@@ -286,6 +306,48 @@
         animation-name: customized-piece-spin;
       }
 
+      .js-openness-widget {
+        max-width: 760px;
+        margin: 26px auto 42px;
+      }
+
+      chess-widget.js-openness-widget .cw-capture-bubble {
+        transform: var(--cw-transform);
+      }
+
+      chess-widget.js-openness-widget .cw-capture-bubble::before {
+        content: attr(data-label);
+        position: absolute;
+        right: -22px;
+        bottom: 82%;
+        display: grid;
+        place-items: center;
+        min-width: 48px;
+        min-height: 32px;
+        padding: 6px 12px;
+        border: 2px solid #13293d;
+        border-radius: 16px 16px 16px 3px;
+        background: #f9c74f;
+        color: #13293d;
+        font: 900 14px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+        box-shadow: 0 6px 0 rgba(19, 41, 61, 0.24);
+        animation: js-openness-capture-bubble 900ms cubic-bezier(0.2, 1.4, 0.2, 1);
+        animation-fill-mode: both;
+      }
+
+      chess-widget.js-openness-widget .cw-capture-bubble::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        bottom: 78%;
+        width: 12px;
+        height: 12px;
+        border-right: 2px solid #13293d;
+        border-bottom: 2px solid #13293d;
+        background: #f9c74f;
+        transform: rotate(45deg);
+      }
+
       @keyframes customized-piece-spin {
         0% {
           transform: var(--cw-from-transform) rotate(0deg) scale(0.92);
@@ -310,20 +372,20 @@
         }
       }
 
-      @keyframes customized-capture-bubble {
+      @keyframes js-openness-capture-bubble {
         0% {
           opacity: 0;
-          transform: var(--cw-transform) translate(28%, -6%) scale(0.5);
+          transform: translate(-12px, 14px) scale(0.5);
         }
 
         45% {
           opacity: 1;
-          transform: var(--cw-transform) translate(62%, -34%) scale(1.16);
+          transform: translate(4px, -4px) scale(1.16);
         }
 
         100% {
           opacity: 1;
-          transform: var(--cw-transform) translate(54%, -26%) scale(1);
+          transform: translate(0, 0) scale(1);
         }
       }
 
@@ -332,6 +394,7 @@
         .feature-list {
           grid-template-columns: 1fr;
         }
+      }
       }
     </style>
   </head>
@@ -409,15 +472,45 @@ chess-widget.customized-widget .cw-annotation-capture {
   animation: customized-caption-capture 900ms cubic-bezier(0.2, 1, 0.3, 1);
 }
 
+chess-widget.customized-widget .cw-move-row {
+  grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0;
+  position: relative;
+}
+
+chess-widget.customized-widget .cw-move-row::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 34px;
+  height: 3px;
+  background: #13293d;
+}
+
+chess-widget.customized-widget .cw-move-number {
+  display: grid;
+  place-items: center;
+  border: 2px solid #13293d;
+  border-radius: 50%;
+  background: #fff7e6;
+  box-shadow: 3px 3px 0 #fe7f2d;
+}
+
 chess-widget.customized-widget .cw-move {
-  border: 0;
-  border-radius: 999px;
-  background: #dff7f3;
+  border: 2px solid #13293d;
+  border-radius: 10px;
+  background: #fff7e6;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
   font-weight: 700;
 }
 
-chess-widget.customized-widget .cw-chart svg {
-  background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 50%, #233d4d 100%);
+chess-widget.customized-widget .cw-eval-black {
+  background: linear-gradient(180deg, #13293d 0%, #33658a 100%);
+}
+
+chess-widget.customized-widget .cw-eval-white {
+  background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 100%);
 }
 
 chess-widget.customized-widget .cw-button {
@@ -430,15 +523,28 @@ chess-widget.customized-widget .cw-button {
 
 chess-widget.customized-widget piece.cw-piece-arrived {
   animation-name: customized-piece-spin;
-}
-
-chess-widget.customized-widget .cw-capture-bubble {
-  border-radius: 999px 999px 999px 4px;
-  background: #c9f299;
-  content: "yum";
 }</code></pre>
 
-      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks control-style="arrows" capture-bubble-text="yum">
+      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks control-style="arrows">
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
+      </chess-widget>
+
+      <h2 id="js-openness">JS Openness</h2>
+      <p>
+        The widget exposes small DOM hooks for page-specific behavior. This
+        example opts into a capture bubble by setting `capture-bubble-text`.
+      </p>
+
+      <pre class="pgn-sample"><code>&lt;chess-widget class="js-openness-widget"
+  src="./assets/games/blitz-checkmate.pgn"
+  start="36"
+  end="44"
+  ply="39"
+  minimal
+  capture-bubble-text="yum"&gt;
+&lt;/chess-widget&gt;</code></pre>
+
+      <chess-widget class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal capture-bubble-text="yum">
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
 

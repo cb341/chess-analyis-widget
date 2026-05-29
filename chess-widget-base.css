@@ -151,6 +151,7 @@ chess-widget piece img {
 chess-widget .cw-capture-bubble {
   z-index: 6;
   pointer-events: none;
+  transform: var(--cw-transform);
 }
 
 chess-widget move-marker {
