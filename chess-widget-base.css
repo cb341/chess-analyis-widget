@@ -176,7 +176,7 @@ chess-widget cg-board {
 }
 
 chess-widget cg-board {
-  overflow: hidden;
+  overflow: visible;
 }
 
 chess-widget square,

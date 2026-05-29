@@ -395,7 +395,8 @@ chess-widget .cw-piece-badge {
   display: grid;
   place-items: start end;
   z-index: var(--cw-piece-badge-z-index, 8);
-  padding: var(--cw-piece-badge-offset, 1% 2% 0 0);
+  overflow: visible;
+  padding: 0;
   color: var(--cw-piece-badge-color, var(--cw-piece-badge-background));
   font-family:
     ui-sans-serif,
@@ -428,6 +429,10 @@ chess-widget .cw-piece-badge {
 chess-widget .cw-piece-badge span {
   display: block;
   text-align: center;
+  transform: translate(
+    var(--cw-piece-badge-shift-x, 38%),
+    var(--cw-piece-badge-shift-y, -58%)
+  );
 }
 
 chess-widget .cw-piece-badge-blunder {
