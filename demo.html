@@ -159,6 +159,7 @@
   --cw-highlight: #c9f299;
   --cw-shell-border: 0;
   --cw-board-border: 4px solid #13293d;
+  --cw-board-radius: 18px;
   --cw-control-min-height: 42px;
   --cw-piece-padding: 5%;
   --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -246,6 +247,7 @@ chess-widget.customized-widget piece.cw-piece-arrived {
           --cw-shell-padding: 26px;
           --cw-shell-border: 0;
           --cw-board-border: 4px solid #13293d;
+          --cw-board-radius: 18px;
           --cw-square-border: 1px solid rgba(19, 41, 61, 0.28);
           --cw-control-border: 2px solid #13293d;
           --cw-control-font-size: 12px;
@@ -269,11 +271,13 @@ chess-widget.customized-widget piece.cw-piece-arrived {
         }
 
         .customized-widget .cw-board {
-          border-radius: 14px;
+          border-radius: var(--cw-board-radius);
+          overflow: hidden;
         }
 
         .customized-widget cg-board {
-          border-radius: 10px;
+          border-radius: calc(var(--cw-board-radius) - 4px);
+          overflow: hidden;
         }
 
         .customized-widget .cw-annotation {
