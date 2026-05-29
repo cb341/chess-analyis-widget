@@ -15,5 +15,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - run: node --check chess-pgn.js
       - run: node --check chess-widget.js
       - run: node tests.js

@@ -108,6 +108,7 @@ global.CustomEvent = class {
 
 global.window = {};
 
+eval(fs.readFileSync("chess-pgn.js", "utf8"));
 eval(fs.readFileSync("chess-widget.js", "utf8"));
 
 const ChessWidget = registry["chess-widget"];

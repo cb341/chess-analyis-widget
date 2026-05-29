@@ -13,6 +13,7 @@ No server, Stockfish, database, build step, or precomputed JSON is required.
   <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
 </chess-widget>
 
+<script src="./chess-pgn.js"></script>
 <script src="./chess-widget.js"></script>
 ```
 
@@ -107,6 +108,7 @@ document.querySelector("chess-widget").addEventListener("chess-widget:move", (ev
 For non-DOM integration, the parser is also exposed as:
 
 ```js
+const parsed = window.ChessPgn.parse(pgn);
 const game = customElements.get("chess-widget").parsePgn(pgn);
 ```
 
