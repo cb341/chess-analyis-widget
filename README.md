@@ -52,7 +52,7 @@ The widget supports previous, next, move-list seeking, and arrow-key navigation 
 
 ## Assets
 
-The bundled defaults are the cburnett SVG set and the sound files in `assets/sounds/`. You can override them per widget:
+The bundled defaults are the cburnett SVG set and selected Lichess standard sounds in `assets/sounds/standard/`. You can override them per widget:
 
 ```html
 <chess-widget

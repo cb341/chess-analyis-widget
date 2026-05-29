@@ -492,21 +492,21 @@ async function testMoveSoundsUseAnnotationsAndOverrides() {
   });
 
   widget.goTo(1);
-  assert.ok(lastSource().endsWith("/assets/sounds/blunder.wav"));
+  assert.ok(lastSource().endsWith("/assets/sounds/standard/Error.mp3"));
   widget.goTo(2);
-  assert.ok(lastSource().endsWith("/assets/sounds/mistake.wav"));
+  assert.ok(lastSource().endsWith("/assets/sounds/standard/Error.mp3"));
   widget.goTo(3);
   assert.equal(lastSource(), "https://example.test/pages/custom/brilliant.wav");
   widget.goTo(5);
-  assert.ok(lastSource().endsWith("/assets/sounds/good.wav"));
+  assert.ok(lastSource().endsWith("/assets/sounds/standard/Select.mp3"));
   const soundCount = played.filter(([kind]) => kind === "new").length;
   widget.removeAttribute("sound");
   widget.goTo(6);
   assert.equal(played.filter(([kind]) => kind === "new").length, soundCount);
-  assert.ok(lastSource().endsWith("/assets/sounds/good.wav"));
+  assert.ok(lastSource().endsWith("/assets/sounds/standard/Select.mp3"));
   widget.setAttribute("sound", "");
   widget.goTo(7);
-  assert.ok(lastSource().endsWith("/assets/sounds/capture.wav"));
+  assert.ok(lastSource().endsWith("/assets/sounds/standard/Capture.mp3"));
 
   delete global.window.Audio;
 }

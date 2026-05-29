@@ -20,15 +20,15 @@
   };
   var DEFAULT_PIECE_IMAGE_PATH = "./assets/pieces/cburnett/";
   var DEFAULT_SOUNDS = {
-    move: "./assets/sounds/move.mp3",
-    castle: "./assets/sounds/castle.wav",
-    capture: "./assets/sounds/capture.wav",
-    check: "./assets/sounds/check.mp3",
-    checkmate: "./assets/sounds/checkmate.mp3",
-    blunder: "./assets/sounds/blunder.wav",
-    mistake: "./assets/sounds/mistake.wav",
-    brilliant: "./assets/sounds/brilliant.wav",
-    good: "./assets/sounds/good.wav",
+    move: "./assets/sounds/standard/Move.mp3",
+    castle: "./assets/sounds/standard/Move.mp3",
+    capture: "./assets/sounds/standard/Capture.mp3",
+    check: "./assets/sounds/standard/GenericNotify.mp3",
+    checkmate: "./assets/sounds/standard/Confirmation.mp3",
+    blunder: "./assets/sounds/standard/Error.mp3",
+    mistake: "./assets/sounds/standard/Error.mp3",
+    brilliant: "./assets/sounds/standard/GenericNotify.mp3",
+    good: "./assets/sounds/standard/Select.mp3",
   };
   var PIECE_ATTRS = {
     K: "piece-white-king",
