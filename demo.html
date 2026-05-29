@@ -4,12 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chess Widget Demo</title>
+    <link rel="stylesheet" href="./chess-widget.css">
     <style>
-      @layer chess-widget, demo;
-
-      @import url("./chess-widget.css") layer(chess-widget);
-
-      @layer demo {
       body {
         margin: 0;
         color: #222;
@@ -99,17 +95,12 @@
       .board-only-example {
         max-width: 420px;
       }
-      }
-    </style>
 
-    <style>
-      @layer demo {
       @media (max-width: 860px) {
         .board-pair,
         .feature-list {
           grid-template-columns: 1fr;
         }
-      }
       }
     </style>
   </head>
@@ -230,7 +221,6 @@ chess-widget.customized-widget piece.cw-piece-arrived {
 }</code></pre>
 
       <style>
-        @layer demo {
         .customized-widget {
           margin: 34px 0 48px;
           padding: 18px;
@@ -462,7 +452,6 @@ chess-widget.customized-widget piece.cw-piece-arrived {
             transform: rotateY(360deg);
           }
         }
-        }
       </style>
 
       <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="40" eval-chart clocks control-style="arrows">
@@ -486,7 +475,6 @@ chess-widget.customized-widget piece.cw-piece-arrived {
 &lt;/chess-widget&gt;</code></pre>
 
       <style>
-        @layer demo {
         .js-openness-widget {
           max-width: 760px;
           margin: 26px auto 42px;
@@ -551,7 +539,6 @@ chess-widget.customized-widget piece.cw-piece-arrived {
             opacity: 1;
             transform: translate(0, 0) scale(1);
           }
-        }
         }
       </style>
 
