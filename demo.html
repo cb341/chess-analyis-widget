@@ -104,305 +104,6 @@
 
     <style>
       @layer demo {
-      .customized-widget {
-        margin: 34px 0 48px;
-        padding: 18px;
-        border-radius: 22px;
-        background: #233d4d;
-        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-        --cw-paper: #fff7e6;
-        --cw-paper-deep: #fddf9a;
-        --cw-ink: #13293d;
-        --cw-muted: #59656f;
-        --cw-line: #13293d;
-        --cw-light-square: #fff4d6;
-        --cw-dark-hatch: #fe7f2d;
-        --cw-highlight: #c9f299;
-        --cw-good: #619b8a;
-        --cw-brilliant: #33658a;
-        --cw-main-columns: minmax(280px, 430px) minmax(260px, 1fr);
-        --cw-main-gap: 36px;
-        --cw-shell-gap: 26px;
-        --cw-board-panel-gap: 18px;
-        --cw-side-gap: 22px;
-        --cw-board-max-width: 430px;
-        --cw-shell-padding: 26px;
-        --cw-shell-border: 0;
-        --cw-board-border: 4px solid #13293d;
-        --cw-square-border: 1px solid rgba(19, 41, 61, 0.28);
-        --cw-control-border: 2px solid #13293d;
-        --cw-control-font-size: 12px;
-        --cw-control-min-height: 42px;
-        --cw-control-gap: 12px;
-        --cw-move-padding: 8px 10px;
-        --cw-piece-padding: 5%;
-        --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
-        --cw-piece-spawn-animation: 1100ms cubic-bezier(0.16, 1, 0.3, 1);
-        --cw-piece-transform-origin: 50% 50%;
-        --cw-move-list-max-height: 220px;
-        --cw-chart-height: 110px;
-        --cw-chart-radius: 14px;
-      }
-
-      .customized-widget .cw-shell {
-        border-radius: 16px;
-      }
-
-      .customized-widget .cw-board {
-        border-radius: 14px;
-      }
-
-      .customized-widget cg-board {
-        border-radius: 10px;
-      }
-
-      .customized-widget .cw-annotation {
-        justify-self: center;
-        max-width: min(430px, 100%);
-        min-height: 0;
-        border-left: 0;
-        background: transparent;
-        box-shadow: none;
-        padding: 0 10px;
-        text-align: center;
-      }
-
-      .customized-widget .cw-annotation strong {
-        display: block;
-        margin-bottom: 4px;
-      }
-
-      .customized-widget .cw-annotation span {
-        display: block;
-      }
-
-      .customized-widget .cw-annotation-capture {
-        animation: customized-caption-capture 900ms cubic-bezier(0.2, 1, 0.3, 1);
-        transform-origin: 50% 50%;
-      }
-
-      .customized-widget .cw-move-list {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 9px;
-        max-height: 240px;
-        padding: 6px 8px 6px 0;
-        counter-reset: styled-move;
-      }
-
-      .customized-widget .cw-move-row {
-        display: contents;
-      }
-
-      .customized-widget .cw-move-number {
-        display: inline-grid;
-        place-items: center;
-        min-width: 28px;
-        min-height: 26px;
-        padding: 0 7px;
-        border: 2px solid #13293d;
-        border-radius: 999px;
-        background: #fff7e6;
-        color: #13293d;
-        font-size: 11px;
-        font-weight: 900;
-        box-shadow: 3px 3px 0 #fe7f2d;
-      }
-
-      .customized-widget .cw-move {
-        position: relative;
-        flex: 0 0 auto;
-        min-height: 32px;
-        border: 2px solid #13293d;
-        border-radius: 999px;
-        background: #fff7e6;
-        padding: 6px 15px;
-        color: #13293d;
-        font-weight: 700;
-        box-shadow: 4px 4px 0 rgba(19, 41, 61, 0.2);
-      }
-
-      .customized-widget .cw-move:hover {
-        background: #fddf9a;
-        transform: translateY(-1px);
-      }
-
-      .customized-widget .cw-active-move {
-        background: #c9f299;
-        transform: translateY(-2px);
-        box-shadow:
-          0 0 0 3px #fff7e6,
-          5px 5px 0 #fe7f2d;
-      }
-
-      .customized-widget .cw-eval {
-        background: #13293d;
-        border: 3px solid #13293d;
-      }
-
-      .customized-widget .cw-eval-black {
-        background: linear-gradient(180deg, #13293d 0%, #33658a 100%);
-      }
-
-      .customized-widget .cw-eval-white {
-        background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 100%);
-        border-top: 2px solid rgba(19, 41, 61, 0.42);
-      }
-
-      .customized-widget .cw-chart svg {
-        background: #fff7e6;
-        border: 2px solid #13293d;
-      }
-
-      .customized-widget .cw-chart-zero {
-        stroke: rgba(19, 41, 61, 0.42);
-        stroke-dasharray: 5 4;
-      }
-
-      .customized-widget .cw-chart-line,
-      .customized-widget .cw-chart-current {
-        stroke: #13293d;
-        stroke-width: 4;
-      }
-
-      .customized-widget .cw-controls {
-        align-items: stretch;
-      }
-
-      .customized-widget .cw-button {
-        border: 0;
-        border-radius: 14px;
-        background: #13293d;
-        color: #fff7e6;
-        font-weight: 900;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        box-shadow: 0 5px 0 #0b1724;
-      }
-
-      .customized-widget .cw-button:hover:not(:disabled) {
-        background: #33658a;
-      }
-
-      .customized-widget .cw-button:active:not(:disabled) {
-        transform: translateY(3px);
-        box-shadow: 0 2px 0 #0b1724;
-      }
-
-      .customized-widget .cw-button:disabled {
-        background: #9ca3af;
-        color: #475569;
-        box-shadow: none;
-      }
-
-      .customized-widget .cw-counter {
-        display: grid;
-        place-items: center;
-        border-radius: 999px;
-        background: #fff7e6;
-        color: #13293d;
-        font-weight: 900;
-      }
-
-      .customized-widget piece.cw-piece-arrived {
-        animation-name: customized-piece-spin;
-      }
-
-      @keyframes customized-piece-spin {
-        0% {
-          transform: var(--cw-from-transform) rotate(0deg) scale(0.92);
-        }
-
-        70% {
-          transform: var(--cw-transform) rotate(360deg) scale(1.08);
-        }
-
-        100% {
-          transform: var(--cw-transform) rotate(360deg) scale(1);
-        }
-      }
-
-      @keyframes customized-caption-capture {
-        0% {
-          transform: rotateY(0deg);
-        }
-
-        100% {
-          transform: rotateY(360deg);
-        }
-      }
-      }
-    </style>
-
-    <style>
-      @layer demo {
-      .js-openness-widget {
-        max-width: 760px;
-        margin: 26px auto 42px;
-      }
-
-      chess-widget.js-openness-widget .cw-capture-bubble {
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 6;
-        width: 12.5%;
-        height: 12.5%;
-        pointer-events: none;
-        transform: var(--cw-transform);
-      }
-
-      chess-widget.js-openness-widget .cw-capture-bubble::before {
-        content: attr(data-label);
-        position: absolute;
-        right: -22px;
-        bottom: 82%;
-        display: grid;
-        place-items: center;
-        min-width: 48px;
-        min-height: 32px;
-        padding: 6px 12px;
-        border: 2px solid #13293d;
-        border-radius: 16px 16px 16px 3px;
-        background: #f9c74f;
-        color: #13293d;
-        font: 900 14px/1 Inter, ui-sans-serif, system-ui, sans-serif;
-        box-shadow: 0 6px 0 rgba(19, 41, 61, 0.24);
-        animation: js-openness-capture-bubble 900ms cubic-bezier(0.2, 1.4, 0.2, 1);
-        animation-fill-mode: both;
-      }
-
-      chess-widget.js-openness-widget .cw-capture-bubble::after {
-        content: "";
-        position: absolute;
-        right: 18px;
-        bottom: 78%;
-        width: 12px;
-        height: 12px;
-        border-right: 2px solid #13293d;
-        border-bottom: 2px solid #13293d;
-        background: #f9c74f;
-        transform: rotate(45deg);
-      }
-
-      @keyframes js-openness-capture-bubble {
-        0% {
-          opacity: 0;
-          transform: translate(-12px, 14px) scale(0.5);
-        }
-
-        45% {
-          opacity: 1;
-          transform: translate(4px, -4px) scale(1.16);
-        }
-
-        100% {
-          opacity: 1;
-          transform: translate(0, 0) scale(1);
-        }
-      }
-
       @media (max-width: 860px) {
         .board-pair,
         .feature-list {
@@ -525,6 +226,239 @@ chess-widget.customized-widget piece.cw-piece-arrived {
   animation-name: customized-piece-spin;
 }</code></pre>
 
+      <style>
+        @layer demo {
+        .customized-widget {
+          margin: 34px 0 48px;
+          padding: 18px;
+          border-radius: 22px;
+          background: #233d4d;
+          font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+          --cw-paper: #fff7e6;
+          --cw-paper-deep: #fddf9a;
+          --cw-ink: #13293d;
+          --cw-muted: #59656f;
+          --cw-line: #13293d;
+          --cw-light-square: #fff4d6;
+          --cw-dark-hatch: #fe7f2d;
+          --cw-highlight: #c9f299;
+          --cw-good: #619b8a;
+          --cw-brilliant: #33658a;
+          --cw-main-columns: minmax(280px, 430px) minmax(260px, 1fr);
+          --cw-main-gap: 36px;
+          --cw-shell-gap: 26px;
+          --cw-board-panel-gap: 18px;
+          --cw-side-gap: 22px;
+          --cw-board-max-width: 430px;
+          --cw-shell-padding: 26px;
+          --cw-shell-border: 0;
+          --cw-board-border: 4px solid #13293d;
+          --cw-square-border: 1px solid rgba(19, 41, 61, 0.28);
+          --cw-control-border: 2px solid #13293d;
+          --cw-control-font-size: 12px;
+          --cw-control-min-height: 42px;
+          --cw-control-gap: 12px;
+          --cw-move-padding: 8px 10px;
+          --cw-piece-padding: 5%;
+          --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
+          --cw-piece-spawn-animation: 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+          --cw-piece-transform-origin: 50% 50%;
+          --cw-move-list-max-height: 220px;
+          --cw-chart-height: 110px;
+          --cw-chart-radius: 14px;
+        }
+
+        .customized-widget .cw-shell {
+          border-radius: 16px;
+        }
+
+        .customized-widget .cw-board {
+          border-radius: 14px;
+        }
+
+        .customized-widget cg-board {
+          border-radius: 10px;
+        }
+
+        .customized-widget .cw-annotation {
+          justify-self: center;
+          max-width: min(430px, 100%);
+          min-height: 0;
+          border-left: 0;
+          background: transparent;
+          box-shadow: none;
+          padding: 0 10px;
+          text-align: center;
+        }
+
+        .customized-widget .cw-annotation strong {
+          display: block;
+          margin-bottom: 4px;
+        }
+
+        .customized-widget .cw-annotation span {
+          display: block;
+        }
+
+        .customized-widget .cw-annotation-capture {
+          animation: customized-caption-capture 900ms cubic-bezier(0.2, 1, 0.3, 1);
+          transform-origin: 50% 50%;
+        }
+
+        .customized-widget .cw-move-list {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 9px;
+          max-height: 240px;
+          padding: 6px 8px 6px 0;
+          counter-reset: styled-move;
+        }
+
+        .customized-widget .cw-move-row {
+          display: contents;
+        }
+
+        .customized-widget .cw-move-number {
+          display: inline-grid;
+          place-items: center;
+          min-width: 28px;
+          min-height: 26px;
+          padding: 0 7px;
+          border: 2px solid #13293d;
+          border-radius: 999px;
+          background: #fff7e6;
+          color: #13293d;
+          font-size: 11px;
+          font-weight: 900;
+          box-shadow: 3px 3px 0 #fe7f2d;
+        }
+
+        .customized-widget .cw-move {
+          position: relative;
+          flex: 0 0 auto;
+          min-height: 32px;
+          border: 2px solid #13293d;
+          border-radius: 999px;
+          background: #fff7e6;
+          padding: 6px 15px;
+          color: #13293d;
+          font-weight: 700;
+          box-shadow: 4px 4px 0 rgba(19, 41, 61, 0.2);
+        }
+
+        .customized-widget .cw-move:hover {
+          background: #fddf9a;
+          transform: translateY(-1px);
+        }
+
+        .customized-widget .cw-active-move {
+          background: #c9f299;
+          transform: translateY(-2px);
+          box-shadow:
+            0 0 0 3px #fff7e6,
+            5px 5px 0 #fe7f2d;
+        }
+
+        .customized-widget .cw-eval {
+          background: #13293d;
+          border: 3px solid #13293d;
+        }
+
+        .customized-widget .cw-eval-black {
+          background: linear-gradient(180deg, #13293d 0%, #33658a 100%);
+        }
+
+        .customized-widget .cw-eval-white {
+          background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 100%);
+          border-top: 2px solid rgba(19, 41, 61, 0.42);
+        }
+
+        .customized-widget .cw-chart svg {
+          background: #fff7e6;
+          border: 2px solid #13293d;
+        }
+
+        .customized-widget .cw-chart-zero {
+          stroke: rgba(19, 41, 61, 0.42);
+          stroke-dasharray: 5 4;
+        }
+
+        .customized-widget .cw-chart-line,
+        .customized-widget .cw-chart-current {
+          stroke: #13293d;
+          stroke-width: 4;
+        }
+
+        .customized-widget .cw-controls {
+          align-items: stretch;
+        }
+
+        .customized-widget .cw-button {
+          border: 0;
+          border-radius: 14px;
+          background: #13293d;
+          color: #fff7e6;
+          font-weight: 900;
+          letter-spacing: 0.03em;
+          text-transform: uppercase;
+          box-shadow: 0 5px 0 #0b1724;
+        }
+
+        .customized-widget .cw-button:hover:not(:disabled) {
+          background: #33658a;
+        }
+
+        .customized-widget .cw-button:active:not(:disabled) {
+          transform: translateY(3px);
+          box-shadow: 0 2px 0 #0b1724;
+        }
+
+        .customized-widget .cw-button:disabled {
+          background: #9ca3af;
+          color: #475569;
+          box-shadow: none;
+        }
+
+        .customized-widget .cw-counter {
+          display: grid;
+          place-items: center;
+          border-radius: 999px;
+          background: #fff7e6;
+          color: #13293d;
+          font-weight: 900;
+        }
+
+        .customized-widget piece.cw-piece-arrived {
+          animation-name: customized-piece-spin;
+        }
+
+        @keyframes customized-piece-spin {
+          0% {
+            transform: var(--cw-from-transform) rotate(0deg) scale(0.92);
+          }
+
+          70% {
+            transform: var(--cw-transform) rotate(360deg) scale(1.08);
+          }
+
+          100% {
+            transform: var(--cw-transform) rotate(360deg) scale(1);
+          }
+        }
+
+        @keyframes customized-caption-capture {
+          0% {
+            transform: rotateY(0deg);
+          }
+
+          100% {
+            transform: rotateY(360deg);
+          }
+        }
+        }
+      </style>
+
       <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="16" end="30" ply="20" eval-chart clocks control-style="arrows">
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
@@ -545,9 +479,112 @@ chess-widget.customized-widget piece.cw-piece-arrived {
   data-capture-bubble-text="yum"&gt;
 &lt;/chess-widget&gt;</code></pre>
 
+      <style>
+        @layer demo {
+        .js-openness-widget {
+          max-width: 760px;
+          margin: 26px auto 42px;
+        }
+
+        chess-widget.js-openness-widget .cw-capture-bubble {
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: 6;
+          width: 12.5%;
+          height: 12.5%;
+          pointer-events: none;
+          transform: var(--cw-transform);
+        }
+
+        chess-widget.js-openness-widget .cw-capture-bubble::before {
+          content: attr(data-label);
+          position: absolute;
+          right: -22px;
+          bottom: 82%;
+          display: grid;
+          place-items: center;
+          min-width: 48px;
+          min-height: 32px;
+          padding: 6px 12px;
+          border: 2px solid #13293d;
+          border-radius: 16px 16px 16px 3px;
+          background: #f9c74f;
+          color: #13293d;
+          font: 900 14px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+          box-shadow: 0 6px 0 rgba(19, 41, 61, 0.24);
+          animation: js-openness-capture-bubble 900ms cubic-bezier(0.2, 1.4, 0.2, 1);
+          animation-fill-mode: both;
+        }
+
+        chess-widget.js-openness-widget .cw-capture-bubble::after {
+          content: "";
+          position: absolute;
+          right: 18px;
+          bottom: 78%;
+          width: 12px;
+          height: 12px;
+          border-right: 2px solid #13293d;
+          border-bottom: 2px solid #13293d;
+          background: #f9c74f;
+          transform: rotate(45deg);
+        }
+
+        @keyframes js-openness-capture-bubble {
+          0% {
+            opacity: 0;
+            transform: translate(-12px, 14px) scale(0.5);
+          }
+
+          45% {
+            opacity: 1;
+            transform: translate(4px, -4px) scale(1.16);
+          }
+
+          100% {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+          }
+        }
+        }
+      </style>
+
       <chess-widget class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal data-capture-bubble-text="yum">
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
+
+      <script>
+        function addDemoCaptureBubble(widget) {
+          var position = widget.game && widget.game.positions[widget.currentPly];
+          var board = widget.querySelector("cg-board");
+          if (!board) return;
+          board.querySelectorAll(".cw-capture-bubble").forEach(function (bubble) {
+            bubble.remove();
+          });
+          if (!position || !position.flags || !position.flags.capture || !position.last_move.to) return;
+
+          var bubble = document.createElement("span");
+          bubble.className = "cw-capture-bubble";
+          bubble.setAttribute("aria-hidden", "true");
+          bubble.setAttribute("data-label", widget.getAttribute("data-capture-bubble-text") || "");
+          bubble.style.setProperty("--cw-transform", widget.squareTransform(position.last_move.to));
+          board.appendChild(bubble);
+        }
+
+        document.querySelectorAll("chess-widget.js-openness-widget").forEach(function (widget) {
+          widget.addEventListener("chess-widget:render", function () {
+            addDemoCaptureBubble(widget);
+          });
+          widget.addEventListener("chess-widget:move", function () {
+            addDemoCaptureBubble(widget);
+          });
+          customElements.whenDefined("chess-widget").then(function () {
+            window.requestAnimationFrame(function () {
+              addDemoCaptureBubble(widget);
+            });
+          });
+        });
+      </script>
 
       <p>
         The opening follows a normal Ruy Lopez. The comments shown under the
@@ -608,37 +645,5 @@ chess-widget.customized-widget piece.cw-piece-arrived {
       </chess-widget>
     </main>
     <script src="./chess-widget.js"></script>
-    <script>
-      function addDemoCaptureBubble(widget) {
-        var position = widget.game && widget.game.positions[widget.currentPly];
-        var board = widget.querySelector("cg-board");
-        if (!board) return;
-        board.querySelectorAll(".cw-capture-bubble").forEach(function (bubble) {
-          bubble.remove();
-        });
-        if (!position || !position.flags || !position.flags.capture || !position.last_move.to) return;
-
-        var bubble = document.createElement("span");
-        bubble.className = "cw-capture-bubble";
-        bubble.setAttribute("aria-hidden", "true");
-        bubble.setAttribute("data-label", widget.getAttribute("data-capture-bubble-text") || "");
-        bubble.style.setProperty("--cw-transform", widget.squareTransform(position.last_move.to));
-        board.appendChild(bubble);
-      }
-
-      document.querySelectorAll("chess-widget.js-openness-widget").forEach(function (widget) {
-        widget.addEventListener("chess-widget:render", function () {
-          addDemoCaptureBubble(widget);
-        });
-        widget.addEventListener("chess-widget:move", function () {
-          addDemoCaptureBubble(widget);
-        });
-        customElements.whenDefined("chess-widget").then(function () {
-          window.requestAnimationFrame(function () {
-            addDemoCaptureBubble(widget);
-          });
-        });
-      });
-    </script>
   </body>
 </html>
