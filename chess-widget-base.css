@@ -33,6 +33,11 @@ chess-widget .cw-shell {
   gap: var(--cw-shell-gap, 18px);
 }
 
+chess-widget .cw-shell-minimal {
+  width: fit-content;
+  max-width: 100%;
+}
+
 chess-widget .cw-header {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--cw-header-gap, 16px);
