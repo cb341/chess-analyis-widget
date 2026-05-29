@@ -410,6 +410,38 @@ async function testKeyboardTitlesAreDiscoverable() {
   assert.match(moveButton.title, /arrow keys/);
 }
 
+async function testMoveListSkimmingPlaysSound() {
+  const played = [];
+  global.window.Audio = class {
+    constructor(src) {
+      this.src = String(src);
+      played.push(this.src);
+    }
+
+    play() {
+      return Promise.resolve();
+    }
+
+    pause() {}
+  };
+
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    sound: "",
+  });
+  const moveButton = widget.renderMoveButton(widget.game.moves[0]);
+  moveButton.listeners.pointerenter[0]({ pointerType: "mouse" });
+  assert.equal(widget.currentPly, 1);
+  assert.ok(played[0].endsWith("/assets/sounds/standard/Move.mp3"));
+
+  const soundCount = played.length;
+  const touchMove = widget.renderMoveButton(widget.game.moves[1]);
+  touchMove.listeners.pointerenter[0]({ pointerType: "touch" });
+  assert.equal(widget.currentPly, 1);
+  assert.equal(played.length, soundCount);
+
+  delete global.window.Audio;
+}
+
 async function testArrowControlLabels() {
   const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
     "control-style": "arrows",
@@ -620,6 +652,7 @@ async function run() {
   await testMoveBadgesForKeyGlyphs();
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
+  await testMoveListSkimmingPlaysSound();
   await testArrowControlLabels();
   await testControlTouchHandlers();
   await testMoveSoundsUseAnnotationsAndOverrides();

@@ -885,6 +885,10 @@
       button.className = "cw-move" + (move.ply === this.currentPly ? " cw-active-move" : "");
       button.title = "Go to " + moveLabel(this.game, move.ply) + ". Keyboard: arrow keys continue from there.";
       button.addEventListener("click", () => this.goTo(move.ply));
+      button.addEventListener("pointerenter", (event) => {
+        if (event.pointerType === "touch") return;
+        this.goTo(move.ply);
+      });
       var san = document.createElement("span");
       san.textContent = move.san;
       var mark = document.createElement("span");
