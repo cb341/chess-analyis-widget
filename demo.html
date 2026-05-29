@@ -332,6 +332,13 @@
       }
 
       chess-widget.js-openness-widget .cw-capture-bubble {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 6;
+        width: 12.5%;
+        height: 12.5%;
+        pointer-events: none;
         transform: var(--cw-transform);
       }
 
@@ -515,7 +522,8 @@ chess-widget.customized-widget piece.cw-piece-arrived {
       <h2 id="js-openness">JS Openness</h2>
       <p>
         The widget exposes small DOM hooks for page-specific behavior. This
-        example opts into a capture bubble by setting `capture-bubble-text`.
+        page adds a capture bubble to this one widget with a local event
+        listener.
       </p>
 
       <pre class="pgn-sample"><code>&lt;chess-widget class="js-openness-widget"
@@ -524,10 +532,10 @@ chess-widget.customized-widget piece.cw-piece-arrived {
   end="44"
   ply="39"
   minimal
-  capture-bubble-text="yum"&gt;
+  data-capture-bubble-text="yum"&gt;
 &lt;/chess-widget&gt;</code></pre>
 
-      <chess-widget class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal capture-bubble-text="yum">
+      <chess-widget class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal data-capture-bubble-text="yum">
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">See the annotated game on the site</a>
       </chess-widget>
 
@@ -590,5 +598,37 @@ chess-widget.customized-widget piece.cw-piece-arrived {
       </chess-widget>
     </main>
     <script src="./chess-widget.js"></script>
+    <script>
+      function addDemoCaptureBubble(widget) {
+        var position = widget.game && widget.game.positions[widget.currentPly];
+        var board = widget.querySelector("cg-board");
+        if (!board) return;
+        board.querySelectorAll(".cw-capture-bubble").forEach(function (bubble) {
+          bubble.remove();
+        });
+        if (!position || !position.flags || !position.flags.capture || !position.last_move.to) return;
+
+        var bubble = document.createElement("span");
+        bubble.className = "cw-capture-bubble";
+        bubble.setAttribute("aria-hidden", "true");
+        bubble.setAttribute("data-label", widget.getAttribute("data-capture-bubble-text") || "");
+        bubble.style.setProperty("--cw-transform", widget.squareTransform(position.last_move.to));
+        board.appendChild(bubble);
+      }
+
+      document.querySelectorAll("chess-widget.js-openness-widget").forEach(function (widget) {
+        widget.addEventListener("chess-widget:render", function () {
+          addDemoCaptureBubble(widget);
+        });
+        widget.addEventListener("chess-widget:move", function () {
+          addDemoCaptureBubble(widget);
+        });
+        customElements.whenDefined("chess-widget").then(function () {
+          window.requestAnimationFrame(function () {
+            addDemoCaptureBubble(widget);
+          });
+        });
+      });
+    </script>
   </body>
 </html>

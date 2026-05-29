@@ -326,30 +326,6 @@ async function testCaptureAnnotationClass() {
   assert.ok(annotation.className.includes("cw-annotation-capture"));
 }
 
-async function testCaptureBubbleHook() {
-  const plainWidget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
-  const plainCapturePosition = plainWidget.game.positions.find(function (position) {
-    return position.flags && position.flags.capture;
-  });
-  assert.ok(plainCapturePosition);
-  assert.equal(plainWidget.renderCaptureBubble(plainCapturePosition), null);
-
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
-    "capture-bubble-text": "yum",
-  });
-  const capturePosition = widget.game.positions.find(function (position) {
-    return position.flags && position.flags.capture;
-  });
-  assert.ok(capturePosition);
-  const bubble = widget.renderCaptureBubble(capturePosition);
-  assert.equal(bubble.className, "cw-capture-bubble");
-  assert.equal(bubble.textContent, "");
-  assert.equal(bubble.attributes["data-label"], "yum");
-  assert.equal(bubble.attributes["data-square"], capturePosition.last_move.to);
-  assert.equal(bubble.attributes["aria-hidden"], "true");
-  assert.equal(bubble.style.transform, undefined);
-}
-
 async function testSeekAnimationMovesMatchedPieces() {
   const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
   widget.currentPly = 0;
@@ -482,7 +458,6 @@ async function run() {
   await testFalseFeatureAttributesHideFeatures();
   await testMoveAnimationState();
   await testCaptureAnnotationClass();
-  await testCaptureBubbleHook();
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
   await testArrowControlLabels();
