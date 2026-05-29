@@ -3,14 +3,644 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="0; url=./demo.html">
-    <title>Chess Widget</title>
-    <link rel="canonical" href="./demo.html">
+    <title>Chess Widget Demo</title>
+    <link rel="stylesheet" href="./chess-widget.css">
+    <style>
+      body {
+        margin: 0;
+        color: #222;
+        background: #f7f5f0;
+        font: 18px/1.55 Georgia, "Times New Roman", serif;
+      }
+
+      main {
+        width: min(1040px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0 64px;
+      }
+
+      h1 {
+        font: 700 38px/1.1 system-ui, sans-serif;
+        margin: 0 0 12px;
+      }
+
+      h1 a {
+        color: inherit;
+        text-decoration-color: #619b8a;
+        text-decoration-thickness: 3px;
+        text-underline-offset: 5px;
+      }
+
+      h1 a:hover {
+        color: #33658a;
+      }
+
+      p {
+        max-width: 760px;
+      }
+
+      .feature-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 18px;
+        max-width: 760px;
+        margin: 18px 0 28px;
+        padding-left: 20px;
+        font: 16px/1.4 system-ui, sans-serif;
+      }
+
+      .pgn-sample {
+        max-width: 760px;
+        overflow: auto;
+        padding: 14px 16px;
+        border: 1px solid #c8c2b8;
+        background: #fffdf8;
+        color: #222;
+        font: 14px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      chess-widget {
+        margin: 24px 0 34px;
+        --cw-board-max-width: 520px;
+      }
+
+      .board-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin: 24px 0 34px;
+      }
+
+      .board-pair chess-widget {
+        margin: 0;
+        --cw-board-max-width: 420px;
+      }
+
+      .interactive-figure {
+        margin: 24px 0 34px;
+      }
+
+      .interactive-figure chess-widget {
+        margin: 0;
+        --cw-board-max-width: 460px;
+      }
+
+      .interactive-figure figcaption {
+        max-width: 620px;
+        margin-top: 10px;
+        color: #555;
+        font: 15px/1.45 system-ui, sans-serif;
+      }
+
+      .board-only-example {
+        max-width: 420px;
+      }
+
+      @media (max-width: 860px) {
+        .board-pair,
+        .feature-list {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <p><a href="./demo.html">Open the chess-widget demo</a></p>
-    <script>
-      window.location.replace("./demo.html");
-    </script>
+    <main>
+      <h1><a href="https://github.com/cb341/chess-analyis-widget">chess-widget</a></h1>
+      <p>
+        A static, client-only PGN replay widget for GitHub Pages. It reads SAN,
+        comments, clocks, and lichess eval annotations in the browser.
+      </p>
+
+      <h2>Supported PGN Features</h2>
+      <ul class="feature-list">
+        <li>Tag pairs, including player names, result, ratings, and site data</li>
+        <li>Custom starts with `[SetUp "1"]` and `[FEN "..."]`</li>
+        <li>SAN moves for pieces and pawns</li>
+        <li>Captures, castling, promotion, and en passant</li>
+        <li>Disambiguation such as `Nbd7` and `R1e2`</li>
+        <li>Check and checkmate suffixes</li>
+        <li>Comments attached to each ply</li>
+        <li>Lichess `[%eval]` and `[%clk]` annotations</li>
+        <li>Symbolic and numeric NAG glyphs</li>
+        <li>Main-line replay with variations skipped</li>
+      </ul>
+
+      <pre class="pgn-sample"><code>[White "Ada"]
+[Black "Grace"]
+[Result "1-0"]
+
+1. e4 { [%eval 0.20] [%clk 0:05:00] White takes the center. }
+   e5 { [%eval 0.10] [%clk 0:05:00] Black replies symmetrically. }
+2. Nf3! { [%eval 0.18] Development with tempo. } Nc6
+3. Bb5 { [%eval 0.24] The Ruy Lopez starts asking questions. } a6
+1-0</code></pre>
+
+      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="0" end="51" eval-chart clocks>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+      </chess-widget>
+
+      <h2>Custom Styling</h2>
+      <p>
+        Styling is intentionally open through CSS variables. Scope overrides to
+        one widget class when a page needs several different treatments.
+      </p>
+
+      <pre class="pgn-sample"><code>chess-widget.customized-widget {
+  margin: 34px 0 48px;
+  padding: 18px;
+  border-radius: 22px;
+  background: #233d4d;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  --cw-main-gap: 36px;
+  --cw-board-max-width: 430px;
+  --cw-paper: #fff7e6;
+  --cw-dark-hatch: #fe7f2d;
+  --cw-highlight: #c9f299;
+  --cw-shell-border: 0;
+  --cw-board-border: 4px solid #13293d;
+  --cw-board-radius: 18px;
+  --cw-control-min-height: 42px;
+  --cw-piece-padding: 5%;
+  --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
+  --cw-piece-badge-mistake: #ef476f;
+  --cw-piece-badge-brilliant: #06d6a0;
+  --cw-piece-badge-blunder: #3a0ca3;
+  --cw-move-list-max-height: 220px;
+}
+
+chess-widget.customized-widget .cw-annotation {
+  justify-self: center;
+  border-left: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+
+chess-widget.customized-widget .cw-annotation-capture {
+  animation: customized-caption-capture 900ms cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+chess-widget.customized-widget .cw-move-row {
+  display: contents;
+}
+
+chess-widget.customized-widget .cw-move-number {
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid #13293d;
+  border-radius: 999px;
+  background: #fff7e6;
+  box-shadow: 3px 3px 0 #fe7f2d;
+}
+
+chess-widget.customized-widget .cw-move {
+  border: 2px solid #13293d;
+  border-radius: 999px;
+  background: #fff7e6;
+  font-weight: 700;
+}
+
+chess-widget.customized-widget .cw-eval-black {
+  background: linear-gradient(180deg, #13293d 0%, #33658a 100%);
+}
+
+chess-widget.customized-widget .cw-eval-white {
+  background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 100%);
+}
+
+chess-widget.customized-widget .cw-button {
+  border: 0;
+  border-radius: 14px;
+  background: #13293d;
+  color: #fff7e6;
+  font-weight: 900;
+}
+
+chess-widget.customized-widget piece.cw-piece-arrived {
+  animation-name: customized-piece-spin;
+}</code></pre>
+
+      <style>
+        .customized-widget {
+          margin: 34px 0 48px;
+          padding: 18px;
+          border-radius: 22px;
+          background: #233d4d;
+          font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+          --cw-paper: #fff7e6;
+          --cw-paper-deep: #fddf9a;
+          --cw-ink: #13293d;
+          --cw-muted: #59656f;
+          --cw-line: #13293d;
+          --cw-light-square: #fff4d6;
+          --cw-dark-hatch: #fe7f2d;
+          --cw-highlight: #c9f299;
+          --cw-good: #619b8a;
+          --cw-brilliant: #33658a;
+          --cw-main-columns: minmax(280px, 430px) minmax(260px, 1fr);
+          --cw-main-gap: 36px;
+          --cw-shell-gap: 26px;
+          --cw-board-panel-gap: 18px;
+          --cw-side-gap: 22px;
+          --cw-board-max-width: 430px;
+          --cw-shell-padding: 26px;
+          --cw-shell-border: 0;
+          --cw-board-border: 4px solid #13293d;
+          --cw-board-radius: 18px;
+          --cw-square-border: 1px solid rgba(19, 41, 61, 0.28);
+          --cw-control-border: 2px solid #13293d;
+          --cw-control-font-size: 12px;
+          --cw-control-min-height: 42px;
+          --cw-control-gap: 12px;
+          --cw-move-padding: 8px 10px;
+          --cw-piece-padding: 5%;
+          --cw-piece-arrive-animation: 1800ms cubic-bezier(0.16, 1, 0.3, 1);
+          --cw-piece-spawn-animation: 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+          --cw-piece-transform-origin: 50% 50%;
+          --cw-piece-badge-mistake: #ef476f;
+          --cw-piece-badge-brilliant: #06d6a0;
+          --cw-piece-badge-blunder: #3a0ca3;
+          --cw-move-list-max-height: 220px;
+          --cw-chart-height: 110px;
+          --cw-chart-radius: 14px;
+        }
+
+        .customized-widget .cw-shell {
+          border-radius: 16px;
+        }
+
+        .customized-widget .cw-board {
+          border-radius: var(--cw-board-radius);
+          overflow: hidden;
+        }
+
+        .customized-widget cg-board {
+          border-radius: calc(var(--cw-board-radius) - 4px);
+          overflow: hidden;
+        }
+
+        .customized-widget .cw-annotation {
+          justify-self: center;
+          max-width: min(430px, 100%);
+          min-height: 0;
+          border-left: 0;
+          background: transparent;
+          box-shadow: none;
+          padding: 0 10px;
+          text-align: center;
+        }
+
+        .customized-widget .cw-annotation strong {
+          display: block;
+          margin-bottom: 4px;
+        }
+
+        .customized-widget .cw-annotation span {
+          display: block;
+        }
+
+        .customized-widget .cw-annotation-capture {
+          animation: customized-caption-capture 900ms cubic-bezier(0.2, 1, 0.3, 1);
+          transform-origin: 50% 50%;
+        }
+
+        .customized-widget .cw-move-list {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 9px;
+          max-height: 240px;
+          padding: 6px 8px 6px 0;
+          counter-reset: styled-move;
+        }
+
+        .customized-widget .cw-move-row {
+          display: contents;
+        }
+
+        .customized-widget .cw-move-number {
+          display: inline-grid;
+          place-items: center;
+          min-width: 28px;
+          min-height: 26px;
+          padding: 0 7px;
+          border: 2px solid #13293d;
+          border-radius: 999px;
+          background: #fff7e6;
+          color: #13293d;
+          font-size: 11px;
+          font-weight: 900;
+          box-shadow: 3px 3px 0 #fe7f2d;
+        }
+
+        .customized-widget .cw-move {
+          position: relative;
+          flex: 0 0 auto;
+          min-height: 32px;
+          border: 2px solid #13293d;
+          border-radius: 999px;
+          background: #fff7e6;
+          padding: 6px 15px;
+          color: #13293d;
+          font-weight: 700;
+          box-shadow: 4px 4px 0 rgba(19, 41, 61, 0.2);
+        }
+
+        .customized-widget .cw-move:hover {
+          background: #fddf9a;
+          transform: translateY(-1px);
+        }
+
+        .customized-widget .cw-active-move {
+          background: #c9f299;
+          transform: translateY(-2px);
+          box-shadow:
+            0 0 0 3px #fff7e6,
+            5px 5px 0 #fe7f2d;
+        }
+
+        .customized-widget .cw-eval {
+          background: #13293d;
+          border: 3px solid #13293d;
+        }
+
+        .customized-widget .cw-eval-black {
+          background: linear-gradient(180deg, #13293d 0%, #33658a 100%);
+        }
+
+        .customized-widget .cw-eval-white {
+          background: linear-gradient(180deg, #fff7e6 0%, #fddf9a 100%);
+          border-top: 2px solid rgba(19, 41, 61, 0.42);
+        }
+
+        .customized-widget .cw-chart svg {
+          background: #fff7e6;
+          border: 2px solid #13293d;
+        }
+
+        .customized-widget .cw-chart-zero {
+          stroke: rgba(19, 41, 61, 0.42);
+          stroke-dasharray: 5 4;
+        }
+
+        .customized-widget .cw-chart-line,
+        .customized-widget .cw-chart-current {
+          stroke: #13293d;
+          stroke-width: 4;
+        }
+
+        .customized-widget .cw-controls {
+          align-items: stretch;
+        }
+
+        .customized-widget .cw-button {
+          border: 0;
+          border-radius: 14px;
+          background: #13293d;
+          color: #fff7e6;
+          font-weight: 900;
+          letter-spacing: 0.03em;
+          text-transform: uppercase;
+          box-shadow: 0 5px 0 #0b1724;
+        }
+
+        .customized-widget .cw-button:hover:not(:disabled) {
+          background: #33658a;
+        }
+
+        .customized-widget .cw-button:active:not(:disabled) {
+          transform: translateY(3px);
+          box-shadow: 0 2px 0 #0b1724;
+        }
+
+        .customized-widget .cw-button:disabled {
+          background: #9ca3af;
+          color: #475569;
+          box-shadow: none;
+        }
+
+        .customized-widget .cw-counter {
+          display: grid;
+          place-items: center;
+          border-radius: 999px;
+          background: #fff7e6;
+          color: #13293d;
+          font-weight: 900;
+        }
+
+        .customized-widget piece.cw-piece-arrived {
+          animation-name: customized-piece-spin;
+        }
+
+        @keyframes customized-piece-spin {
+          0% {
+            transform: var(--cw-from-transform) rotate(0deg) scale(0.92);
+          }
+
+          70% {
+            transform: var(--cw-transform) rotate(360deg) scale(1.08);
+          }
+
+          100% {
+            transform: var(--cw-transform) rotate(360deg) scale(1);
+          }
+        }
+
+        @keyframes customized-caption-capture {
+          0% {
+            transform: rotateY(0deg);
+          }
+
+          100% {
+            transform: rotateY(360deg);
+          }
+        }
+      </style>
+
+      <chess-widget class="customized-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="40" eval-chart clocks sound control-style="arrows">
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+      </chess-widget>
+
+      <h2 id="js-openness">JS Openness</h2>
+      <p>
+        The widget exposes small DOM hooks for page-specific behavior. This
+        page adds a capture bubble to this one widget with a local event
+        listener.
+      </p>
+
+      <pre class="pgn-sample"><code>&lt;chess-widget class="js-openness-widget"
+  src="./assets/games/blitz-checkmate.pgn"
+  start="36"
+  end="44"
+  ply="39"
+  minimal
+  data-capture-bubble-text="yum"&gt;
+&lt;/chess-widget&gt;</code></pre>
+
+      <style>
+        .js-openness-widget {
+          max-width: 760px;
+          margin: 26px auto 42px;
+        }
+
+        chess-widget.js-openness-widget .cw-capture-bubble {
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: 6;
+          width: 12.5%;
+          height: 12.5%;
+          pointer-events: none;
+          transform: var(--cw-transform);
+        }
+
+        chess-widget.js-openness-widget .cw-capture-bubble::before {
+          content: attr(data-label);
+          position: absolute;
+          right: -22px;
+          bottom: 82%;
+          display: grid;
+          place-items: center;
+          min-width: 48px;
+          min-height: 32px;
+          padding: 6px 12px;
+          border: 2px solid #13293d;
+          border-radius: 16px 16px 16px 3px;
+          background: #f9c74f;
+          color: #13293d;
+          font: 900 14px/1 Inter, ui-sans-serif, system-ui, sans-serif;
+          box-shadow: 0 6px 0 rgba(19, 41, 61, 0.24);
+          animation: js-openness-capture-bubble 900ms cubic-bezier(0.2, 1.4, 0.2, 1);
+          animation-fill-mode: both;
+        }
+
+        chess-widget.js-openness-widget .cw-capture-bubble::after {
+          content: "";
+          position: absolute;
+          right: 18px;
+          bottom: 78%;
+          width: 12px;
+          height: 12px;
+          border-right: 2px solid #13293d;
+          border-bottom: 2px solid #13293d;
+          background: #f9c74f;
+          transform: rotate(45deg);
+        }
+
+        @keyframes js-openness-capture-bubble {
+          0% {
+            opacity: 0;
+            transform: translate(-12px, 14px) scale(0.5);
+          }
+
+          45% {
+            opacity: 1;
+            transform: translate(4px, -4px) scale(1.16);
+          }
+
+          100% {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+          }
+        }
+      </style>
+
+      <chess-widget class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal data-capture-bubble-text="yum">
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+      </chess-widget>
+
+      <script>
+        function addDemoCaptureBubble(widget) {
+          var position = widget.game && widget.game.positions[widget.currentPly];
+          var board = widget.querySelector("cg-board");
+          if (!board) return;
+          board.querySelectorAll(".cw-capture-bubble").forEach(function (bubble) {
+            bubble.remove();
+          });
+          if (!position || !position.flags || !position.flags.capture || !position.last_move.to) return;
+
+          var bubble = document.createElement("span");
+          bubble.className = "cw-capture-bubble";
+          bubble.setAttribute("aria-hidden", "true");
+          bubble.setAttribute("data-label", widget.getAttribute("data-capture-bubble-text") || "");
+          bubble.style.setProperty("--cw-transform", widget.squareTransform(position.last_move.to));
+          board.appendChild(bubble);
+        }
+
+        document.querySelectorAll("chess-widget.js-openness-widget").forEach(function (widget) {
+          widget.addEventListener("chess-widget:render", function () {
+            addDemoCaptureBubble(widget);
+          });
+          widget.addEventListener("chess-widget:move", function () {
+            addDemoCaptureBubble(widget);
+          });
+          customElements.whenDefined("chess-widget").then(function () {
+            window.requestAnimationFrame(function () {
+              addDemoCaptureBubble(widget);
+            });
+          });
+        });
+      </script>
+
+      <p>
+        The opening follows a normal Ruy Lopez. The comments shown under the
+        board come directly from PGN comment blocks, while the board state is
+        rebuilt from SAN moves.
+      </p>
+
+      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="5" clocks>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+      </chess-widget>
+
+      <div class="board-pair">
+        <chess-widget src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="1" minimal>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+        </chess-widget>
+        <chess-widget src="./assets/games/blitz-checkmate.pgn" start="30" end="40" ply="30" orientation="black" minimal>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+        </chess-widget>
+      </div>
+
+      <figure class="interactive-figure">
+        <chess-widget src="./assets/games/blitz-checkmate.pgn" start="16" end="24" ply="16" minimal>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+        </chess-widget>
+        <figcaption>
+          Interactive figure: step through the central break without player
+          ratings, clocks, commentary, or chart panels.
+        </figcaption>
+      </figure>
+
+      <figure class="interactive-figure board-only-example">
+        <chess-widget src="./assets/games/blitz-checkmate.pgn" start="22" end="30" ply="22" board-only>
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+        </chess-widget>
+        <figcaption>
+          Board-only figure: focus the board and use the arrow keys to replay
+          the position without visible controls, ratings, clocks, or move list.
+        </figcaption>
+      </figure>
+
+      <p>
+        In the middle game, White uses the center and queenside structure to
+        reduce Black's counterplay. The bounds keep this board focused on the
+        paragraph's moves.
+      </p>
+
+      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="30" end="44" ply="40" orientation="black" clocks>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+      </chess-widget>
+
+      <p>
+        The final tactic is shown as mate scores because lichess exports mate
+        evals as `[%eval #n]`. No engine runs here.
+      </p>
+
+      <chess-widget src="./assets/games/blitz-checkmate.pgn" start="48" end="51" eval-chart>
+        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+      </chess-widget>
+    </main>
+    <script src="./chess-widget.js"></script>
   </body>
 </html>

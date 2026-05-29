@@ -110,4 +110,4 @@ For non-DOM integration, the parser is also exposed as:
 const game = customElements.get("chess-widget").parsePgn(pgn);
 ```
 
-See `demo.html` and `assets/games/blitz-checkmate.pgn` for a complete static page.
+See `index.html` and `assets/games/blitz-checkmate.pgn` for a complete static page.
