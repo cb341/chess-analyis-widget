@@ -511,6 +511,60 @@ async function testMoveSoundsUseAnnotationsAndOverrides() {
   delete global.window.Audio;
 }
 
+async function testAssetConfiguration() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    "piece-path": "./pieces/neo",
+    "piece-white-king": "./pieces/custom-white-king.svg",
+  });
+  assert.equal(widget.renderPieceImage("K").src, "https://example.test/pages/pieces/custom-white-king.svg");
+  assert.equal(widget.renderPieceImage("q").src, "https://example.test/pages/pieces/neo/black-queen.svg");
+
+  ChessWidget.configureAssets({
+    piecePath: "./configured-pieces",
+    sounds: { move: "./configured-sounds/move.mp3" },
+  });
+  const configured = await loadPgn(`
+[White "Assets"]
+[Black "Tester"]
+
+1. e4 e5
+`, { sound: "" });
+  assert.equal(configured.renderPieceImage("n").src, "https://example.test/pages/configured-pieces/black-knight.svg");
+  configured.setAttribute("piece-path", "./changed-pieces");
+  configured.attributeChangedCallback("piece-path", "./configured-pieces", "./changed-pieces");
+  assert.equal(configured.renderPieceImage("n").src, "https://example.test/pages/changed-pieces/black-knight.svg");
+
+  let renderCount = 0;
+  configured.render = function () {
+    renderCount += 1;
+  };
+  const originalQuerySelectorAll = global.document.querySelectorAll;
+  global.document.querySelectorAll = function (selector) {
+    assert.equal(selector, "chess-widget");
+    return [configured];
+  };
+  ChessWidget.configureAssets({ pieces: { q: "./configured-pieces/black-queen.svg" } });
+  assert.equal(renderCount, 1);
+  global.document.querySelectorAll = originalQuerySelectorAll;
+
+  const played = [];
+  global.window.Audio = class {
+    constructor(src) {
+      this.src = String(src);
+      played.push(this.src);
+    }
+
+    play() {
+      return Promise.resolve();
+    }
+
+    pause() {}
+  };
+  configured.goTo(1);
+  assert.equal(played[0], "https://example.test/pages/configured-sounds/move.mp3");
+  delete global.window.Audio;
+}
+
 async function testCustomEventsAndParserExtensionPoint() {
   const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
   assert.equal(parsed.metadata.White, "Ada");
@@ -569,6 +623,7 @@ async function run() {
   await testArrowControlLabels();
   await testControlTouchHandlers();
   await testMoveSoundsUseAnnotationsAndOverrides();
+  await testAssetConfiguration();
   await testCustomEventsAndParserExtensionPoint();
   console.log("tests.js ok");
 }

@@ -4,7 +4,7 @@
   var FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
   var RANKS_WHITE = ["8", "7", "6", "5", "4", "3", "2", "1"];
   var RANKS_BLACK = ["1", "2", "3", "4", "5", "6", "7", "8"];
-  var PIECE_IMAGES = {
+  var DEFAULT_PIECE_IMAGES = {
     K: "white-king.svg",
     Q: "white-queen.svg",
     R: "white-rook.svg",
@@ -18,8 +18,8 @@
     n: "black-knight.svg",
     p: "black-pawn.svg",
   };
-  var PIECE_IMAGE_PATH = "./assets/pieces/cburnett/";
-  var SOUNDS = {
+  var DEFAULT_PIECE_IMAGE_PATH = "./assets/pieces/cburnett/";
+  var DEFAULT_SOUNDS = {
     move: "./assets/sounds/move.mp3",
     castle: "./assets/sounds/castle.wav",
     capture: "./assets/sounds/capture.wav",
@@ -30,6 +30,21 @@
     brilliant: "./assets/sounds/brilliant.wav",
     good: "./assets/sounds/good.wav",
   };
+  var PIECE_ATTRS = {
+    K: "piece-white-king",
+    Q: "piece-white-queen",
+    R: "piece-white-rook",
+    B: "piece-white-bishop",
+    N: "piece-white-knight",
+    P: "piece-white-pawn",
+    k: "piece-black-king",
+    q: "piece-black-queen",
+    r: "piece-black-rook",
+    b: "piece-black-bishop",
+    n: "piece-black-knight",
+    p: "piece-black-pawn",
+  };
+  var ASSET_CONFIG = window.ChessWidgetConfig || {};
   var SCRIPT_URL =
     document.currentScript && document.currentScript.src
       ? document.currentScript.src
@@ -127,8 +142,16 @@
   }
 
   function soundUrl(el, name) {
-    var override = el.getAttribute("sound-" + name);
-    return override ? pageUrl(override) : assetUrl(SOUNDS[name]);
+    var override = el.getAttribute("sound-" + name) || (ASSET_CONFIG.sounds && ASSET_CONFIG.sounds[name]);
+    return override ? pageUrl(override) : assetUrl(DEFAULT_SOUNDS[name]);
+  }
+
+  function pieceImageUrl(el, piece) {
+    var image = el.getAttribute(PIECE_ATTRS[piece]) || (ASSET_CONFIG.pieces && ASSET_CONFIG.pieces[piece]);
+    if (image) return pageUrl(image);
+    var path = el.getAttribute("piece-path") || ASSET_CONFIG.piecePath;
+    if (path) return pageUrl(path.replace(/\/?$/, "/") + DEFAULT_PIECE_IMAGES[piece]);
+    return assetUrl(DEFAULT_PIECE_IMAGE_PATH + DEFAULT_PIECE_IMAGES[piece]);
   }
 
   function parseGame(pgn) {
@@ -172,6 +195,19 @@
     "moves",
     "minimal",
     "board-only",
+    "piece-path",
+    "piece-white-king",
+    "piece-white-queen",
+    "piece-white-rook",
+    "piece-white-bishop",
+    "piece-white-knight",
+    "piece-white-pawn",
+    "piece-black-king",
+    "piece-black-queen",
+    "piece-black-rook",
+    "piece-black-bishop",
+    "piece-black-knight",
+    "piece-black-pawn",
   ];
 
   class ChessWidget extends HTMLElement {
@@ -181,6 +217,26 @@
 
     static parsePgn(pgn) {
       return parseGame(pgn);
+    }
+
+    static configureAssets(config) {
+      ASSET_CONFIG = ASSET_CONFIG || {};
+      if (config.piecePath) ASSET_CONFIG.piecePath = config.piecePath;
+      if (config.pieces) ASSET_CONFIG.pieces = Object.assign({}, ASSET_CONFIG.pieces || {}, config.pieces);
+      if (config.sounds) ASSET_CONFIG.sounds = Object.assign({}, ASSET_CONFIG.sounds || {}, config.sounds);
+      if (typeof document.querySelectorAll === "function") {
+        document.querySelectorAll("chess-widget").forEach(function (widget) {
+          if (widget.game) widget.render();
+        });
+      }
+    }
+
+    static get defaultAssets() {
+      return {
+        piecePath: DEFAULT_PIECE_IMAGE_PATH,
+        pieces: Object.assign({}, DEFAULT_PIECE_IMAGES),
+        sounds: Object.assign({}, DEFAULT_SOUNDS),
+      };
     }
 
     constructor() {
@@ -641,7 +697,7 @@
 
     renderPieceImage(piece) {
       var image = document.createElement("img");
-      image.src = assetUrl(PIECE_IMAGE_PATH + PIECE_IMAGES[piece]);
+      image.src = pieceImageUrl(this, piece);
       image.alt = "";
       image.draggable = false;
       image.setAttribute("aria-hidden", "true");

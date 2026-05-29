@@ -35,8 +35,10 @@ Inline PGN also works:
 - `eval-chart`: show an evaluation chart when the PGN has `[%eval]`.
 - `eval-bar`: show the vertical evaluation bar. Set `eval-bar="false"` to hide it.
 - `clocks`: show per-side remaining time from `[%clk]`.
-- `sound`: play move, capture, check, mate, and annotation sounds. Default is off.
+- `sound`: play move, capture, check, mate, and annotation sounds when the user navigates the game. Default is off.
 - `sound-move`, `sound-capture`, `sound-check`, `sound-checkmate`, `sound-castle`, `sound-blunder`, `sound-mistake`, `sound-brilliant`, `sound-good`: override individual sound file URLs.
+- `piece-path`: override the piece image directory for cburnett-style filenames.
+- `piece-white-king`, `piece-white-queen`, `piece-white-rook`, `piece-white-bishop`, `piece-white-knight`, `piece-white-pawn`, `piece-black-king`, `piece-black-queen`, `piece-black-rook`, `piece-black-bishop`, `piece-black-knight`, `piece-black-pawn`: override individual piece image URLs.
 - `header`: set `header="false"` to hide the title and player row.
 - `controls`: set `controls="false"` to hide previous and next controls.
 - `comments`: set `comments="false"` to hide the current move annotation.
@@ -47,6 +49,43 @@ Inline PGN also works:
 - `board-only`: shortcut for board only. Arrow keys still work when focused.
 
 The widget supports previous, next, move-list seeking, and arrow-key navigation when focused. Multiple widgets on one page are independent.
+
+## Assets
+
+The bundled defaults are the cburnett SVG set and the sound files in `assets/sounds/`. You can override them per widget:
+
+```html
+<chess-widget
+  src="/assets/games/blitz-checkmate.pgn"
+  sound
+  piece-path="/my-piece-set/"
+  sound-move="/sounds/soft-move.mp3"
+  sound-capture="/sounds/capture.wav">
+</chess-widget>
+```
+
+Or configure defaults before loading `chess-widget.js`:
+
+```html
+<script>
+  window.ChessWidgetConfig = {
+    piecePath: "/my-piece-set/",
+    pieces: {
+      K: "/pieces/white-king.svg",
+      k: "/pieces/black-king.svg",
+    },
+    sounds: {
+      move: "/sounds/move.mp3",
+      capture: "/sounds/capture.wav",
+      checkmate: "/sounds/checkmate.mp3",
+    },
+  };
+</script>
+<script src="./chess-pgn.js"></script>
+<script src="./chess-widget.js"></script>
+```
+
+After load, the same defaults can be changed with `customElements.get("chess-widget").configureAssets(...)`. Built-in asset URLs are resolved relative to `chess-widget.js`; custom asset URLs are resolved relative to the page.
 
 ## PGN Support
 
