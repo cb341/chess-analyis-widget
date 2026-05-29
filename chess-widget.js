@@ -25,6 +25,10 @@
     capture: "./assets/sounds/capture.wav",
     check: "./assets/sounds/check.mp3",
     checkmate: "./assets/sounds/checkmate.mp3",
+    blunder: "./assets/sounds/blunder.wav",
+    mistake: "./assets/sounds/mistake.wav",
+    brilliant: "./assets/sounds/brilliant.wav",
+    good: "./assets/sounds/good.wav",
   };
   var SCRIPT_URL =
     document.currentScript && document.currentScript.src
@@ -34,6 +38,10 @@
 
   function assetUrl(path) {
     return new URL(path, ASSET_BASE_URL).toString();
+  }
+
+  function pageUrl(path) {
+    return new URL(path, document.baseURI).toString();
   }
 
   function escapeText(value) {
@@ -370,6 +378,22 @@
       "?": "mistake",
       "??": "blunder",
     }[glyph || ""] || "";
+  }
+
+  function soundForPosition(position) {
+    var flags = (position && position.flags) || {};
+    var annotation = annotationForGlyph(position && position.glyph);
+    if (flags.checkmate) return "checkmate";
+    if (flags.capture) return "capture";
+    if (flags.check) return "check";
+    if (flags.castling) return "castle";
+    if (annotation === "blunder" || annotation === "mistake" || annotation === "brilliant" || annotation === "good") return annotation;
+    return "move";
+  }
+
+  function soundUrl(el, name) {
+    var override = el.getAttribute("sound-" + name);
+    return override ? pageUrl(override) : assetUrl(SOUNDS[name]);
   }
 
   function parseComment(comment) {
@@ -768,9 +792,8 @@
 
     playSoundForPosition(position) {
       if (!hasBooleanAttr(this, "sound", false) || !position || typeof window.Audio !== "function") return;
-      var flags = position.flags || {};
-      var name = flags.checkmate ? "checkmate" : flags.capture ? "capture" : flags.check ? "check" : flags.castling ? "castle" : "move";
-      var audio = new window.Audio(assetUrl(SOUNDS[name]));
+      var name = soundForPosition(position);
+      var audio = new window.Audio(soundUrl(this, name));
       if (this._activeSound) this._activeSound.pause();
       this._activeSound = audio;
       audio.play().catch(function () {});

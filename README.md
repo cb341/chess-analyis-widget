@@ -34,7 +34,8 @@ Inline PGN also works:
 - `eval-chart`: show an evaluation chart when the PGN has `[%eval]`.
 - `eval-bar`: show the vertical evaluation bar. Set `eval-bar="false"` to hide it.
 - `clocks`: show per-side remaining time from `[%clk]`.
-- `sound`: play move sounds. Default is off.
+- `sound`: play move, capture, check, mate, and annotation sounds. Default is off.
+- `sound-move`, `sound-capture`, `sound-check`, `sound-checkmate`, `sound-castle`, `sound-blunder`, `sound-mistake`, `sound-brilliant`, `sound-good`: override individual sound file URLs.
 - `header`: set `header="false"` to hide the title and player row.
 - `controls`: set `controls="false"` to hide previous and next controls.
 - `comments`: set `comments="false"` to hide the current move annotation.

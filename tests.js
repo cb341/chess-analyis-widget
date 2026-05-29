@@ -37,7 +37,7 @@ function createNode(tagName) {
 }
 
 global.document = {
-  baseURI: "file:///tmp/",
+  baseURI: "https://example.test/pages/demo.html",
   currentScript: { src: "file:///tmp/chess-widget.js" },
   createElement: createNode,
 };
@@ -70,6 +70,10 @@ global.HTMLElement = class {
 
   setAttribute(name, value) {
     this.attrs[name] = String(value);
+  }
+
+  removeAttribute(name) {
+    delete this.attrs[name];
   }
 
   appendChild(child) {
@@ -453,6 +457,59 @@ async function testControlTouchHandlers() {
   assert.equal(widget.currentPly, 1);
 }
 
+async function testMoveSoundsUseAnnotationsAndOverrides() {
+  const played = [];
+  global.window.Audio = class {
+    constructor(src) {
+      this.src = String(src);
+      played.push(["new", this.src]);
+    }
+
+    play() {
+      played.push(["play", this.src]);
+      return Promise.resolve();
+    }
+
+    pause() {
+      played.push(["pause", this.src]);
+    }
+  };
+
+  function lastSource() {
+    const sources = played.filter(([kind]) => kind === "new").map(([, src]) => src);
+    return sources[sources.length - 1];
+  }
+
+  const widget = await loadPgn(`
+[White "Sounds"]
+[Black "Tester"]
+
+1. e4?? e5? 2. Nf3!! Nc6 3. Bb5! a6 4. Bxa6!! Nf6
+`, {
+    sound: "",
+    "sound-brilliant": "./custom/brilliant.wav",
+  });
+
+  widget.goTo(1);
+  assert.ok(lastSource().endsWith("/assets/sounds/blunder.wav"));
+  widget.goTo(2);
+  assert.ok(lastSource().endsWith("/assets/sounds/mistake.wav"));
+  widget.goTo(3);
+  assert.equal(lastSource(), "https://example.test/pages/custom/brilliant.wav");
+  widget.goTo(5);
+  assert.ok(lastSource().endsWith("/assets/sounds/good.wav"));
+  const soundCount = played.filter(([kind]) => kind === "new").length;
+  widget.removeAttribute("sound");
+  widget.goTo(6);
+  assert.equal(played.filter(([kind]) => kind === "new").length, soundCount);
+  assert.ok(lastSource().endsWith("/assets/sounds/good.wav"));
+  widget.setAttribute("sound", "");
+  widget.goTo(7);
+  assert.ok(lastSource().endsWith("/assets/sounds/capture.wav"));
+
+  delete global.window.Audio;
+}
+
 async function testCustomEventsAndParserExtensionPoint() {
   const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
   assert.equal(parsed.metadata.White, "Ada");
@@ -510,6 +567,7 @@ async function run() {
   await testKeyboardTitlesAreDiscoverable();
   await testArrowControlLabels();
   await testControlTouchHandlers();
+  await testMoveSoundsUseAnnotationsAndOverrides();
   await testCustomEventsAndParserExtensionPoint();
   console.log("tests.js ok");
 }
