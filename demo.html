@@ -171,27 +171,27 @@
       }
 
       .customized-widget .cw-move-list {
-        gap: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 9px;
         max-height: 240px;
         padding: 6px 8px 6px 0;
         counter-reset: styled-move;
       }
 
       .customized-widget .cw-move-row {
-        grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr);
-        gap: 0;
-        align-items: stretch;
-        position: relative;
+        display: contents;
       }
 
       .customized-widget .cw-move-number {
-        display: grid;
+        display: inline-grid;
         place-items: center;
-        width: 26px;
-        height: 26px;
-        align-self: center;
+        min-width: 28px;
+        min-height: 26px;
+        padding: 0 7px;
         border: 2px solid #13293d;
-        border-radius: 50%;
+        border-radius: 999px;
         background: #fff7e6;
         color: #13293d;
         font-size: 11px;
@@ -199,28 +199,16 @@
         box-shadow: 3px 3px 0 #fe7f2d;
       }
 
-      .customized-widget .cw-move-row::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: 0;
-        left: 34px;
-        height: 3px;
-        background: #13293d;
-        transform: translateY(-50%);
-      }
-
       .customized-widget .cw-move {
         position: relative;
-        min-height: 34px;
-        margin-left: 8px;
+        flex: 0 0 auto;
+        min-height: 32px;
         border: 2px solid #13293d;
-        border-radius: 10px;
+        border-radius: 999px;
         background: #fff7e6;
-        padding: 7px 14px;
+        padding: 6px 15px;
         color: #13293d;
         font-weight: 700;
-        clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
         box-shadow: 4px 4px 0 rgba(19, 41, 61, 0.2);
       }
 
@@ -481,35 +469,22 @@ chess-widget.customized-widget .cw-annotation-capture {
 }
 
 chess-widget.customized-widget .cw-move-row {
-  grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0;
-  position: relative;
-}
-
-chess-widget.customized-widget .cw-move-row::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: 0;
-  left: 34px;
-  height: 3px;
-  background: #13293d;
+  display: contents;
 }
 
 chess-widget.customized-widget .cw-move-number {
-  display: grid;
+  display: inline-grid;
   place-items: center;
   border: 2px solid #13293d;
-  border-radius: 50%;
+  border-radius: 999px;
   background: #fff7e6;
   box-shadow: 3px 3px 0 #fe7f2d;
 }
 
 chess-widget.customized-widget .cw-move {
   border: 2px solid #13293d;
-  border-radius: 10px;
+  border-radius: 999px;
   background: #fff7e6;
-  clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
   font-weight: 700;
 }
 
