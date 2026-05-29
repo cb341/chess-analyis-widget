@@ -164,6 +164,7 @@ chess-widget .cg-wrap {
   justify-self: stretch;
   flex: 1;
   min-width: 0;
+  touch-action: pan-y;
 }
 
 chess-widget .cg-wrap,
@@ -240,11 +241,19 @@ chess-widget .cw-annotation {
 }
 
 chess-widget .cw-side {
+  grid-template-rows: minmax(0, 1fr);
   grid-template-columns: 1fr;
   gap: var(--cw-side-gap, 14px);
   align-items: stretch;
   align-content: stretch;
+  height: var(--cw-side-height, calc(var(--cw-board-max-width, 640px) + 46px));
+  max-height: var(--cw-side-max-height, calc(var(--cw-board-max-width, 640px) + 46px));
   min-height: 0;
+  overflow: hidden;
+}
+
+chess-widget .cw-side:has(.cw-chart) {
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 chess-widget .cw-eval {
@@ -259,32 +268,51 @@ chess-widget .cw-eval {
 
 chess-widget .cw-panel {
   grid-column: 1;
+  max-height: 100%;
   min-height: 0;
 }
 
 chess-widget .cw-panel:has(.cw-moves) {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
 }
 
 chess-widget .cw-moves {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
+  overflow: hidden;
 }
 
 chess-widget .cw-controls {
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: var(--cw-control-gap, 8px);
   align-items: center;
+  width: min(
+    calc(100% - var(--cw-board-coordinate-space, 22px)),
+    var(--cw-board-max-width, 640px)
+  );
+  margin-left: var(--cw-board-coordinate-space, 22px);
 }
 
 chess-widget .cw-button,
 chess-widget .cw-move {
   min-height: var(--cw-control-min-height, 36px);
+  min-width: 0;
   cursor: pointer;
-  touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+chess-widget .cw-button {
+  touch-action: none;
+}
+
+chess-widget .cw-move,
+chess-widget .cw-move-list {
+  touch-action: auto;
 }
 
 chess-widget .cw-counter {
@@ -294,9 +322,18 @@ chess-widget .cw-counter {
 
 chess-widget .cw-move-list {
   gap: var(--cw-move-list-gap, 4px);
-  max-height: var(--cw-move-list-max-height, none);
-  overflow: auto;
+  height: 100%;
+  min-height: 0;
+  max-height: var(--cw-move-list-max-height, 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding-right: var(--cw-move-list-scroll-space, 4px);
+  -webkit-overflow-scrolling: touch;
+}
+
+chess-widget .cw-chart svg {
+  touch-action: none;
 }
 
 chess-widget .cw-move-row {
@@ -382,21 +419,28 @@ chess-widget .cw-live {
 
 @media (max-width: 520px) {
   chess-widget.cw-widget {
-    padding: var(--cw-widget-padding-small, 12px);
+    --cw-board-coordinate-space: 18px;
+    --cw-eval-offset: 4px;
+    --cw-eval-width: 12px;
+    --cw-eval-wrap-width: 20px;
+    padding: var(--cw-widget-padding-small, 0);
   }
 
   chess-widget .cw-board-with-eval {
-    display: block;
+    display: flex;
     width: 100%;
+    align-items: stretch;
   }
 
   chess-widget .cw-board-with-eval .cw-eval-wrap {
-    display: none;
+    display: flex;
   }
 
   chess-widget .cg-wrap {
-    width: var(--cw-board-width-small, min(100%, 300px));
-    margin-left: 0;
+    width: var(--cw-board-width-small, auto);
+    max-width: none;
+    margin: 0 0 var(--cw-board-coordinate-space, 22px)
+      var(--cw-board-coordinate-space, 22px);
   }
 
   chess-widget .cw-controls {
@@ -432,7 +476,14 @@ chess-widget .cw-live {
     grid-template-rows: auto auto;
   }
 
+  chess-widget .cw-side {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
   chess-widget .cw-move-list {
+    height: auto;
     max-height: var(--cw-move-list-max-height-small, 270px);
   }
 }

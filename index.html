@@ -13,8 +13,14 @@
         font: 16px/1.55 ui-sans-serif, system-ui, sans-serif;
       }
 
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
       main {
-        width: min(960px, calc(100% - 32px));
+        width: min(980px, calc(100% - 32px));
         margin: 0 auto;
         padding: 32px 0 64px;
       }
@@ -61,7 +67,7 @@
         border-radius: 8px;
         background: #ffffff;
         color: #222;
-        font: 14px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font: 10px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       }
 
       chess-widget {
@@ -88,20 +94,33 @@
         margin: 20px 0 34px;
       }
 
+      .js-openness-example {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        margin: 20px 0 34px;
+      }
+
       .board-pair > *,
-      .custom-example > * {
+      .custom-example > *,
+      .js-openness-example > * {
         flex: 1;
         min-width: 0;
       }
 
       .custom-example .pgn-sample {
         margin: 0;
-        max-height: 620px;
+        max-height: 860px;
         white-space: pre-wrap;
         overflow-wrap: anywhere;
       }
 
       #custom-widget-wrapper chess-widget {
+        margin: 0;
+      }
+
+      .js-openness-example .pgn-sample,
+      .js-openness-example .js-openness-widget {
         margin: 0;
       }
 
@@ -111,6 +130,19 @@
 
       .interactive-figure {
         margin: 20px 0 34px;
+      }
+
+      .figure-pair {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        margin: 20px 0 34px;
+      }
+
+      .figure-pair .interactive-figure {
+        flex: 1 1 0;
+        min-width: 0;
+        margin: 0;
       }
 
       .interactive-figure chess-widget {
@@ -130,8 +162,29 @@
         }
 
         .board-pair,
-        .custom-example {
+        .custom-example,
+        .figure-pair,
+        .js-openness-example {
           flex-direction: column;
+        }
+
+        .board-pair > *,
+        .custom-example > *,
+        .figure-pair > *,
+        .js-openness-example > * {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 520px) {
+        main {
+          width: 100%;
+          padding-inline: 8px;
+        }
+
+        chess-widget {
+          --cw-board-max-width: 100%;
+          --cw-shell-padding: 6px;
         }
       }
     </style>
@@ -168,7 +221,7 @@
 3. Bb5 { [%eval 0.24] The Ruy Lopez starts asking questions. } a6
 1-0</code></pre>
 
-      <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="0" end="51" eval-chart clocks>
+      <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="0" eval-chart clocks>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
 
@@ -205,17 +258,29 @@
             }
 
             .customized-widget .cw-move-list {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 6px;
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+              gap: 8px 12px;
             }
 
             .customized-widget .cw-move-row {
-              display: contents;
+              display: grid;
+              grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr);
+              gap: 6px;
+              align-items: center;
+            }
+
+            .customized-widget .cw-move-number {
+              font-variant-numeric: tabular-nums;
+              text-align: right;
             }
 
             .customized-widget .cw-move {
               border-radius: 999px;
+              justify-content: center;
+              min-height: 34px;
+              padding-inline: 12px;
+              white-space: nowrap;
             }
           </style>
 
@@ -248,7 +313,12 @@
         listener.
       </p>
 
-      <pre class="pgn-sample"><code>&lt;chess-widget class="js-openness-widget"
+      <div class="js-openness-example">
+        <chess-widget sound class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal data-capture-bubble-text="yum">
+          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+        </chess-widget>
+
+        <pre class="pgn-sample"><code>&lt;chess-widget class="js-openness-widget"
   src="./assets/games/blitz-checkmate.pgn"
   start="36"
   end="44"
@@ -256,11 +326,11 @@
   minimal
   data-capture-bubble-text="yum"&gt;
 &lt;/chess-widget&gt;</code></pre>
+      </div>
 
       <style>
         .js-openness-widget {
-          max-width: 760px;
-          margin: 26px auto 42px;
+          margin: 20px 0 34px;
         }
 
         chess-widget.js-openness-widget .cw-capture-bubble {
@@ -298,13 +368,15 @@
           content: "";
           position: absolute;
           right: 18px;
-          bottom: 78%;
+          bottom: calc(78% - 4px);
           width: 12px;
           height: 12px;
           border-right: 2px solid #13293d;
           border-bottom: 2px solid #13293d;
           background: #f9c74f;
           transform: rotate(45deg);
+          animation: js-openness-capture-bubble-tail 900ms cubic-bezier(0.2, 1.4, 0.2, 1);
+          animation-fill-mode: both;
         }
 
         @keyframes js-openness-capture-bubble {
@@ -323,11 +395,24 @@
             transform: translate(0, 0) scale(1);
           }
         }
-      </style>
 
-      <chess-widget sound class="js-openness-widget" src="./assets/games/blitz-checkmate.pgn" start="36" end="44" ply="39" minimal data-capture-bubble-text="yum">
-        <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
-      </chess-widget>
+        @keyframes js-openness-capture-bubble-tail {
+          0% {
+            opacity: 0;
+            transform: translate(-12px, 14px) rotate(45deg) scale(0.5);
+          }
+
+          45% {
+            opacity: 1;
+            transform: translate(4px, -4px) rotate(45deg) scale(1.16);
+          }
+
+          100% {
+            opacity: 1;
+            transform: translate(0, 0) rotate(45deg) scale(1);
+          }
+        }
+      </style>
 
       <script>
         function addDemoCaptureBubble(widget) {
@@ -368,12 +453,12 @@
         rebuilt from SAN moves.
       </p>
 
-      <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="5" clocks>
+      <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="0" end="10" ply="5" clocks>
         <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
       </chess-widget>
 
       <div class="board-pair">
-        <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="1" end="10" ply="1" minimal>
+        <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="0" end="10" ply="1" minimal>
           <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
         </chess-widget>
         <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="30" end="40" ply="30" orientation="black" minimal>
@@ -381,25 +466,27 @@
         </chess-widget>
       </div>
 
-      <figure class="interactive-figure">
-        <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="16" end="24" ply="16" minimal>
-          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
-        </chess-widget>
-        <figcaption>
-          Interactive figure: step through the central break without player
-          ratings, clocks, commentary, or chart panels.
-        </figcaption>
-      </figure>
+      <div class="figure-pair">
+        <figure class="interactive-figure">
+          <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="16" end="24" ply="16" minimal>
+            <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+          </chess-widget>
+          <figcaption>
+            Interactive figure: step through the central break without player
+            ratings, clocks, commentary, or chart panels.
+          </figcaption>
+        </figure>
 
-      <figure class="interactive-figure board-only-example">
-        <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="22" end="30" ply="22" board-only>
-          <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
-        </chess-widget>
-        <figcaption>
-          Board-only figure: focus the board and use the arrow keys to replay
-          the position without visible controls, ratings, clocks, or move list.
-        </figcaption>
-      </figure>
+        <figure class="interactive-figure board-only-example">
+          <chess-widget sound src="./assets/games/blitz-checkmate.pgn" start="22" end="30" ply="22" board-only>
+            <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+          </chess-widget>
+          <figcaption>
+            Board-only figure: focus the board and use the arrow keys to replay
+            the position without visible controls, ratings, clocks, or move list.
+          </figcaption>
+        </figure>
+      </div>
 
       <p>
         In the middle game, White uses the center and queenside structure to

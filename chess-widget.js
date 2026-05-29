@@ -248,6 +248,14 @@
       this.navigationDirection = "forward";
       this._keyboardBound = false;
       this._activeSound = null;
+      this._boardTouchScrub = null;
+      this._boardPointerScrub = null;
+      this._boardScrubStepWidth = 24;
+      this._boundBoardTouchMove = (event) => this.handleBoardTouchMove(event);
+      this._boundBoardTouchEnd = (event) => this.handleBoardTouchEnd(event);
+      this._boardPointerBound = false;
+      this._boundDocumentPointerDown = (event) => this.handleDocumentPointerDown(event);
+      this._previewCommittedPly = null;
     }
 
     connectedCallback() {
@@ -255,6 +263,8 @@
       if (!this.hasAttribute("title")) this.setAttribute("title", "Keyboard: Arrow keys step through moves. Home goes to the first shown move. End goes to the last shown move.");
       this.setAttribute("aria-keyshortcuts", "ArrowLeft ArrowRight ArrowUp ArrowDown Home End");
       this.bindKeyboard();
+      this.bindBoardPointerScrub();
+      this.bindBoardControlDismissal();
       this.loadFromAttributes();
     }
 
@@ -489,6 +499,7 @@
           ? this.seekOriginsForPosition(position.board || {}, previousData)
           : {};
       wrap.className = "cg-wrap cgv1 orientation-" + orientation + " manipulable";
+      this.bindBoardSwipe(wrap);
       board.className = "cw-board";
       board.setAttribute("role", "grid");
       board.setAttribute("aria-label", "Chess board");
@@ -527,6 +538,126 @@
       container.appendChild(this.renderCoordinates("files", files));
       wrap.appendChild(container);
       return wrap;
+    }
+
+    bindBoardSwipe(wrap) {
+      wrap.addEventListener("click", () => this.activateBoardControl());
+      wrap.addEventListener("pointerdown", (event) => this.startBoardPointerScrub(event));
+      wrap.addEventListener("touchstart", (event) => this.startBoardTouchScrub(event), { passive: true });
+    }
+
+    bindBoardControlDismissal() {
+      if (this._boardControlDismissalBound) return;
+      this._boardControlDismissalBound = true;
+      if (document.addEventListener) document.addEventListener("pointerdown", this._boundDocumentPointerDown);
+    }
+
+    activateBoardControl() {
+      this.classList.add("cw-board-controlled");
+      this.focus();
+    }
+
+    handleDocumentPointerDown(event) {
+      if (!this.classList || !this.classList.remove) return;
+      var target = event.target;
+      if (target && this.contains && this.contains(target) && target.closest && target.closest(".cg-wrap")) return;
+      this.classList.remove("cw-board-controlled");
+    }
+
+    bindBoardPointerScrub() {
+      if (this._boardPointerBound) return;
+      this._boardPointerBound = true;
+      this.addEventListener("pointermove", (event) => this.handleBoardPointerMove(event));
+      this.addEventListener("pointerup", (event) => this.handleBoardPointerEnd(event));
+      this.addEventListener("pointercancel", (event) => this.handleBoardPointerEnd(event));
+    }
+
+    startBoardPointerScrub(event) {
+      if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+      this.endBoardTouchScrub();
+      this._boardPointerScrub = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        ply: this.currentPly,
+      };
+      this.classList.add("cw-scrubbing");
+      if (this.setPointerCapture) this.setPointerCapture(event.pointerId);
+    }
+
+    handleBoardPointerMove(event) {
+      if (!this._boardPointerScrub || event.pointerId !== this._boardPointerScrub.id) return;
+      this.scrubBoardPoint(event, this._boardPointerScrub, event, this._boardScrubStepWidth);
+    }
+
+    handleBoardPointerEnd(event) {
+      if (!this._boardPointerScrub || event.pointerId !== this._boardPointerScrub.id) return;
+      this.scrubBoardPoint(event, this._boardPointerScrub, event, this._boardScrubStepWidth);
+      if (this.releasePointerCapture) this.releasePointerCapture(event.pointerId);
+      this._boardPointerScrub = null;
+      this.classList.remove("cw-scrubbing");
+    }
+
+    startBoardTouchScrub(event) {
+      if (!event.touches || event.touches.length !== 1) {
+        this.endBoardTouchScrub();
+        return;
+      }
+
+      this.endBoardTouchScrub();
+      this._boardTouchScrub = {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+        ply: this.currentPly,
+      };
+      this.classList.add("cw-scrubbing");
+
+      if (document.addEventListener) {
+        document.addEventListener("touchmove", this._boundBoardTouchMove, { passive: false });
+        document.addEventListener("touchend", this._boundBoardTouchEnd, { passive: false });
+        document.addEventListener("touchcancel", this._boundBoardTouchEnd, { passive: false });
+      }
+    }
+
+    handleBoardTouchMove(event) {
+      if (!this._boardTouchScrub || !event.touches || event.touches.length !== 1) return;
+      this.scrubBoardPoint(event.touches[0], this._boardTouchScrub, event, this._boardScrubStepWidth);
+    }
+
+    handleBoardTouchEnd(event) {
+      if (!this._boardTouchScrub) return;
+      var touch =
+        event.changedTouches && event.changedTouches.length
+          ? event.changedTouches[0]
+          : null;
+      if (touch) this.scrubBoardPoint(touch, this._boardTouchScrub, event, this._boardScrubStepWidth);
+      this.endBoardTouchScrub();
+    }
+
+    endBoardTouchScrub() {
+      this._boardTouchScrub = null;
+      this.classList.remove("cw-scrubbing");
+      if (document.removeEventListener) {
+        document.removeEventListener("touchmove", this._boundBoardTouchMove);
+        document.removeEventListener("touchend", this._boundBoardTouchEnd);
+        document.removeEventListener("touchcancel", this._boundBoardTouchEnd);
+      }
+    }
+
+    scrubBoardPoint(point, start, event, stepWidth) {
+      var dx = point.clientX - start.x;
+      var dy = point.clientY - start.y;
+      var horizontal = Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy);
+      if (!horizontal) return;
+      event.preventDefault();
+
+      var steps = Math.trunc(Math.abs(dx) / stepWidth);
+      if (steps < 1) return;
+
+      var target = start.ply + (dx < 0 ? steps : -steps);
+      var before = this.currentPly;
+      this.goTo(target);
+      if (this.currentPly !== before) start.moved = true;
     }
 
     renderMoveBadge(position) {
@@ -839,8 +970,43 @@
         return x + "," + y;
       });
       section.className = "cw-chart";
-      section.innerHTML = '<svg viewBox="0 0 ' + width + " " + height + '" role="img" aria-label="Evaluation over time"><rect class="cw-chart-white" x="0" y="0" width="' + width + '" height="' + height / 2 + '"></rect><rect class="cw-chart-black" x="0" y="' + height / 2 + '" width="' + width + '" height="' + height / 2 + '"></rect><line class="cw-chart-zero" x1="0" y1="' + height / 2 + '" x2="' + width + '" y2="' + height / 2 + '"></line><polyline class="cw-chart-line" points="' + points.join(" ") + '"></polyline><line class="cw-chart-current" x1="' + this.chartX(width, game.positions.length) + '" y1="0" x2="' + this.chartX(width, game.positions.length) + '" y2="' + height + '"></line></svg>';
+      section.appendChild(this.renderEvalChartSvg(width, height, points, game.positions.length));
       return section;
+    }
+
+    renderEvalChartSvg(width, height, points, count) {
+      var svg = document.createElementNS
+        ? document.createElementNS("http://www.w3.org/2000/svg", "svg")
+        : document.createElement("svg");
+      svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+      svg.setAttribute("role", "img");
+      svg.setAttribute("aria-label", "Evaluation over time");
+      svg.innerHTML = '<rect class="cw-chart-white" x="0" y="0" width="' + width + '" height="' + height / 2 + '"></rect><rect class="cw-chart-black" x="0" y="' + height / 2 + '" width="' + width + '" height="' + height / 2 + '"></rect><line class="cw-chart-zero" x1="0" y1="' + height / 2 + '" x2="' + width + '" y2="' + height / 2 + '"></line><polyline class="cw-chart-line" points="' + points.join(" ") + '"></polyline><line class="cw-chart-current" x1="' + this.chartX(width, count) + '" y1="0" x2="' + this.chartX(width, count) + '" y2="' + height + '"></line>';
+      svg.addEventListener("pointerdown", (event) => this.scrubEvalChart(event, svg, width, count));
+      svg.addEventListener("pointermove", (event) => {
+        if (event.buttons !== 1 && event.pointerType !== "touch" && event.pointerType !== "pen") return;
+        this.scrubEvalChart(event, svg, width, count);
+      });
+      svg.addEventListener("touchstart", (event) => {
+        if (!event.touches || event.touches.length !== 1) return;
+        this.scrubEvalChart(event.touches[0], svg, width, count, event);
+      }, { passive: false });
+      svg.addEventListener("touchmove", (event) => {
+        if (!event.touches || event.touches.length !== 1) return;
+        this.scrubEvalChart(event.touches[0], svg, width, count, event);
+      }, { passive: false });
+      return svg;
+    }
+
+    scrubEvalChart(point, svg, width, count, originalEvent) {
+      var event = originalEvent || point;
+      if (event.preventDefault) event.preventDefault();
+      if (svg.setPointerCapture && point.pointerId != null) svg.setPointerCapture(point.pointerId);
+      var rect = svg.getBoundingClientRect ? svg.getBoundingClientRect() : { left: 0, width: width };
+      var chartWidth = rect.width || width;
+      var x = Math.max(0, Math.min(chartWidth, point.clientX - rect.left));
+      var ply = count <= 1 ? 0 : Math.round((x / chartWidth) * (count - 1));
+      this.goTo(ply);
     }
 
     chartX(width, count) {
@@ -852,6 +1018,13 @@
       section.className = "cw-moves";
       var list = document.createElement("div");
       list.className = "cw-move-list";
+      list.addEventListener("scroll", () => {
+        this._moveListScrolling = true;
+        if (this._moveListScrollTimer) window.clearTimeout(this._moveListScrollTimer);
+        this._moveListScrollTimer = window.setTimeout(() => {
+          this._moveListScrolling = false;
+        }, 140);
+      }, { passive: true });
       var visible = game.moves.filter((move) => move.ply >= this.startPly() && move.ply <= this.endPly());
       var rows = [];
       visible.forEach(function (move) {
@@ -884,10 +1057,41 @@
       button.type = "button";
       button.className = "cw-move" + (move.ply === this.currentPly ? " cw-active-move" : "");
       button.title = "Go to " + moveLabel(this.game, move.ply) + ". Keyboard: arrow keys continue from there.";
-      button.addEventListener("click", () => this.goTo(move.ply));
-      button.addEventListener("pointerenter", (event) => {
-        if (event.pointerType === "touch") return;
+      var touchStart = null;
+      button.addEventListener("touchstart", (event) => {
+        if (!event.touches || event.touches.length !== 1) return;
+        touchStart = {
+          x: event.touches[0].clientX,
+          y: event.touches[0].clientY,
+          scrolling: false,
+        };
+      }, { passive: true });
+      button.addEventListener("touchmove", (event) => {
+        if (!touchStart || !event.touches || event.touches.length !== 1) return;
+        var dx = event.touches[0].clientX - touchStart.x;
+        var dy = event.touches[0].clientY - touchStart.y;
+        if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) touchStart.scrolling = true;
+      }, { passive: true });
+      button.addEventListener("touchend", () => {
+        if (touchStart && touchStart.scrolling) this._suppressNextMoveClick = true;
+        touchStart = null;
+      }, { passive: true });
+      button.addEventListener("click", (event) => {
+        if (this._suppressNextMoveClick) {
+          event.preventDefault();
+          this._suppressNextMoveClick = false;
+          return;
+        }
+        this._previewCommittedPly = null;
         this.goTo(move.ply);
+      });
+      button.addEventListener("pointerenter", (event) => {
+        if (this._moveListScrolling || event.pointerType === "touch" || event.pointerType === "pen" || !this.hoverSkimmingEnabled()) return;
+        this.previewMove(move.ply);
+      });
+      button.addEventListener("pointerleave", (event) => {
+        if (event.pointerType === "touch" || event.pointerType === "pen" || !this.hoverSkimmingEnabled()) return;
+        this.restoreMovePreview();
       });
       var san = document.createElement("span");
       san.textContent = move.san;
@@ -897,6 +1101,23 @@
       button.appendChild(san);
       button.appendChild(mark);
       return button;
+    }
+
+    previewMove(ply) {
+      if (this._previewCommittedPly == null) this._previewCommittedPly = this.currentPly;
+      this.goTo(ply);
+    }
+
+    restoreMovePreview() {
+      if (this._previewCommittedPly == null) return;
+      var ply = this._previewCommittedPly;
+      this._previewCommittedPly = null;
+      this.goTo(ply);
+    }
+
+    hoverSkimmingEnabled() {
+      if (!window.matchMedia) return true;
+      return !window.matchMedia("(hover: none), (pointer: coarse)").matches;
     }
   }
 

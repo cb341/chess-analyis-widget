@@ -16,7 +16,13 @@ function createNode(tagName) {
       },
     },
     classList: {
-      add() {},
+      values: [],
+      add(name) {
+        this.values.push(name);
+      },
+      remove(name) {
+        this.values = this.values.filter((value) => value !== name);
+      },
     },
     appendChild(child) {
       this.children.push(child);
@@ -40,6 +46,14 @@ global.document = {
   baseURI: "https://example.test/pages/demo.html",
   currentScript: { src: "file:///tmp/chess-widget.js" },
   createElement: createNode,
+  listeners: {},
+  addEventListener(name, callback) {
+    this.listeners[name] ||= [];
+    this.listeners[name].push(callback);
+  },
+  removeEventListener(name, callback) {
+    this.listeners[name] = (this.listeners[name] || []).filter((listener) => listener !== callback);
+  },
 };
 
 global.customElements = {
@@ -56,7 +70,15 @@ global.HTMLElement = class {
     this.attrs = {};
     this.children = [];
     this.textContent = "";
-    this.classList = { add() {} };
+    this.classList = {
+      values: [],
+      add(name) {
+        this.values.push(name);
+      },
+      remove(name) {
+        this.values = this.values.filter((value) => value !== name);
+      },
+    };
     this.listeners = {};
   }
 
@@ -107,6 +129,8 @@ global.CustomEvent = class {
 };
 
 global.window = {};
+global.window.setTimeout = setTimeout;
+global.window.clearTimeout = clearTimeout;
 
 eval(fs.readFileSync("chess-pgn.js", "utf8"));
 eval(fs.readFileSync("chess-widget.js", "utf8"));
@@ -128,16 +152,16 @@ async function loadPgn(pgn, attrs = {}) {
 
 async function testSamplePgn() {
   const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
-  assert.equal(widget.game.metadata.White, "Ada");
-  assert.equal(widget.game.metadata.Black, "Grace");
-  assert.equal(widget.game.metadata.WhiteElo, "1650");
-  assert.equal(widget.game.metadata.BlackElo, "1620");
-  assert.equal(widget.game.moves.length, 51);
-  assert.equal(widget.game.positions.length, 52);
-  assert.equal(widget.game.moves[0].comment, "White takes the center.");
-  assert.deepEqual(widget.game.moves[0].eval, { value: 0.2, mate: false });
-  assert.equal(widget.game.moves[0].clock, "0:05:00");
-  assert.deepEqual(widget.game.moves[46].eval, { value: 5, mate: true });
+  assert.equal(widget.game.metadata.White, "Magnus Carlsen");
+  assert.equal(widget.game.metadata.Black, "Garry Kasparov");
+  assert.equal(widget.game.metadata.WhiteElo, "2484");
+  assert.equal(widget.game.metadata.BlackElo, "2831");
+  assert.equal(widget.game.moves.length, 103);
+  assert.equal(widget.game.positions.length, 104);
+  assert.equal(widget.game.moves[0].san, "d4");
+  assert.deepEqual(widget.game.moves[0].eval, { value: 0.15, mate: false });
+  assert.equal(widget.game.moves[0].clock, null);
+  assert.deepEqual(widget.game.moves[40].eval, { value: 2.09, mate: false });
 }
 
 async function testCommentAttachmentAndGlyphs() {
@@ -211,8 +235,8 @@ async function testSrcWinsOverFallback() {
   const widget = await loadPgn("See the annotated game on the site", {
     src: "/assets/games/blitz-checkmate.pgn",
   });
-  assert.equal(widget.game.metadata.White, "Ada");
-  assert.equal(widget.game.moves[0].san, "e4");
+  assert.equal(widget.game.metadata.White, "Magnus Carlsen");
+  assert.equal(widget.game.moves[0].san, "d4");
   delete global.fetch;
 }
 
@@ -225,12 +249,12 @@ async function testMoveListGroupsByMoveNumber() {
   assert.equal(list.children.length, 3);
   assert.equal(list.children[0].children[0].textContent, "1.");
   assert.equal(list.children[0].children[1].tagName, "span");
-  assert.equal(list.children[0].children[2].children[0].textContent, "e5");
+  assert.equal(list.children[0].children[2].children[0].textContent, "d5");
   assert.equal(list.children[1].children[0].textContent, "2.");
-  assert.equal(list.children[1].children[1].children[0].textContent, "Nf3");
-  assert.equal(list.children[1].children[2].children[0].textContent, "Nc6");
+  assert.equal(list.children[1].children[1].children[0].textContent, "c4");
+  assert.equal(list.children[1].children[2].children[0].textContent, "c6");
   assert.equal(list.children[2].children[0].textContent, "3.");
-  assert.equal(list.children[2].children[1].children[0].textContent, "Bb5");
+  assert.equal(list.children[2].children[1].children[0].textContent, "Nf3");
   assert.equal(list.children[2].children[2].tagName, "span");
 }
 
@@ -311,14 +335,14 @@ async function testMoveAnimationState() {
   widget.navigationDirection = "forward";
   const boardWrap = widget.renderBoard(widget.game.positions[1]);
   const board = boardWrap.children[0].children[0];
-  const e4Pawn = board.children.find(function (node) {
-    return node.tagName === "piece" && node.attributes["aria-label"] === "e4, White pawn";
+  const d4Pawn = board.children.find(function (node) {
+    return node.tagName === "piece" && node.attributes["aria-label"] === "d4, White pawn";
   });
-  assert.ok(e4Pawn);
-  assert.ok(e4Pawn.className.includes("cw-piece-arrived"));
-  assert.equal(e4Pawn.style["--cw-from-transform"], "translate(400%, 600%)");
-  assert.equal(e4Pawn.style["--cw-transform"], "translate(400%, 400%)");
-  assert.equal(e4Pawn.style.transform, "var(--cw-transform)");
+  assert.ok(d4Pawn);
+  assert.ok(d4Pawn.className.includes("cw-piece-arrived"));
+  assert.equal(d4Pawn.style["--cw-from-transform"], "translate(300%, 600%)");
+  assert.equal(d4Pawn.style["--cw-transform"], "translate(300%, 400%)");
+  assert.equal(d4Pawn.style.transform, "var(--cw-transform)");
 }
 
 async function testCaptureAnnotationClass() {
@@ -383,18 +407,18 @@ async function testSeekAnimationMovesMatchedPieces() {
   widget.goTo(4);
   const boardWrap = widget.renderBoard(widget.game.positions[4]);
   const board = boardWrap.children[0].children[0];
-  const e4Pawn = board.children.find(function (node) {
-    return node.tagName === "piece" && node.attributes["aria-label"] === "e4, White pawn";
+  const d4Pawn = board.children.find(function (node) {
+    return node.tagName === "piece" && node.attributes["aria-label"] === "d4, White pawn";
   });
-  const c6Knight = board.children.find(function (node) {
-    return node.tagName === "piece" && node.attributes["aria-label"] === "c6, Black knight";
+  const c6Pawn = board.children.find(function (node) {
+    return node.tagName === "piece" && node.attributes["aria-label"] === "c6, Black pawn";
   });
-  assert.ok(e4Pawn);
-  assert.ok(c6Knight);
-  assert.ok(e4Pawn.className.includes("cw-piece-arrived"));
-  assert.ok(c6Knight.className.includes("cw-piece-arrived"));
-  assert.equal(e4Pawn.style["--cw-from-transform"], "translate(400%, 600%)");
-  assert.equal(c6Knight.style["--cw-from-transform"], "translate(100%, 0%)");
+  assert.ok(d4Pawn);
+  assert.ok(c6Pawn);
+  assert.ok(d4Pawn.className.includes("cw-piece-arrived"));
+  assert.ok(c6Pawn.className.includes("cw-piece-arrived"));
+  assert.equal(d4Pawn.style["--cw-from-transform"], "translate(300%, 600%)");
+  assert.equal(c6Pawn.style["--cw-from-transform"], "translate(200%, 100%)");
 }
 
 async function testKeyboardTitlesAreDiscoverable() {
@@ -406,7 +430,7 @@ async function testKeyboardTitlesAreDiscoverable() {
   assert.match(controls.children[1].title, /Home and End/);
   assert.match(controls.children[2].title, /ArrowRight/);
   const moveButton = widget.renderMoveButton(widget.game.moves[3]);
-  assert.match(moveButton.title, /Go to 2\.\.\. Nc6/);
+  assert.match(moveButton.title, /Go to 2\.\.\. c6/);
   assert.match(moveButton.title, /arrow keys/);
 }
 
@@ -432,12 +456,55 @@ async function testMoveListSkimmingPlaysSound() {
   moveButton.listeners.pointerenter[0]({ pointerType: "mouse" });
   assert.equal(widget.currentPly, 1);
   assert.ok(played[0].endsWith("/assets/sounds/standard/Move.mp3"));
+  moveButton.listeners.pointerleave[0]({ pointerType: "mouse" });
+  assert.equal(widget.currentPly, 0);
+
+  const committedMove = widget.renderMoveButton(widget.game.moves[1]);
+  committedMove.listeners.pointerenter[0]({ pointerType: "mouse" });
+  assert.equal(widget.currentPly, 2);
+  committedMove.listeners.click[0]({ preventDefault() {} });
+  committedMove.listeners.pointerleave[0]({ pointerType: "mouse" });
+  assert.equal(widget.currentPly, 2);
 
   const soundCount = played.length;
   const touchMove = widget.renderMoveButton(widget.game.moves[1]);
   touchMove.listeners.pointerenter[0]({ pointerType: "touch" });
-  assert.equal(widget.currentPly, 1);
+  assert.equal(widget.currentPly, 2);
   assert.equal(played.length, soundCount);
+
+  const originalMatchMedia = global.window.matchMedia;
+  global.window.matchMedia = function (query) {
+    assert.equal(query, "(hover: none), (pointer: coarse)");
+    return { matches: true };
+  };
+  const coarseMove = widget.renderMoveButton(widget.game.moves[2]);
+  coarseMove.listeners.pointerenter[0]({ pointerType: "mouse" });
+  assert.equal(widget.currentPly, 2);
+  assert.equal(played.length, soundCount);
+  global.window.matchMedia = originalMatchMedia;
+
+  widget._moveListScrolling = true;
+  const scrollingHoverMove = widget.renderMoveButton(widget.game.moves[4]);
+  scrollingHoverMove.listeners.pointerenter[0]({ pointerType: "mouse" });
+  assert.equal(widget.currentPly, 2);
+  widget._moveListScrolling = false;
+
+  const scrollMove = widget.renderMoveButton(widget.game.moves[3]);
+  scrollMove.listeners.touchstart[0]({
+    touches: [{ clientX: 20, clientY: 20 }],
+  });
+  scrollMove.listeners.touchmove[0]({
+    touches: [{ clientX: 22, clientY: 64 }],
+  });
+  scrollMove.listeners.touchend[0]({});
+  let clickPrevented = false;
+  scrollMove.listeners.click[0]({
+    preventDefault() {
+      clickPrevented = true;
+    },
+  });
+  assert.equal(clickPrevented, true);
+  assert.equal(widget.currentPly, 2);
 
   delete global.window.Audio;
 }
@@ -488,6 +555,151 @@ async function testControlTouchHandlers() {
   }, "next");
   assert.equal(clickPrevented, true);
   assert.equal(widget.currentPly, 1);
+}
+
+async function testBoardSwipeNavigation() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    "board-only": "",
+  });
+  let capturedPointer = null;
+  let releasedPointer = null;
+  widget.setPointerCapture = function (pointerId) {
+    capturedPointer = pointerId;
+  };
+  widget.releasePointerCapture = function (pointerId) {
+    releasedPointer = pointerId;
+  };
+  const board = widget.renderBoard(widget.game.positions[0]);
+  assert.equal(board.listeners.touchstart.length, 1);
+  assert.equal(board.listeners.pointerdown.length, 1);
+
+  widget.currentPly = 1;
+  board.listeners.pointerdown[0]({
+    pointerId: 7,
+    pointerType: "touch",
+    clientX: 180,
+    clientY: 80,
+  });
+  assert.equal(capturedPointer, 7);
+  let pointerMovePrevented = false;
+  widget.listeners.pointermove[0]({
+    pointerId: 7,
+    clientX: 120,
+    clientY: 84,
+    preventDefault() {
+      pointerMovePrevented = true;
+    },
+  });
+  assert.equal(pointerMovePrevented, true);
+  assert.equal(widget.currentPly, 3);
+  widget.listeners.pointermove[0]({
+    pointerId: 7,
+    clientX: 60,
+    clientY: 88,
+    preventDefault() {},
+  });
+  assert.equal(widget.currentPly, 6);
+  widget.listeners.pointerup[0]({
+    pointerId: 7,
+    clientX: 60,
+    clientY: 88,
+    preventDefault() {},
+  });
+  assert.equal(releasedPointer, 7);
+
+  widget.currentPly = 1;
+  board.listeners.touchstart[0]({
+    touches: [{ clientX: 180, clientY: 80 }],
+  });
+  assert.equal(global.document.listeners.touchmove.length, 1);
+  assert.equal(global.document.listeners.touchend.length, 1);
+  let movePrevented = false;
+  global.document.listeners.touchmove[0]({
+    touches: [{ clientX: 120, clientY: 84 }],
+    preventDefault() {
+      movePrevented = true;
+    },
+  });
+  assert.equal(movePrevented, true);
+  assert.equal(widget.currentPly, 3);
+
+  let endPrevented = false;
+  global.document.listeners.touchend[0]({
+    changedTouches: [{ clientX: 116, clientY: 84 }],
+    preventDefault() {
+      endPrevented = true;
+    },
+  });
+  assert.equal(endPrevented, true);
+  assert.equal(widget.currentPly, 3);
+  assert.equal(global.document.listeners.touchmove.length, 0);
+
+  board.listeners.touchstart[0]({
+    touches: [{ clientX: 120, clientY: 80 }],
+  });
+  global.document.listeners.touchend[0]({
+    changedTouches: [{ clientX: 174, clientY: 83 }],
+    preventDefault() {},
+  });
+  assert.equal(widget.currentPly, 1);
+
+  board.listeners.touchstart[0]({
+    touches: [{ clientX: 120, clientY: 80 }],
+  });
+  global.document.listeners.touchend[0]({
+    changedTouches: [{ clientX: 130, clientY: 150 }],
+    preventDefault() {
+      throw new Error("vertical drags should not navigate");
+    },
+  });
+  assert.equal(widget.currentPly, 1);
+}
+
+async function testBoardControlOutlineDismissesOutsideBoard() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const board = widget.renderBoard(widget.game.positions[0]);
+  widget.focus = function () {};
+  board.listeners.click[0]({});
+  assert.ok(widget.classList.values.includes("cw-board-controlled"));
+
+  widget.handleDocumentPointerDown({
+    target: {
+      closest() {
+        return null;
+      },
+    },
+  });
+  assert.equal(widget.classList.values.includes("cw-board-controlled"), false);
+}
+
+async function testEvalChartScrubbing() {
+  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+    "eval-chart": "",
+  });
+  const chart = widget.renderEvalChart(widget.game);
+  const svg = chart.children[0];
+  svg.getBoundingClientRect = function () {
+    return { left: 10, width: 320 };
+  };
+  let pointerPrevented = false;
+  svg.listeners.pointerdown[0]({
+    pointerId: 4,
+    buttons: 1,
+    clientX: 170,
+    preventDefault() {
+      pointerPrevented = true;
+    },
+  });
+  assert.equal(pointerPrevented, true);
+  assert.equal(widget.currentPly, Math.round((160 / 320) * (widget.game.positions.length - 1)));
+
+  svg.listeners.pointermove[0]({
+    pointerId: 4,
+    buttons: 1,
+    clientX: 330,
+    preventDefault() {},
+  });
+  assert.equal(widget.currentPly, widget.game.positions.length - 1);
 }
 
 async function testMoveSoundsUseAnnotationsAndOverrides() {
@@ -599,7 +811,7 @@ async function testAssetConfiguration() {
 
 async function testCustomEventsAndParserExtensionPoint() {
   const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
-  assert.equal(parsed.metadata.White, "Ada");
+  assert.equal(parsed.metadata.White, "Magnus Carlsen");
 
   const widget = new ChessWidget();
   const seen = [];
@@ -623,7 +835,7 @@ async function testCustomEventsAndParserExtensionPoint() {
   widget.connectedCallback();
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  assert.deepEqual(seen[0], ["load", "Ada"]);
+  assert.deepEqual(seen[0], ["load", "Magnus Carlsen"]);
   assert.deepEqual(seen[1], ["render", 0]);
   widget.goTo(2);
   assert.equal(widget.currentPly, 0);
@@ -655,6 +867,9 @@ async function run() {
   await testMoveListSkimmingPlaysSound();
   await testArrowControlLabels();
   await testControlTouchHandlers();
+  await testBoardSwipeNavigation();
+  await testBoardControlOutlineDismissesOutsideBoard();
+  await testEvalChartScrubbing();
   await testMoveSoundsUseAnnotationsAndOverrides();
   await testAssetConfiguration();
   await testCustomEventsAndParserExtensionPoint();

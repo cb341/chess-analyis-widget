@@ -106,7 +106,7 @@ Per ply, it keeps the SAN, side, board position, comment text, eval value or mat
 ## Lichess Eval Workflow
 
 1. Get the game PGN from wherever you played. On chess.com, use Download or Share, then PGN. That PGN has moves and clocks but no eval, which is normal. chess.com does not export eval.
-2. Go to `lichess.org/paste`, paste the PGN, import it, then request Computer analysis. Stockfish runs on lichess servers. lichess accepts any PGN. The game does not need to be played there.
+2. Go to `lichess.org/paste`, paste the PGN, import it, then click **Request game analysis**. Stockfish runs on lichess servers. lichess accepts any PGN. The game does not need to be played there.
 3. Export the analyzed PGN. lichess writes `{ [%eval 0.24] }`, mate as `{ [%eval #3] }`, and clocks as `{ [%clk 0:05:00] }`.
 4. Paste into the widget. The chart is built from `[%eval]`. No engine runs in the widget. A PGN with no `[%eval]`, such as a raw chess.com export, still replays fine. It just shows no chart.
 

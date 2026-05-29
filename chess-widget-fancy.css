@@ -79,6 +79,11 @@ chess-widget .cw-board {
   box-shadow: var(--cw-board-shadow);
 }
 
+chess-widget.cw-board-controlled .cg-wrap {
+  outline: var(--cw-board-control-outline, 2px dashed var(--cw-ink));
+  outline-offset: var(--cw-board-control-outline-offset, 5px);
+}
+
 chess-widget square.cg-square {
   z-index: 0;
   border: var(--cw-square-border, 1px solid var(--cw-line));
@@ -121,8 +126,8 @@ chess-widget piece.cw-piece {
   z-index: 2;
   transform-origin: var(--cw-piece-transform-origin, 50% 72%);
   transition:
-    transform var(--cw-piece-transition, 260ms cubic-bezier(0.2, 0.8, 0.2, 1)),
-    filter var(--cw-piece-filter-transition, 260ms ease);
+    transform var(--cw-piece-transition, 620ms cubic-bezier(0.16, 1, 0.3, 1)),
+    filter var(--cw-piece-filter-transition, 620ms ease);
   filter: var(--cw-piece-shadow);
 }
 
@@ -132,11 +137,11 @@ chess-widget piece.cw-piece img {
 
 chess-widget piece.cw-piece-arrived {
   animation: cw-piece-arrive
-    var(--cw-piece-arrive-animation, 360ms cubic-bezier(0.2, 0.9, 0.2, 1));
+    var(--cw-piece-arrive-animation, 760ms cubic-bezier(0.16, 1, 0.3, 1));
 }
 
 chess-widget piece.cw-piece-spawned {
-  animation: cw-piece-spawn var(--cw-piece-spawn-animation, 220ms ease-out);
+  animation: cw-piece-spawn var(--cw-piece-spawn-animation, 520ms ease-out);
 }
 
 chess-widget move-marker.cw-board-marker {
@@ -168,14 +173,14 @@ chess-widget coords {
 chess-widget coords.ranks {
   top: 0;
   bottom: 0;
-  left: -18px;
+  left: calc(-1 * var(--cw-board-coordinate-space, 22px));
   flex-direction: column;
   justify-content: space-around;
 }
 
 chess-widget coords.files {
   right: 5px;
-  bottom: -20px;
+  bottom: calc(-1 * var(--cw-board-coordinate-space, 22px));
   left: 5px;
   justify-content: space-around;
 }
@@ -204,6 +209,7 @@ chess-widget .cw-annotation span {
   color: var(--cw-muted);
   font-size: 14px;
   line-height: 1.35;
+  font-variant-numeric: tabular-nums;
 }
 
 chess-widget .cw-annotation-mistake {
@@ -258,8 +264,13 @@ chess-widget .cw-eval-white {
 chess-widget .cw-eval-text {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
+  display: inline-block;
+  inline-size: var(--cw-eval-text-size, 5ch);
+  min-block-size: var(--cw-eval-text-size, 5ch);
   color: var(--cw-muted);
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 chess-widget .cw-button,
@@ -269,6 +280,8 @@ chess-widget .cw-bookmark {
   background: var(--cw-paper);
   color: var(--cw-ink);
   font-size: var(--cw-control-font-size, 14px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 chess-widget .cw-button:hover:not(:disabled),
@@ -294,6 +307,7 @@ chess-widget .cw-counter,
 chess-widget .cw-move-number {
   color: var(--cw-muted);
   font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 chess-widget .cw-panel {
@@ -302,13 +316,35 @@ chess-widget .cw-panel {
 }
 
 chess-widget .cw-panel summary {
+  display: flex;
+  gap: 8px;
+  align-items: center;
   cursor: pointer;
-  list-style-position: outside;
+  list-style: none;
   margin: 0;
   color: var(--cw-ink);
   font-weight: 700;
   font-size: 16px;
   line-height: 1.2;
+}
+
+chess-widget .cw-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+chess-widget .cw-panel summary::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 8px solid currentColor;
+  transform-origin: 45% 50%;
+}
+
+chess-widget .cw-panel[open] summary::before {
+  transform: rotate(90deg);
 }
 
 chess-widget .cw-panel[open] summary {
@@ -485,11 +521,11 @@ chess-widget .cw-bookmark:hover {
 
 @keyframes cw-piece-arrive {
   0% {
-    transform: var(--cw-from-transform) rotate(-4deg) scale(0.92);
+    transform: var(--cw-from-transform) rotate(-2deg) scale(0.98);
   }
 
-  58% {
-    transform: var(--cw-transform) rotate(3deg) scale(1.08);
+  72% {
+    transform: var(--cw-transform) rotate(1deg) scale(1.02);
   }
 
   100% {
@@ -533,6 +569,10 @@ chess-widget .cw-bookmark:hover {
 }
 
 @media (max-width: 520px) {
+  chess-widget .cw-shell {
+    padding: 6px;
+  }
+
   chess-widget coords {
     font-size: 9px;
   }
