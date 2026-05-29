@@ -9,7 +9,7 @@ No server, Stockfish, database, build step, or precomputed JSON is required.
 ```html
 <link rel="stylesheet" href="./chess-widget.css">
 
-<chess-widget src="/assets/games/blitz-checkmate.pgn" eval-chart clocks>
+<chess-widget src="/assets/games/carlsen-kasparov-reykjavik-rapid.pgn" eval-chart clocks>
   <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
 </chess-widget>
 
@@ -56,7 +56,7 @@ The bundled defaults are the cburnett SVG set and selected Lichess standard soun
 
 ```html
 <chess-widget
-  src="/assets/games/blitz-checkmate.pgn"
+  src="/assets/games/carlsen-kasparov-reykjavik-rapid.pgn"
   sound
   piece-path="/my-piece-set/"
   piece-white-king="/my-piece-set/wk.svg"
@@ -163,4 +163,4 @@ const parsed = window.ChessPgn.parse(pgn);
 const game = customElements.get("chess-widget").parsePgn(pgn);
 ```
 
-See `index.html` and `assets/games/blitz-checkmate.pgn` for a complete static page.
+See `index.html` and `assets/games/carlsen-kasparov-reykjavik-rapid.pgn` for a complete static page.

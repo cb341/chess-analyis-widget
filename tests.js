@@ -151,7 +151,7 @@ async function loadPgn(pgn, attrs = {}) {
 }
 
 async function testSamplePgn() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   assert.equal(widget.game.metadata.White, "Magnus Carlsen");
   assert.equal(widget.game.metadata.Black, "Garry Kasparov");
   assert.equal(widget.game.metadata.WhiteElo, "2484");
@@ -222,9 +222,9 @@ async function testPromotionAndEnPassant() {
 }
 
 async function testSrcWinsOverFallback() {
-  const pgn = fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8");
+  const pgn = fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8");
   global.fetch = async function (url) {
-    assert.equal(url, "/assets/games/blitz-checkmate.pgn");
+    assert.equal(url, "/assets/games/carlsen-kasparov-reykjavik-rapid.pgn");
     return {
       ok: true,
       async text() {
@@ -233,15 +233,39 @@ async function testSrcWinsOverFallback() {
     };
   };
   const widget = await loadPgn("See the annotated game on the site", {
-    src: "/assets/games/blitz-checkmate.pgn",
+    src: "/assets/games/carlsen-kasparov-reykjavik-rapid.pgn",
   });
   assert.equal(widget.game.metadata.White, "Magnus Carlsen");
   assert.equal(widget.game.moves[0].san, "d4");
   delete global.fetch;
 }
 
+async function testInlinePgnFromNestedElement() {
+  const widget = new ChessWidget();
+  widget.textContent = "Enable JavaScript to show widget";
+  widget.querySelector = function (selector) {
+    assert.equal(selector, 'script[type="application/x-chess-pgn"], script[type="text/pgn"], template[data-pgn]');
+    return {
+      textContent: `
+[White "Inline"]
+[Black "Nested"]
+
+1. d4 d5
+`,
+    };
+  };
+  widget.render = function () {};
+  widget.renderError = function (message) {
+    throw new Error(message);
+  };
+  widget.connectedCallback();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(widget.game.metadata.White, "Inline");
+  assert.equal(widget.game.moves[0].san, "d4");
+}
+
 async function testMoveListGroupsByMoveNumber() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     start: "2",
     end: "5",
   });
@@ -259,7 +283,7 @@ async function testMoveListGroupsByMoveNumber() {
 }
 
 async function testMinimalModeIsControlsOnly() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     minimal: "",
   });
   const boardPanel = widget.renderBoard;
@@ -281,7 +305,7 @@ async function testMinimalModeIsControlsOnly() {
 }
 
 async function testBoardOnlyModeKeepsOnlyBoard() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     "board-only": "",
   });
   let rendered = null;
@@ -300,7 +324,7 @@ async function testBoardOnlyModeKeepsOnlyBoard() {
 }
 
 async function testFalseFeatureAttributesHideFeatures() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     header: "false",
     controls: "false",
     comments: "false",
@@ -328,7 +352,7 @@ async function testFalseFeatureAttributesHideFeatures() {
 }
 
 async function testMoveAnimationState() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   widget.previousPosition = widget.game.positions[0];
   widget.previousPly = 0;
   widget.currentPly = 1;
@@ -346,7 +370,7 @@ async function testMoveAnimationState() {
 }
 
 async function testCaptureAnnotationClass() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   const capturePosition = widget.game.positions.find(function (position) {
     return position.flags && position.flags.capture;
   });
@@ -402,7 +426,7 @@ async function testMoveBadgesForKeyGlyphs() {
 }
 
 async function testSeekAnimationMovesMatchedPieces() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   widget.currentPly = 0;
   widget.goTo(4);
   const boardWrap = widget.renderBoard(widget.game.positions[4]);
@@ -422,7 +446,7 @@ async function testSeekAnimationMovesMatchedPieces() {
 }
 
 async function testKeyboardTitlesAreDiscoverable() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   assert.match(widget.attrs.title, /Arrow keys/);
   assert.equal(widget.attrs["aria-keyshortcuts"], "ArrowLeft ArrowRight ArrowUp ArrowDown Home End");
   const controls = widget.renderControls(widget.game);
@@ -449,7 +473,7 @@ async function testMoveListSkimmingPlaysSound() {
     pause() {}
   };
 
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     sound: "",
   });
   const moveButton = widget.renderMoveButton(widget.game.moves[0]);
@@ -510,7 +534,7 @@ async function testMoveListSkimmingPlaysSound() {
 }
 
 async function testArrowControlLabels() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     "control-style": "arrows",
   });
   const controls = widget.renderControls(widget.game);
@@ -519,7 +543,7 @@ async function testArrowControlLabels() {
 }
 
 async function testControlTouchHandlers() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   const controls = widget.renderControls(widget.game);
   assert.equal(controls.children[0].attributes["data-control"], "previous");
   assert.equal(controls.children[2].attributes["data-control"], "next");
@@ -558,7 +582,7 @@ async function testControlTouchHandlers() {
 }
 
 async function testBoardSwipeNavigation() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     "board-only": "",
   });
   let capturedPointer = null;
@@ -656,7 +680,7 @@ async function testBoardSwipeNavigation() {
 }
 
 async function testBoardControlOutlineDismissesOutsideBoard() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   const board = widget.renderBoard(widget.game.positions[0]);
   widget.focus = function () {};
   board.listeners.click[0]({});
@@ -673,7 +697,7 @@ async function testBoardControlOutlineDismissesOutsideBoard() {
 }
 
 async function testEvalChartScrubbing() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     "eval-chart": "",
   });
   const chart = widget.renderEvalChart(widget.game);
@@ -756,7 +780,7 @@ async function testMoveSoundsUseAnnotationsAndOverrides() {
 }
 
 async function testAssetConfiguration() {
-  const widget = await loadPgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"), {
+  const widget = await loadPgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"), {
     "piece-path": "./pieces/neo",
     "piece-white-king": "./pieces/custom-white-king.svg",
   });
@@ -810,12 +834,12 @@ async function testAssetConfiguration() {
 }
 
 async function testCustomEventsAndParserExtensionPoint() {
-  const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8"));
+  const parsed = ChessWidget.parsePgn(fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8"));
   assert.equal(parsed.metadata.White, "Magnus Carlsen");
 
   const widget = new ChessWidget();
   const seen = [];
-  widget.textContent = fs.readFileSync("assets/games/blitz-checkmate.pgn", "utf8");
+  widget.textContent = fs.readFileSync("assets/games/carlsen-kasparov-reykjavik-rapid.pgn", "utf8");
   widget.addEventListener("chess-widget:load", function (event) {
     seen.push(["load", event.detail.game.metadata.White]);
   });
@@ -854,6 +878,7 @@ async function run() {
   await testFenStartAndBounds();
   await testPromotionAndEnPassant();
   await testSrcWinsOverFallback();
+  await testInlinePgnFromNestedElement();
   await testMoveListGroupsByMoveNumber();
   await testMinimalModeIsControlsOnly();
   await testBoardOnlyModeKeepsOnlyBoard();

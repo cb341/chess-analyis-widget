@@ -296,7 +296,7 @@
 
     async loadFromAttributes() {
       try {
-        var pgn = this.getAttribute("pgn") || this.textContent || "";
+        var pgn = this.inlinePgnText();
         if (this.hasAttribute("src")) {
           var response = await fetch(this.getAttribute("src"));
           if (!response.ok) throw new Error("Unable to fetch PGN.");
@@ -316,6 +316,15 @@
         this.classList.add("cw-widget");
         this.renderError(error.message || "Unable to parse PGN.");
       }
+    }
+
+    inlinePgnText() {
+      if (this.hasAttribute("pgn")) return this.getAttribute("pgn") || "";
+      if (this.querySelector) {
+        var source = this.querySelector('script[type="application/x-chess-pgn"], script[type="text/pgn"], template[data-pgn]');
+        if (source) return source.textContent || "";
+      }
+      return this.textContent || "";
     }
 
     startPly() {

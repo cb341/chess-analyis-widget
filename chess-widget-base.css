@@ -322,9 +322,12 @@ chess-widget .cw-counter {
 
 chess-widget .cw-move-list {
   gap: var(--cw-move-list-gap, 4px);
-  height: 100%;
+  height: auto;
   min-height: 0;
-  max-height: var(--cw-move-list-max-height, 100%);
+  max-height: var(
+    --cw-move-list-max-height,
+    calc(var(--cw-board-max-width, 640px) - 120px)
+  );
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -427,17 +430,16 @@ chess-widget .cw-live {
   }
 
   chess-widget .cw-board-with-eval {
-    display: flex;
+    display: block;
     width: 100%;
-    align-items: stretch;
   }
 
   chess-widget .cw-board-with-eval .cw-eval-wrap {
-    display: flex;
+    display: none;
   }
 
   chess-widget .cg-wrap {
-    width: var(--cw-board-width-small, auto);
+    width: calc(100% - var(--cw-board-coordinate-space, 22px));
     max-width: none;
     margin: 0 0 var(--cw-board-coordinate-space, 22px)
       var(--cw-board-coordinate-space, 22px);
