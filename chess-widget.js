@@ -361,6 +361,17 @@
     }[glyph || ""] || null;
   }
 
+  function annotationForGlyph(glyph) {
+    return {
+      "!!": "brilliant",
+      "!": "good",
+      "!?": "good",
+      "?!": "inaccuracy",
+      "?": "mistake",
+      "??": "blunder",
+    }[glyph || ""] || "";
+  }
+
   function parseComment(comment) {
     var evalValue = null;
     var clock = null;
@@ -1082,7 +1093,11 @@
     renderAnnotation(position) {
       var box = document.createElement("aside");
       var flags = (position && position.flags) || {};
-      box.className = "cw-annotation" + (flags.capture ? " cw-annotation-capture" : "");
+      var annotation = annotationForGlyph(position && position.glyph);
+      box.className =
+        "cw-annotation" +
+        (flags.capture ? " cw-annotation-capture" : "") +
+        (annotation ? " cw-annotation-" + annotation : "");
       var title = document.createElement("strong");
       title.textContent = moveLabel(this.game, this.currentPly);
       var text = document.createElement("span");

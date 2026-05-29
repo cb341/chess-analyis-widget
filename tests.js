@@ -326,6 +326,21 @@ async function testCaptureAnnotationClass() {
   assert.ok(annotation.className.includes("cw-annotation-capture"));
 }
 
+async function testGlyphAnnotationClasses() {
+  const pgn = `
+[White "Annotations"]
+[Black "Tester"]
+
+1. e4?? e5? 2. Nf3!! Nc6!? 3. Bb5?!
+`;
+  const widget = await loadPgn(pgn);
+  assert.ok(widget.renderAnnotation(widget.game.positions[1]).className.includes("cw-annotation-blunder"));
+  assert.ok(widget.renderAnnotation(widget.game.positions[2]).className.includes("cw-annotation-mistake"));
+  assert.ok(widget.renderAnnotation(widget.game.positions[3]).className.includes("cw-annotation-brilliant"));
+  assert.ok(widget.renderAnnotation(widget.game.positions[4]).className.includes("cw-annotation-good"));
+  assert.ok(widget.renderAnnotation(widget.game.positions[5]).className.includes("cw-annotation-inaccuracy"));
+}
+
 async function testMoveBadgesForKeyGlyphs() {
   const pgn = `
 [White "Badges"]
@@ -489,6 +504,7 @@ async function run() {
   await testFalseFeatureAttributesHideFeatures();
   await testMoveAnimationState();
   await testCaptureAnnotationClass();
+  await testGlyphAnnotationClasses();
   await testMoveBadgesForKeyGlyphs();
   await testSeekAnimationMovesMatchedPieces();
   await testKeyboardTitlesAreDiscoverable();
