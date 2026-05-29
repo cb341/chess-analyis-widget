@@ -177,10 +177,6 @@ chess-widget coords.files {
   justify-content: space-around;
 }
 
-chess-widget .coord-light {
-  color: rgba(255, 255, 255, 0.86);
-}
-
 chess-widget .cw-annotation {
   max-width: var(--cw-annotation-max-width, 430px);
   min-height: var(--cw-annotation-min-height, 72px);

@@ -1066,9 +1066,8 @@
       var coords = document.createElement("coords");
       coords.className = kind;
       coords.setAttribute("aria-hidden", "true");
-      values.forEach(function (value, index) {
+      values.forEach(function (value) {
         var coord = document.createElement("coord");
-        coord.className = index % 2 === 0 ? "coord-dark" : "coord-light";
         coord.textContent = value;
         coords.appendChild(coord);
       });
