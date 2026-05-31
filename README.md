@@ -1,115 +1,166 @@
-# Chess Analysis Widget
+# Chess Widget
 
-Rails chess analysis service with an embeddable `<chess-widget>`.
+A static, client-only PGN replay widget for GitHub Pages. It parses PGN in the browser, rebuilds board positions from SAN, and reads evaluations from lichess `[%eval]` comments already present in the PGN.
 
-## Project
+No server, Stockfish, database, build step, or precomputed JSON is required.
 
-`analysis-app/` — Rails app that parses PGN, replays boards, calls Stockfish 18, stores analyses in PostgreSQL, and renders analysis pages. The widget lives in `analysis-app/public/` and is served statically.
+## Usage
 
-## System Overview
+```html
+<link rel="stylesheet" href="./chess-widget.css">
 
-```mermaid
-flowchart LR
-    User[User pastes PGN] --> Rails[Rails analysis-app]
-    Rails --> Parser[PGN parser]
-    Parser --> Replay[Board replay]
-    Replay --> Fen[FEN positions]
-    Fen --> Stockfish[Local Stockfish 18]
-    Stockfish --> Classifier[Move classifier]
-    Replay --> Payload[Analysis JSON]
-    Classifier --> Payload
-    Payload --> Postgres[(PostgreSQL)]
-    Payload --> Page[Analysis show page]
-    Page --> Widget[chess-widget]
-    Widget --> Reader[Stepper, board, eval chart]
+<chess-widget src="/assets/games/carlsen-kasparov-reykjavik-rapid.pgn" eval-chart clocks>
+  <a href="https://cb341.dev/blog/chess-widget-did-not-need-a-server/">Enable JavaScript to show widget</a>
+</chess-widget>
+
+<script src="./chess-pgn.js"></script>
+<script src="./chess-widget.js"></script>
 ```
 
-```mermaid
-sequenceDiagram
-    participant Browser
-    participant Rails
-    participant Stockfish
-    participant Postgres
-    participant Widget
+Inline PGN also works:
 
-    Browser->>Rails: POST /analyses
-    Rails->>Rails: Parse PGN and replay SAN
-    Rails->>Stockfish: Evaluate FENs
-    Stockfish-->>Rails: cp/mate scores
-    Rails->>Postgres: Upsert deterministic analysis ID
-    Rails-->>Browser: 303 /analyses/:id
-    Browser->>Rails: GET /analyses/:id
-    Rails-->>Widget: Embedded JSON payload
-    Widget->>Widget: Render board, annotations, eval chart
+```html
+<chess-widget pgn='[White "Ada"] [Black "Grace"] 1. e4 { [%eval 0.20] } e5'></chess-widget>
 ```
 
-## Setup
+## Attributes
 
-Prerequisites:
+- `pgn`: raw PGN text.
+- `src`: URL to a raw `.pgn` file.
+- `start`: first allowed ply, using 0-based half moves. Default is `0`.
+- `end`: last allowed ply. Default is the end of the game.
+- `ply`: initial ply. Default is `start`.
+- `move` and `side`: optional move lookup, for example `move="16" side="white"`.
+- `orientation`: `white` or `black`. Default is `white`.
+- `eval-chart`: show an evaluation chart when the PGN has `[%eval]`.
+- `eval-bar`: show the vertical evaluation bar. Set `eval-bar="false"` to hide it.
+- `clocks`: show per-side remaining time from `[%clk]`.
+- `sound`: play move, capture, check, mate, and annotation sounds when the user navigates the game. Default is off.
+- `sound-move`, `sound-capture`, `sound-check`, `sound-checkmate`, `sound-castle`, `sound-blunder`, `sound-mistake`, `sound-brilliant`, `sound-good`: override individual sound file URLs.
+- `piece-path`: override the piece image directory for cburnett-style filenames.
+- `piece-white-king`, `piece-white-queen`, `piece-white-rook`, `piece-white-bishop`, `piece-white-knight`, `piece-white-pawn`, `piece-black-king`, `piece-black-queen`, `piece-black-rook`, `piece-black-bishop`, `piece-black-knight`, `piece-black-pawn`: override individual piece image URLs.
+- `header`: set `header="false"` to hide the title and player row.
+- `controls`: set `controls="false"` to hide previous and next controls.
+- `comments`: set `comments="false"` to hide the current move annotation.
+- `moves`: set `moves="false"` to hide the move list.
+- `move-badges`: show `??`, `?`, and `!!` badges on the moved piece. Set `move-badges="false"` to hide them.
+- `badge-blunder`, `badge-mistake`, `badge-brilliant`: override badge labels.
+- `minimal`: shortcut for board plus controls only.
+- `board-only`: shortcut for board only. Arrow keys still work when focused.
 
-- Ruby through mise (`mise use ruby@latest` is already captured in `.mise.toml`)
-- Bun
-- PostgreSQL running locally
-- `curl` and `tar`
+The widget supports previous, next, move-list seeking, and arrow-key navigation when focused. Multiple widgets on one page are independent.
 
-```sh
-bin/setup
+## Assets
+
+The bundled defaults are the cburnett SVG set and selected Lichess standard sounds in `assets/sounds/standard/`. You can override them per widget:
+
+```html
+<chess-widget
+  src="/assets/games/carlsen-kasparov-reykjavik-rapid.pgn"
+  sound
+  piece-path="/my-piece-set/"
+  piece-white-king="/my-piece-set/wk.svg"
+  sound-move="/sounds/soft-move.mp3"
+  sound-capture="/sounds/capture.wav">
+</chess-widget>
 ```
 
-`bin/setup` copies `.env.example` to `.env` when missing, installs Bun and Ruby dependencies, downloads Stockfish 18 into `analysis-app/vendor/stockfish/`, and runs Rails database preparation. Rails loads the monorepo `.env` directly, so the scripts do not export shell variables.
+Or configure defaults before loading `chess-widget.js`:
 
-## Configuration
-
-Local configuration lives in `.env` and is not committed. Start with:
-
-```sh
-cp .env.example .env
+```html
+<script>
+  window.ChessWidgetConfig = {
+    piecePath: "/my-piece-set/",
+    pieces: {
+      K: "/pieces/white-king.svg",
+      k: "/pieces/black-king.svg",
+    },
+    sounds: {
+      move: "/sounds/move.mp3",
+      capture: "/sounds/capture.wav",
+      checkmate: "/sounds/checkmate.mp3",
+    },
+  };
+</script>
+<script src="./chess-pgn.js"></script>
+<script src="./chess-widget.js"></script>
 ```
 
-Important variables:
+After load, the same defaults can be changed with `customElements.get("chess-widget").configureAssets(...)`. Built-in asset URLs are resolved relative to `chess-widget.js`; custom asset URLs are resolved relative to the page.
 
-- `POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_TEST_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
-- `STOCKFISH_PATH`, `STOCKFISH_DEPTH`, `STOCKFISH_TIMEOUT`
-- `HOST`, `PORT`
+Board backgrounds are CSS, so they can use colors, gradients, or image assets without changing JavaScript:
 
-## Development
-
-```sh
-bin/run    # prepare DB and start Rails locally
-bin/lint   # Ruby syntax, StandardRB when available, Cucumber, ESLint, Prettier
-bin/fix    # StandardRB --fix when available, ESLint --fix, Prettier write
+```css
+chess-widget.photo-board {
+  --cw-light-square-background: linear-gradient(135deg, #fff, #edf6ff);
+  --cw-dark-square-background: url("/assets/boards/blue-fabric.svg"), #d8e8f8;
+}
 ```
 
-Open:
+## PGN Support
 
-```text
-http://localhost:3000          # PGN form
-http://localhost:3000/about    # widget demo
-http://localhost:3000/analyses # saved analyses
+The parser handles tag pairs, `[SetUp "1"]` plus `[FEN "..."]`, SAN moves, captures, castling, promotion, disambiguation, checks, mates, en passant, comments, clocks, evals, and common NAG glyphs.
+
+Per ply, it keeps the SAN, side, board position, comment text, eval value or mate flag, clock, and glyph.
+
+## Lichess Eval Workflow
+
+1. Get the game PGN from wherever you played. On chess.com, use Download or Share, then PGN. That PGN has moves and clocks but no eval, which is normal. chess.com does not export eval.
+2. Go to `lichess.org/paste`, paste the PGN, import it, then click **Request game analysis**. Stockfish runs on lichess servers. lichess accepts any PGN. The game does not need to be played there.
+3. Export the analyzed PGN. lichess writes `{ [%eval 0.24] }`, mate as `{ [%eval #3] }`, and clocks as `{ [%clk 0:05:00] }`.
+4. Paste into the widget. The chart is built from `[%eval]`. No engine runs in the widget. A PGN with no `[%eval]`, such as a raw chess.com export, still replays fine. It just shows no chart.
+
+## CSS Variables
+
+The included styles define a complete default theme. Override variables on `chess-widget` rather than editing the bundled CSS:
+
+```css
+chess-widget {
+  --cw-paper: #fff;
+  --cw-ink: #222;
+  --cw-line: #c7c7c7;
+  --cw-light-square: #f0d9b5;
+  --cw-light-square-background: #f0d9b5;
+  --cw-dark-square-background: #b58863;
+  --cw-board-max-width: 560px;
+  --cw-main-gap: 24px;
+  --cw-piece-arrive-animation: 420ms ease;
+  --cw-control-border: 1px solid #444;
+}
 ```
 
-Docker is not used for local development. Use local Ruby, Bun, PostgreSQL, and Stockfish.
+Common extension variables include:
 
-## Production Container
+- `--cw-board-max-width`, `--cw-board-width-small`
+- `--cw-board-background`, `--cw-light-square-background`, `--cw-dark-square-background`
+- `--cw-main-columns`, `--cw-main-gap`, `--cw-shell-gap`
+- `--cw-control-border`, `--cw-control-font-size`, `--cw-control-min-height`
+- `--cw-piece-padding`, `--cw-piece-arrive-animation`, `--cw-piece-spawn-animation`
+- `--cw-piece-badge-font-size`, `--cw-piece-badge-shift-x`, `--cw-piece-badge-shift-y`, `--cw-piece-badge-outline`, `--cw-piece-badge-blunder`, `--cw-piece-badge-mistake`, `--cw-piece-badge-brilliant`
+- `--cw-placeholder-board-width`, `--cw-placeholder-min-height`, `--cw-placeholder-opacity`
+- `--cw-chart-height`, `--cw-eval-width`, `--cw-move-list-max-height`
 
-Docker is reserved for the production container path. `analysis-app/Dockerfile` builds the Rails app image and installs Stockfish from Debian packages, avoiding GitHub downloads during image builds. `docker-compose.yml` exists only to test that Dockerfile locally with PostgreSQL:
+## Events
 
-```sh
-docker compose up --build analysis-app
+The element dispatches bubbling custom events:
+
+- `chess-widget:load`: PGN parsed and game state is ready.
+- `chess-widget:error`: parsing or loading failed.
+- `chess-widget:beforemove`: cancelable. Call `event.preventDefault()` to block navigation.
+- `chess-widget:move`: navigation completed.
+- `chess-widget:render`: DOM was rendered for the current ply.
+
+```js
+document.querySelector("chess-widget").addEventListener("chess-widget:move", (event) => {
+  console.log(event.detail.from, event.detail.to, event.detail.move);
+});
 ```
 
-For real production, run the Dockerfile-built image with managed PostgreSQL and replace `SECRET_KEY_BASE` and database credentials in the deployment environment.
+For non-DOM integration, the parser is also exposed as:
 
-## Testing
-
-```sh
-bin/lint
+```js
+const parsed = window.ChessPgn.parse(pgn);
+const game = customElements.get("chess-widget").parsePgn(pgn);
 ```
 
-High-level Cucumber specs live in `features/`. The host Ruby must be 3.x to run StandardRB and Cucumber locally.
-
-## Notes
-
-- The widget reads precomputed analysis JSON from the DOM and makes no API calls.
-- Analyses are keyed by a deterministic SHA-256 prefix of the PGN input.
-- If Stockfish is unavailable, the service falls back to material evaluation and marks the result as approximate.
+See `index.html` and `assets/games/carlsen-kasparov-reykjavik-rapid.pgn` for a complete static page.

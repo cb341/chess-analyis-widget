@@ -7,29 +7,14 @@ on:
       - main
 
 jobs:
-  lint:
+  static:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/setup-node@v4
         with:
-          ruby-version: "3.3"
-          bundler-cache: true
-
-      - uses: oven-sh/setup-bun@v2
-
-      - run: bun install
-
-      - run: bin/lint
-
-  docker:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - run: docker compose config
-      - run: docker compose build analysis-app
-      - run: docker compose run --rm analysis-app ruby script/check_sample
+          node-version: "22"
+      - run: node --check chess-pgn.js
+      - run: node --check chess-widget.js
+      - run: node tests.js
